@@ -1,0 +1,69 @@
+/*
+ * HibernateConf.java
+ *
+ * created at 2023-12-06 by Roman Tsonev <roman.tsonev@yandex.ru>
+ *
+ * Copyright (c) Roman Tsonev
+ */
+
+package bg.sarakt.storing.hibernate;
+
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.mysql.cj.jdbc.MysqlDataSource;
+
+@Configuration
+@EnableTransactionManagement
+public class HibernateConf {
+
+    @Bean()
+    public LocalSessionFactoryBean sessionFactoryBean() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource());
+        sessionFactory.setPackagesToScan("bg.sarakt.storing.hibernate.entities", "bg.sarakt.glossary.entities", "bg.sarakt.hibernate");
+        sessionFactory.setHibernateProperties(hibernateProperties());
+        System.out.println(sessionFactory + " gotten");
+        return sessionFactory;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        MysqlDataSource ds = new MysqlDataSource();
+        ds.setDatabaseName("sarakt");
+        ds.setServerName("localhost");
+        ds.setPort(3306);
+        ds.setUser("sarakt_user");
+        return ds;
+    }
+
+    @Bean
+    public Properties hibernateProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("spring.jpa.properties.hibernate.check.nullability", "true");
+        // properties.setProperty("hibernate.dialect",
+        // "org.hibernate.dialect.MySQL8Dialect");
+        properties.setProperty("show_sql", "true");
+        properties.setProperty("format_sql", "true");
+        return properties;
+    }
+
+    @Bean
+    public PlatformTransactionManager hibernateTransactionManager() {
+        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+        transactionManager.setSessionFactory(sessionFactoryBean().getObject());
+
+        return transactionManager;
+    }
+}
