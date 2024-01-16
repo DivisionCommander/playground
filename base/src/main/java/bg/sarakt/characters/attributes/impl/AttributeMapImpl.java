@@ -22,17 +22,17 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.characters.attributes.AttributeBonus;
 import bg.sarakt.characters.attributes.AttributeBonus.ApplyLevel;
 import bg.sarakt.characters.attributes.AttributeBonus.BonusType;
 import bg.sarakt.characters.attributes.AttributeMap;
-import bg.sarakt.characters.attributes1.impls.PrimaryAttributes;
 
 public abstract class AttributeMapImpl implements AttributeMap {
 
-    private Map<PrimaryAttributes, Integer> primaryAttributes;
+    private Map<PrimaryAttribute, Integer> primaryAttributes;
 
     private final Map<ApplyLevel, Map<Attribute, Integer>> calculated;
     private final Map<Attribute, Integer>                  calculatedAttributes;
@@ -225,7 +225,7 @@ public abstract class AttributeMapImpl implements AttributeMap {
      * @see bg.sarakt.characters.attributes.AttributeMap#getBaseAttributes()
      */
     @Override
-    public Map<PrimaryAttributes, Integer> getBaseAttributes() { return Collections.unmodifiableMap(primaryAttributes); }
+    public Map<PrimaryAttribute, Integer> getBaseAttributes() { return Collections.unmodifiableMap(primaryAttributes); }
 
     /**
      *
@@ -235,7 +235,7 @@ public abstract class AttributeMapImpl implements AttributeMap {
     public Map<Attribute, Integer> getAllAttributes() { return Collections.unmodifiableMap(calculatedAttributes); }
 
     AttributeMapImpl() {
-        primaryAttributes = new EnumMap<>(PrimaryAttributes.class);
+        primaryAttributes = new EnumMap<>(PrimaryAttribute.class);
         calculatedAttributes = new HashMap<>();
         this.bonusMap = new HashMap<>();
         this.calculated = new HashMap<>();

@@ -13,6 +13,7 @@ import java.util.Collection;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 
+@Deprecated
 public interface AttributeMap
 {
 

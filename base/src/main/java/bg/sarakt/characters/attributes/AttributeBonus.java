@@ -10,6 +10,7 @@ package bg.sarakt.characters.attributes;
 
 import bg.sarakt.attributes.Attribute;
 
+@Deprecated
 public interface AttributeBonus {
 
     Attribute getAttribute();
@@ -20,12 +21,14 @@ public interface AttributeBonus {
 
     ApplyLevel getApplyLevel();
 
+    @Deprecated
     static enum BonusType
     {
         FLAT,
         COEFFICIENT
     }
 
+    @Deprecated
     static enum ApplyLevel
     {
         BASELINE,

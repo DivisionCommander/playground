@@ -5,7 +5,7 @@
  *
  * Copyright (c) Roman Tsonev
  */
-package bg.sarakt.characters.attributes1.impls;
+package bg.sarakt.attributes.impl;
 
 
 import bg.sarakt.attributes.Attribute;

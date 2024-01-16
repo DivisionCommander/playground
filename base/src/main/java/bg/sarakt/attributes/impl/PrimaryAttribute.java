@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.characters.attributes1.impls;
+package bg.sarakt.attributes.impl;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -14,7 +14,7 @@ import java.util.Set;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.base.exceptions.UnknownValueException;
 
-public enum PrimaryAttributes implements Attribute
+public enum PrimaryAttribute implements Attribute
 {
 
     // Physical
@@ -38,34 +38,33 @@ public enum PrimaryAttributes implements Attribute
      * Personality attributes: {@link Attribute#PERSONALITY}
      */
     SPIRIT("Spirit", "SPI", AttributeType.PERSON, "Ability to recover from magical, mental and spiritual affects"),
-    WILL("Will Power", "WIL", AttributeType.PERSON,
-            "Projecting will over another character of protect from influence from person, artifacts and etc."),
+    WILL(
+            "Will Power", "WIL", AttributeType.PERSON,
+            "Projecting will over another character of protect from influence from person, artifacts and etc."
+    ),
 
     ;
 
-    private static final Set<PrimaryAttributes> ALL_BASICS = EnumSet.allOf(PrimaryAttributes.class);
+    private static final Set<PrimaryAttribute> ALL_BASICS = Set.copyOf(EnumSet.allOf(PrimaryAttribute.class));
 
     private final String        name;
     private final String        abbreviation;
     private final AttributeType type;
     private String              description;
 
-    private PrimaryAttributes(String name, String abbr, AttributeType type, String description)
-    {
+    private PrimaryAttribute(String name, String abbr, AttributeType type, String description) {
         this.name = name;
         this.abbreviation = abbr;
         this.type = type;
     }
 
     @Override
-    public String fullName()
-    {
+    public String fullName() {
         return this.name;
     }
 
     @Override
-    public String abbreviation()
-    {
+    public String abbreviation() {
         return this.abbreviation;
     }
 
@@ -73,36 +72,27 @@ public enum PrimaryAttributes implements Attribute
      * @see bg.sarakt.attributes.Attribute#type()
      */
     @Override
-    public AttributeType type()
-    {
+    public AttributeType type() {
         return type;
     }
 
     @Override
-    public String description()
-    {
+    public String description() {
         return this.description;
     }
 
-    public static PrimaryAttributes getByAbbreviation(String abbr)
-    {
-        for (PrimaryAttributes a : ALL_BASICS)
-        {
-            if (a.abbreviation.equals(abbr))
-            {
+    public static PrimaryAttribute getByAbbreviation(String abbr) {
+        for (PrimaryAttribute a : ALL_BASICS) {
+            if (a.abbreviation.equals(abbr)) {
                 return a;
             }
         }
         throw new UnknownValueException("The attribute abbreviation " + abbr + " is unknown or unsupported, or is not basic attribute.");
     }
 
-    public static Set<PrimaryAttributes> getAllPrimaryAttributes()
-    {
-        return ALL_BASICS;
-    }
+    public static Set<PrimaryAttribute> getAllPrimaryAttributes() { return ALL_BASICS; }
 
-    public static int count()
-    {
+    public static int count() {
         return ALL_BASICS.size();
     }
 }

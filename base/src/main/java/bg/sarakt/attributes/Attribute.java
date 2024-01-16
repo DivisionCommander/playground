@@ -10,7 +10,7 @@ package bg.sarakt.attributes;
 
 import java.util.Comparator;
 
-import bg.sarakt.characters.attributes1.impls.SimpleAttribute;
+import bg.sarakt.attributes.impl.SimpleAttribute;
 
 public interface Attribute {
 

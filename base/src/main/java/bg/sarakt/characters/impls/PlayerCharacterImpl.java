@@ -15,6 +15,7 @@ import bg.sarakt.base.AbstractGameObject;
 import bg.sarakt.base.utils.LevelCalculator;
 import bg.sarakt.characters.Biography;
 import bg.sarakt.characters.GameCharacter;
+import bg.sarakt.characters.Level;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 import bg.sarakt.characters.attributes1.Attributes;
@@ -40,7 +41,9 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
     private int             level      = 1;
 
     // Attributes:
-    private AttributeMap attributes;
+    @Deprecated(forRemoval = true, since = "Version 0.1")
+    private bg.sarakt.characters.attributes1.AttributeMap attributes;
+
 
     public PlayerCharacterImpl(String name) {
         this(name, System.currentTimeMillis());
@@ -158,4 +161,11 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
         throw new UnsupportedOperationException("Must be implemented");
     }
 
+    /**
+     * @see bg.sarakt.characters.GameCharacter#levelUp(bg.sarakt.characters.Level)
+     */
+    @Override
+    public void levelUp(Level level) {
+        throw new UnsupportedOperationException();
+    }
 }

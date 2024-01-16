@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.characters.attributes1.impls;
+package bg.sarakt.attributes.impl;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.Pair.PairImpl;
 import bg.sarakt.base.utils.FormulaSerializer;
 import bg.sarakt.characters.attributes1.AttributeFormula;
-import bg.sarakt.characters.attributes1.SecondaryAttribute;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributesEntity;
 
@@ -87,7 +87,7 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
     }
 
     /**
-     * @see bg.sarakt.characters.attributes1.SecondaryAttribute#getFormula()
+     * @see bg.sarakt.attributes.SecondaryAttribute#getFormula()
      */
     @Override
     public AttributeFormula getFormula(int level)
@@ -107,7 +107,7 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
     }
 
     /**
-     * @see bg.sarakt.characters.attributes1.SecondaryAttribute#getId()
+     * @see bg.sarakt.attributes.SecondaryAttribute#getId()
      */
     @Override
     public long getId()

@@ -6,9 +6,9 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.characters.attributes1;
+package bg.sarakt.attributes;
 
-import bg.sarakt.attributes.Attribute;
+import bg.sarakt.characters.attributes1.AttributeFormula;
 
 public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
 

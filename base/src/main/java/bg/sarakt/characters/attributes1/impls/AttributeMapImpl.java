@@ -15,9 +15,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 
+@Deprecated
 public class AttributeMapImpl implements AttributeMap
 {
 
@@ -27,7 +29,7 @@ public class AttributeMapImpl implements AttributeMap
 
     public AttributeMapImpl()
     {
-        PrimaryAttributes.getAllPrimaryAttributes().forEach(this::setDefaultBasicAttributes);
+        PrimaryAttribute.getAllPrimaryAttributes().forEach(this::setDefaultBasicAttributes);
     }
 
     public AttributeMapImpl(AttributeMap base)

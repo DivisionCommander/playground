@@ -14,6 +14,7 @@ import java.util.Map;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.base.Pair;
 
+@Deprecated
 public class FlatAttributeMap {
 
     private final Map<Attribute, Integer> map;

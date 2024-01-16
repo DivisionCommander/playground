@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.base.utils.factories.UnitClassFactory;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.UnitClass;
@@ -25,17 +26,17 @@ import bg.sarakt.characters.attributes1.UnitClass;
 public class DynamicUnitClass implements UnitClass
 {
 
-    private final Map<PrimaryAttributes, Integer>                 basicAttributes;
-    private final Map<PrimaryAttributes, Double>                  basicAttributesCoefficients;
+    private final Map<PrimaryAttribute, Integer>                 basicAttributes;
+    private final Map<PrimaryAttribute, Double>                  basicAttributesCoefficients;
     private final NavigableMap<Integer, Map<Attribute, Double>> advancedAttribute;
     private final String                                        className;
 
     public DynamicUnitClass(String name)
     {
         this.className = name;
-        basicAttributes = new EnumMap<>(PrimaryAttributes.class);
-        basicAttributesCoefficients = new EnumMap<>(PrimaryAttributes.class);
-        EnumSet.allOf(PrimaryAttributes.class).stream().forEach(ba -> {
+        basicAttributes = new EnumMap<>(PrimaryAttribute.class);
+        basicAttributesCoefficients = new EnumMap<>(PrimaryAttribute.class);
+        EnumSet.allOf(PrimaryAttribute.class).stream().forEach(ba -> {
             basicAttributes.put(ba, 9);
             basicAttributesCoefficients.put(ba, 1.0);
         });
@@ -64,7 +65,7 @@ public class DynamicUnitClass implements UnitClass
     public Set<AttributeValuePair> getAttributesForLevel(int newLevel)
     {
         Set<AttributeValuePair> attributes = new HashSet<>();
-        for (PrimaryAttributes ba : PrimaryAttributes.getAllPrimaryAttributes())
+        for (PrimaryAttribute ba : PrimaryAttribute.getAllPrimaryAttributes())
         {
             Integer value = basicAttributes.get(ba);
             Double coef = basicAttributesCoefficients.get(ba) * newLevel;

@@ -8,6 +8,7 @@
 
 package bg.sarakt.characters.attributes1.impls;
 
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.characters.attributes1.AttributeFormula;
 
 public class SimpleAttributeFormulaImpl implements AttributeFormula
@@ -25,7 +27,7 @@ public class SimpleAttributeFormulaImpl implements AttributeFormula
     private String                         name;
     @JsonSerialize
     @JsonDeserialize
-    private Map<PrimaryAttributes, Double> attributes;
+    private Map<PrimaryAttribute, Double> attributes;
 
     public SimpleAttributeFormulaImpl()
     {
@@ -37,19 +39,19 @@ public class SimpleAttributeFormulaImpl implements AttributeFormula
         this(name, null);
     }
 
-    public SimpleAttributeFormulaImpl(String name, Map<PrimaryAttributes, Double> attr)
+    public SimpleAttributeFormulaImpl(String name, Map<PrimaryAttribute, Double> attr)
     {
         this.name = name;
-        attributes = (attr == null) ? new EnumMap<>(PrimaryAttributes.class) : new HashMap<>(attr);
+        attributes = (attr == null) ? new EnumMap<>(PrimaryAttribute.class) : new HashMap<>(attr);
     }
 
-    public void addAttributeFormula(PrimaryAttributes pa, double value)
+    public void addAttributeFormula(PrimaryAttribute pa, double value)
     {
         double oldValue = attributes.getOrDefault(pa, 0.0);
         attributes.put(pa, (oldValue + value));
     }
 
-    public void addAttributeFormulas(PrimaryAttributes pa, double... values)
+    public void addAttributeFormulas(PrimaryAttribute pa, double... values)
     {
         double value = 0.0;
 
@@ -72,7 +74,7 @@ public class SimpleAttributeFormulaImpl implements AttributeFormula
      * @see bg.sarakt.characters.attributes1.AttributeFormula#calculate(java.util.Map)
      */
     @Override
-    public Number calculate(Map<Attribute, Number> values)
+    public BigDecimal calculate(Map<Attribute, Number> values)
     {
         Double value = 0.0;
 
@@ -82,8 +84,9 @@ public class SimpleAttributeFormulaImpl implements AttributeFormula
             value += coefficient * entry.getValue().doubleValue();
 
         }
+//        return value;
+        return BigDecimal.valueOf(value);
 
-        return value;
     }
 
 }

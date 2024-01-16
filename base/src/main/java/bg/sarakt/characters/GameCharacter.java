@@ -23,8 +23,10 @@ public interface GameCharacter extends GameUnit {
 
     AttributeValuePair getAttribute(Attribute attr);
 
+    @Deprecated
     AttributeMap getAttributeMap();
 
     Biography getBiography();
 
+    void levelUp(Level level);
 }

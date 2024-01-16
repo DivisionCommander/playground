@@ -14,9 +14,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.base.utils.FormulaSerializer;
 import bg.sarakt.characters.attributes1.AttributeFormula;
-import bg.sarakt.characters.attributes1.SecondaryAttribute;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.logging.LoggerFactory;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;

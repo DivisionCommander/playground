@@ -16,28 +16,28 @@ import java.util.Map;
 import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.base.Pair;
 import bg.sarakt.characters.attributes.AttributeBonus;
 import bg.sarakt.characters.attributes.AttributeBonus.ApplyLevel;
 import bg.sarakt.characters.attributes.AttributeBonus.BonusType;
 import bg.sarakt.characters.attributes.AttributeMap;
-import bg.sarakt.characters.attributes1.impls.PrimaryAttributes;
 
 public abstract class AttributeMapImpl1 implements AttributeMap {
 
     /**
      * Baseline attributes from species, race and gender.
      */
-    private Map<PrimaryAttributes, Integer> primaryAttributes;
+    private Map<PrimaryAttribute, Integer> primaryAttributes;
     private Set<AttributeBonus> attributeBonuses;
 
     AttributeMapImpl1(boolean dummy) {
         this();
     }
 
-    AttributeMapImpl1(boolean dummy, Map<PrimaryAttributes, Integer> map) {
+    AttributeMapImpl1(boolean dummy, Map<PrimaryAttribute, Integer> map) {
         this(map);
-        primaryAttributes = new EnumMap<>(PrimaryAttributes.class);
+        primaryAttributes = new EnumMap<>(PrimaryAttribute.class);
         attributeBonuses = new HashSet<>();
     }
 
@@ -45,7 +45,7 @@ public abstract class AttributeMapImpl1 implements AttributeMap {
      * @see bg.sarakt.characters.attributes.AttributeMap#getBaseAttributes()
      */
     @Override
-    public Map<PrimaryAttributes, Integer> getBaseAttributes() { return Collections.unmodifiableMap(primaryAttributes); }
+    public Map<PrimaryAttribute, Integer> getBaseAttributes() { return Collections.unmodifiableMap(primaryAttributes); }
 
     protected abstract void recalc();
 
@@ -66,16 +66,16 @@ public abstract class AttributeMapImpl1 implements AttributeMap {
      *
      */
 
-    private final Map<PrimaryAttributes, Integer>                baselineAttributes1;
+    private final Map<PrimaryAttribute, Integer>                baselineAttributes1;
     private Map<ApplyLevel, Map<BonusType, Set<AttributeBonus>>> bonuses;
 
     private Map<Attribute, Integer> attributes;
 
     AttributeMapImpl1() {
-        baselineAttributes1 = new EnumMap<>(PrimaryAttributes.class);
+        baselineAttributes1 = new EnumMap<>(PrimaryAttribute.class);
     }
 
-    AttributeMapImpl1(Map<PrimaryAttributes, Integer> primary) {
+    AttributeMapImpl1(Map<PrimaryAttribute, Integer> primary) {
         this();
         if (primary != null && !primary.isEmpty()) {
             baselineAttributes1.putAll(primary);

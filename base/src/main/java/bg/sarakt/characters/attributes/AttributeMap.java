@@ -11,8 +11,9 @@ package bg.sarakt.characters.attributes;
 import java.util.Map;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.characters.attributes1.impls.PrimaryAttributes;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 
+@Deprecated
 public interface AttributeMap {
 
     void addBonus(AttributeBonus bonus);
@@ -21,7 +22,7 @@ public interface AttributeMap {
 
     Integer getAttributeValue(Attribute attribute);
 
-    Map<PrimaryAttributes, Integer> getBaseAttributes();
+    Map<PrimaryAttribute, Integer> getBaseAttributes();
 
     Map<Attribute, Integer> getAllAttributes();
 

@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 import bg.sarakt.characters.attributes1.Attributes;
@@ -54,7 +55,7 @@ public class DefaultUnitClassImpl implements UnitClass
 
         Set<AttributeValuePair> bonuses = new HashSet<>();
 
-        for (PrimaryAttributes ba : PrimaryAttributes.getAllPrimaryAttributes())
+        for (PrimaryAttribute ba : PrimaryAttribute.getAllPrimaryAttributes())
         {
             bonuses.add(new AttributeValuePair(ba, 1));
         }

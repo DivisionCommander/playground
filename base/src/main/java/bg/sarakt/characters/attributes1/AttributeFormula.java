@@ -8,6 +8,7 @@
 
 package bg.sarakt.characters.attributes1;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import bg.sarakt.attributes.Attribute;
@@ -16,5 +17,5 @@ import bg.sarakt.attributes.Attribute;
 public interface AttributeFormula
 {
 
-    Number calculate(Map<Attribute, Number> attributes);
+    BigDecimal calculate(Map<Attribute, Number> attributes);
 }

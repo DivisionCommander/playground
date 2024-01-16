@@ -14,18 +14,19 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 
 public abstract class DualAttributeMap implements AttributeMap
 {
 
-    protected final EnumMap<PrimaryAttributes, Integer> basicAttributes;
+    protected final EnumMap<PrimaryAttribute, Integer> basicAttributes;
     protected final Map<Attribute, Integer>           additionalAttributes;
 
     public DualAttributeMap( )
     {
-        this.basicAttributes = new EnumMap<>(PrimaryAttributes.class);
+        this.basicAttributes = new EnumMap<>(PrimaryAttribute.class);
         additionalAttributes = new TreeMap<>(Attribute.getComparator( ));
     }
 
