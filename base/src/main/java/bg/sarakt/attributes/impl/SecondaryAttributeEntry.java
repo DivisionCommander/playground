@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.characters.Level;
-import bg.sarakt.characters.attributes1.AttributeFormula;
 
 public class SecondaryAttributeEntry extends AbstractAttributeMapEntry<SecondaryAttribute> {
 

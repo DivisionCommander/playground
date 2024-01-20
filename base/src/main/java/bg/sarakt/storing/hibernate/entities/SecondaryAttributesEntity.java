@@ -10,7 +10,7 @@ package bg.sarakt.storing.hibernate.entities;
 
 import java.util.List;
 
-import bg.sarakt.attributes.Attribute.AttributeType;
+import bg.sarakt.attributes.Attribute.AttributeGroup;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,7 +35,7 @@ public class SecondaryAttributesEntity
     private String        name;
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private AttributeType type;
+    private AttributeGroup type;
     @Column(name = "abbreviation")
     private String        abbr;
     @Column(name = "description")
@@ -54,7 +54,7 @@ public class SecondaryAttributesEntity
         return name;
     }
 
-    public AttributeType getType()
+    public AttributeGroup getType()
     {
         return type;
     }
@@ -84,7 +84,7 @@ public class SecondaryAttributesEntity
         this.name = name;
     }
 
-    public void setType(AttributeType type)
+    public void setGroup(AttributeGroup type)
     {
         this.type = type;
     }

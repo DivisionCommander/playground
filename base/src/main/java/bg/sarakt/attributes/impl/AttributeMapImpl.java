@@ -13,12 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.ModifiableAttributeMap;
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.attributes.SecondaryAttributes;
 import bg.sarakt.characters.Level;
 
 public class AttributeMapImpl implements AttributeMap<Attribute> {
@@ -31,7 +30,7 @@ public class AttributeMapImpl implements AttributeMap<Attribute> {
     }
 
     public AttributeMapImpl(Level level) {
-        this(new PrimaryAttributeMap(level), SecondaryAttributes.getSecondaryAttributes(), level);
+        this(new PrimaryAttributeMap(level), SecondaryAttributes.getInstance().getSecondaryAttributes(), level);
     }
 
     public AttributeMapImpl(Map<PrimaryAttribute, Number> values, Set<SecondaryAttribute> secondary, Level level) {

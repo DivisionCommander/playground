@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.Pair.PairImpl;
 import bg.sarakt.base.utils.FormulaSerializer;
-import bg.sarakt.characters.attributes1.AttributeFormula;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributesEntity;
 
@@ -31,12 +31,12 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
 
     private final String        fullName;
     private final String        abbreviation;
-    private final AttributeType type;
+    private final AttributeGroup type;
     private final String        description;
 
     private final NavigableMap<Integer, AttributeFormula> formulas = new TreeMap<>();
 
-    public SecondaryAttributeImpl(long id, String fullName, String abbreviation, AttributeType type, String description)
+    public SecondaryAttributeImpl(long id, String fullName, String abbreviation, AttributeGroup type, String description)
     {
         super();
         this.id = id;
@@ -46,7 +46,7 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
         this.description = description;
     }
 
-    public SecondaryAttributeImpl(String fullName, String abbreviation, AttributeType type, String description)
+    public SecondaryAttributeImpl(String fullName, String abbreviation, AttributeGroup type, String description)
     {
         this(System.currentTimeMillis(), fullName, abbreviation, type, description);
     }
@@ -70,7 +70,7 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
     }
 
     @Override
-    public AttributeType type()
+    public AttributeGroup group()
     {
         return this.type;
     }
@@ -133,7 +133,7 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
         SecondaryAttributesEntity aae = new SecondaryAttributesEntity();
         aae.setName(this.fullName);
         aae.setAbbr(this.abbreviation);
-        aae.setType(this.type);
+        aae.setGroup(this.type);
         List<AttributeFormulaEntity> preparedFormulas = this.formulas.entrySet().stream().map(this::convert).collect(Collectors.toList());
         aae.setDescription(this.description);
         aae.setFormulas(preparedFormulas);

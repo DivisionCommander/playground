@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import bg.sarakt.characters.attributes1.AttributeFormula;
+import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.characters.attributes1.impls.SimpleAttributeFormulaImpl;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.logging.LoggerFactory;

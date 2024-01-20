@@ -6,12 +6,10 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.characters.attributes1;
+package bg.sarakt.attributes;
 
 import java.math.BigDecimal;
 import java.util.Map;
-
-import bg.sarakt.attributes.Attribute;
 
 @FunctionalInterface
 public interface AttributeFormula

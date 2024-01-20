@@ -11,7 +11,7 @@ package bg.sarakt.attributes.impl;
 import bg.sarakt.attributes.Attribute;
 
 
-public record SimpleAttribute(String fullName, String abbreviation, AttributeType type, String description) implements Attribute
+public record SimpleAttribute(String fullName, String abbreviation, AttributeGroup group, String description) implements Attribute
 {
     @Override
     public String toString()

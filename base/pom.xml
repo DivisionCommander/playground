@@ -5,7 +5,7 @@
 
     <groupId>bg.sarakt</groupId>
     <artifactId>base</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <!-- TODO set project info -->
     <name>Base Game</name>
     <description>Example description.</description>

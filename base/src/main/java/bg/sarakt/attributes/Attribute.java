@@ -14,18 +14,19 @@ import bg.sarakt.attributes.impl.SimpleAttribute;
 
 public interface Attribute {
 
-    Attribute PHYSIQUE    = new SimpleAttribute("Physique", "PH", AttributeType.PHYSICAL, "");
-    Attribute PSYCHE      = new SimpleAttribute("Psyche", "PS", AttributeType.PSYCHICAL, "Ability to continue works under stress.");
-    Attribute PERSONALITY = new SimpleAttribute("Personality", "PN", AttributeType.PERSON, "Sliders that hold information about person");
+    Attribute PHYSIQUE    = new SimpleAttribute("Physique", "PH", AttributeGroup.PHYSICAL, "");
+    Attribute PSYCHE      = new SimpleAttribute("Psyche", "PS", AttributeGroup.PSYCHICAL, "Ability to continue works under stress.");
+    Attribute PERSONALITY = new SimpleAttribute("Personality", "PN", AttributeGroup.PERSON, "Sliders that hold information about person");
     // Needs rework
     // public Attribute UNALLOCATED = new SimpleAttribute("Unallocated points",
     // "UL", "Point still not allocated to any attribute");
+
 
     String fullName();
 
     String abbreviation();
 
-    AttributeType type();
+    AttributeGroup group();
 
     String description();
 
@@ -51,7 +52,7 @@ public interface Attribute {
         };
     }
 
-    static enum AttributeType
+    static enum AttributeGroup
     {
         PHYSICAL,
         PSYCHICAL,

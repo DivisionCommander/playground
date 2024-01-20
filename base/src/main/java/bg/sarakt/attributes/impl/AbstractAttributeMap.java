@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.ModifiableAttributeMap;
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;

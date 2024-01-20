@@ -14,9 +14,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.base.utils.FormulaSerializer;
-import bg.sarakt.characters.attributes1.AttributeFormula;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.logging.LoggerFactory;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
@@ -41,9 +41,6 @@ public class DBPopulator
 
     private synchronized Session beginSeesion()
     {
-//        SessionFactory sessionFactory = HibernateUtils.getSessionFactory();
-//        Session session = sessionFactory.openSession();
-//        session.beginTransaction();
         Session session = sessionFactory.getCurrentSession();
         return session;
     }
@@ -88,7 +85,7 @@ public class DBPopulator
             e.setName(sa.fullName());
             e.setAbbr(sa.abbreviation());
             e.setDescription(sa.description());
-            e.setType(sa.type());
+            e.setGroup(sa.group());
 
             AttributeFormula formula = sa.getFormula(level);
             AttributeFormulaEntity afe = new AttributeFormulaEntity();

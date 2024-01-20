@@ -13,6 +13,7 @@ import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.base.exceptions.UnknownValueException;
+import bg.sarakt.characters.Level;
 
 public enum PrimaryAttribute implements Attribute
 {
@@ -22,24 +23,24 @@ public enum PrimaryAttribute implements Attribute
      * Physical Attributes: {@link Attribute#PHYSIQUESliders that hold information
      * about person}
      */
-    STRENGTH("Strength", "STR", AttributeType.PHYSICAL, "Basic physical strangth. Affect force attacks and (gear) lifting and carring capacities."),
-    AGILITY("Fine Motoric", "FMS", AttributeType.PHYSICAL, "Basic fine motoric skills. Affects delicate, fast and multi-movement attacks."),
-    CONSTITUTION("STAMINA", "STA", AttributeType.PHYSICAL, "Basic ability to take damage without die."),
+    STRENGTH("Strength", "STR", AttributeGroup.PHYSICAL, "Basic physical strangth. Affect force attacks and (gear) lifting and carring capacities."),
+    AGILITY("Fine Motoric", "FMS", AttributeGroup.PHYSICAL, "Basic fine motoric skills. Affects delicate, fast and multi-movement attacks."),
+    CONSTITUTION("STAMINA", "STA", AttributeGroup.PHYSICAL, "Basic ability to take damage without die."),
 
     // Mental
     /**
      * Mental Attributes: {@link Attribute#PSYCHE}
      */
-    INTELLIGENCE("Intelligence", "INT", AttributeType.PSYCHICAL, "The ability to learn new thing and solve problems."),
-    WISDOM("WISDOM", "WIS", AttributeType.PSYCHICAL, "Identify thing, Understand more complicated spells"),
-    PSIONIC("Psionic", "PSI", AttributeType.PSYCHICAL, "Increace effectiveness of certain magical and mental abilities"),
+    INTELLIGENCE("Intelligence", "INT", AttributeGroup.PSYCHICAL, "The ability to learn new thing and solve problems."),
+    WISDOM("WISDOM", "WIS", AttributeGroup.PSYCHICAL, "Identify thing, Understand more complicated spells"),
+    PSIONIC("Psionic", "PSI", AttributeGroup.PSYCHICAL, "Increace effectiveness of certain magical and mental abilities"),
 
     /**
      * Personality attributes: {@link Attribute#PERSONALITY}
      */
-    SPIRIT("Spirit", "SPI", AttributeType.PERSON, "Ability to recover from magical, mental and spiritual affects"),
+    SPIRIT("Spirit", "SPI", AttributeGroup.PERSON, "Ability to recover from magical, mental and spiritual affects"),
     WILL(
-            "Will Power", "WIL", AttributeType.PERSON,
+            "Will Power", "WIL", AttributeGroup.PERSON,
             "Projecting will over another character of protect from influence from person, artifacts and etc."
     ),
 
@@ -47,12 +48,12 @@ public enum PrimaryAttribute implements Attribute
 
     private static final Set<PrimaryAttribute> ALL_BASICS = Set.copyOf(EnumSet.allOf(PrimaryAttribute.class));
 
-    private final String        name;
-    private final String        abbreviation;
-    private final AttributeType type;
-    private String              description;
+    private final String         name;
+    private final String         abbreviation;
+    private final AttributeGroup type;
+    private String               description;
 
-    private PrimaryAttribute(String name, String abbr, AttributeType type, String description) {
+    private PrimaryAttribute(String name, String abbr, AttributeGroup type, String description) {
         this.name = name;
         this.abbreviation = abbr;
         this.type = type;
@@ -69,16 +70,22 @@ public enum PrimaryAttribute implements Attribute
     }
 
     /**
-     * @see bg.sarakt.attributes.Attribute#type()
+     * @see bg.sarakt.attributes.Attribute#group()
      */
     @Override
-    public AttributeType type() {
+    public AttributeGroup group() {
         return type;
     }
 
     @Override
     public String description() {
         return this.description;
+    }
+
+    public PrimaryAttributeEntry getEntry(Number initialValue, Level levelArg) {
+        Number value = (initialValue !=null)? initialValue: PrimaryAttributeEntry.getDefaultValue();
+        Level level =  levelArg !=null? levelArg : Level.TEMP;
+        return new PrimaryAttributeEntry(this, value, level);
     }
 
     public static PrimaryAttribute getByAbbreviation(String abbr) {

@@ -9,7 +9,7 @@
 package bg.sarakt.characters.attributes1;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.Attribute.AttributeType;
+import bg.sarakt.attributes.Attribute.AttributeGroup;
 
 public final class Attributes
 {
@@ -44,11 +44,11 @@ public final class Attributes
     public static Attribute DEFENCE_RATE       = new AttributeImpl(S_DEFENCE_RATE, "DEF", "");
     public static Attribute EVADE              = new AttributeImpl(S_EVADE, "EVA", "");
     public static Attribute HIT_RATE           = new AttributeImpl(S_HIT_RATE, "HRt", "");
-    public static Attribute HIT_POINTS         = new AttributeImpl(S_HIT_POINTS, "HP", AttributeType.PHYSICAL, "");
-    public static Attribute CURRENT_HIT_POINTS = new AttributeImpl(S_CURRENT_HIT_POINT, "cHP", AttributeType.PHYSICAL, "");
+    public static Attribute HIT_POINTS         = new AttributeImpl(S_HIT_POINTS, "HP", AttributeGroup.PHYSICAL, "");
+    public static Attribute CURRENT_HIT_POINTS = new AttributeImpl(S_CURRENT_HIT_POINT, "cHP", AttributeGroup.PHYSICAL, "");
     public static Attribute HITTING            = new AttributeImpl(S_HITTING, "HIT", "");
 
-    private static record AttributeImpl(String fullName, String abbreviation, AttributeType type, String description) implements Attribute
+    private static record AttributeImpl(String fullName, String abbreviation, AttributeGroup group, String description) implements Attribute
     {
 
         public AttributeImpl(String fullName, String abbreviation, String description)

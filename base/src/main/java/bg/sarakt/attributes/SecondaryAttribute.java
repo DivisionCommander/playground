@@ -8,8 +8,6 @@
 
 package bg.sarakt.attributes;
 
-import bg.sarakt.characters.attributes1.AttributeFormula;
-
 public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
 
     long getId();
