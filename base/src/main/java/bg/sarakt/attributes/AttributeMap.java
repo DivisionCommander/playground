@@ -11,16 +11,9 @@ package bg.sarakt.attributes;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import bg.sarakt.characters.Level;
-
-/**
- * TODO short description for BasicAttributeMap.
- * <p>
- * Long description for BasicAttributeMap.
- *
- * @author IceDragon
- */
 public interface AttributeMap<A extends Attribute> {
+
+    BigDecimal getBaseValue(A attribute);
 
     /**
      * Get value of a specified implementation of the {@link Attribute} for the
@@ -44,7 +37,5 @@ public interface AttributeMap<A extends Attribute> {
     Map<A, BigDecimal> getAllValues();
 
     void levelUp();
-
-    void levelUp(Level level);
 
 }

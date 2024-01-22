@@ -14,9 +14,8 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -35,22 +34,25 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
     private static final boolean  USE_OLD = false;
     protected static final Logger LOG     = Logger.getLogger();
 
-    protected Level                                                 level;
-    protected final T                                               attr;
-    private final ConcurrentNavigableMap<ModifierLayer, BigDecimal> valuesPerLayer;
-    private final Map<ModifierLayer, List<Modifier>>                modifiers;
+    private final Level                                                 level;
+    protected final T                                                   attr;
+    private final ConcurrentNavigableMap<ModifierLayer, BigDecimal>     valuesPerLayer;
+    private final ConcurrentNavigableMap<ModifierLayer, List<Modifier>> modifiers;
 
     protected AbstractAttributeMapEntry(T attribute, Level level) {
         Objects.requireNonNull(attribute, "Attribute cannot be null!");
         this.attr = attribute;
         this.level = level;
         valuesPerLayer = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
-        modifiers = new ConcurrentHashMap<>(new EnumMap<>(ModifierLayer.class));
-        ModifierLayer.getNavigableLayers().stream().forEach(l ->
-        {
-            modifiers.put(l, new ArrayList<>());
-            valuesPerLayer.put(l, BigDecimal.ZERO);
-        });
+        modifiers = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
+
+        Iterator<ModifierLayer> it = ModifierLayer.getIterator();
+        while (it.hasNext()) {
+            ModifierLayer layer = it.next();
+            modifiers.put(layer, new ArrayList<>());
+            valuesPerLayer.put(layer, BigDecimal.ZERO);
+        }
+
     }
 
     @Override
@@ -89,28 +91,9 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
         recalculate(layer);
     }
 
-    protected void addModifier(AttributeModifier<T> modifier, boolean recalculate) {
-        modifiers.get(modifier.getLayer()).add(new Modifier(modifier));
-        if (recalculate) {
-            recalculate(modifier.getLayer());
-        }
-    }
-
     @Override
     public void removeModifier(AttributeModifier<T> modifier) {
         removeModifier(modifier, true);
-    }
-
-    protected void removeModifier(AttributeModifier<T> modifier, boolean recalculate) {
-        List<Modifier> modifiersPerLayer = modifiers.get(modifier.getLayer());
-        Modifier pair = new Modifier(modifier);
-        if ( !modifiersPerLayer.contains(pair)) {
-            throw new SaraktRuntimeException();
-        }
-        modifiersPerLayer.remove(pair);
-        if (recalculate) {
-            recalculate(modifier.getLayer());
-        }
     }
 
     @Override
@@ -131,7 +114,9 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
     }
 
     @Override
-    public abstract BigDecimal getBasicValue();
+    public abstract BigDecimal getBaseValue();
+
+    protected abstract BigDecimal getBaseValueForLayer(ModifierLayer layer);
 
     @Override
     public BigDecimal getValueForLayer(ModifierLayer layer) {
@@ -141,24 +126,52 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
     @Override
     public BigDecimal getCurrentValue() { return valuesPerLayer.get(ModifierLayer.getHighestLayer()); }
 
+    protected void addModifier(AttributeModifier<T> modifier, boolean recalculate) {
+        modifiers.get(modifier.getLayer()).add(new Modifier(modifier));
+        if (recalculate) {
+            recalculate(modifier.getLayer());
+        }
+    }
+
+    protected void removeModifier(AttributeModifier<T> modifier, boolean recalculate) {
+        List<Modifier> modifiersPerLayer = modifiers.get(modifier.getLayer());
+        Modifier pair = new Modifier(modifier);
+        if ( !modifiersPerLayer.contains(pair)) {
+            throw new SaraktRuntimeException();
+        }
+        modifiersPerLayer.remove(pair);
+        if (recalculate) {
+            recalculate(modifier.getLayer());
+        }
+    }
+
     protected void recalculate() {
-        recalculate(ModifierLayer.BASELINE_LAYER);
+        recalculate(ModifierLayer.getLowestLayer(), getBaseValue());
     }
 
     protected void recalculate(ModifierLayer layer) {
         recalculate(layer, getBaseValueForLayer(layer));
     }
 
-    protected void recalculate(ModifierLayer layer, BigDecimal baseValue) {
-        Iterator<ModifierLayer> iterator = ModifierLayer.getHigherLayers(layer).iterator();
-        while (iterator.hasNext()) {
-            ModifierLayer next = iterator.next();
-            BigDecimal result = applyModifiers(baseValue, modifiers.get(next));
+    protected void recalculate(ModifierLayer layerArg, BigDecimal baseValue) {
+        Optional<ModifierLayer> optionalLayer = Optional.of(layerArg);
+        while (optionalLayer.isPresent()) {
+            ModifierLayer layer = optionalLayer.get();
+            BigDecimal result = applyModifiers(baseValue, modifiers.get(layer));
             valuesPerLayer.put(layer, result);
+            optionalLayer = layer.higherLayer();
         }
+
     }
 
-    protected abstract BigDecimal getBaseValueForLayer(ModifierLayer layer);
+    protected final Level getLevel() {return this.level;}
+
+    @Override
+    public void levelUp() {
+        removeModifier(level.viewPreviousLevel().getModifiers(attr), false);
+        addModifier(level.getModifiers(attr), false);
+        recalculate();
+    }
 
     protected BigDecimal applyModifiers(BigDecimal baseValue, List<Modifier> mods) {
         BigDecimal flat = BigDecimal.ZERO;
@@ -204,15 +217,6 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
         return result;
     }
 
-    /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#levelUp()
-     */
-    @Override
-    public void levelUp() {
-        levelUp(level.getNextLevel());
-    }
-
-    protected abstract void levelUp(Level nextLevel);
 
     /**
      * Considering formula to be selectable via settings, may need later.

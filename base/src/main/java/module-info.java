@@ -16,6 +16,7 @@ module sarakt {
     requires spring.boot.autoconfigure;
     requires spring.boot;
 
+    opens bg.sarakt.characters.attributes1.impls to com.fasterxml.jackson.databind;
     opens bg.sarakt.storing.hibernate;
     opens bg.sarakt.storing.hibernate.entities;
     opens bg.sarakt.glossary.entitites;

@@ -24,14 +24,14 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
     private final PrimaryAttributeEntry[] entries;
 
     private PrimaryAttributeMap(boolean dummy, Level level) {
-        super(level);
+        super();
         entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
     }
 
     public PrimaryAttributeMap(Level level) {
         this(false, level);
         for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
-            entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, level);
+            entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, null, level);
         }
     }
 
@@ -64,27 +64,19 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
         }
     }
 
+    @Override
     public void levelUp() {
         for (int index = 0; index < entries.length; index++) {
             entries[index].levelUp();
         }
     }
 
-    /**
-     * @see bg.sarakt.attributes.ModifiableAttributeMap#levelUp(bg.sarakt.characters.Level)
-     */
-    @Override
-    public void levelUp(Level level) {
-        for (int index = 0; index < entries.length; index++) {
-            entries[index].levelUp(level);
-        }
-    }
 
     /**
-     * @see bg.sarakt.attributes.impl.AttributeMapImpl#getEntry(bg.sarakt.attributes.Attribute)
+     * @see bg.sarakt.attributes.impl.AttributeMapImpl#get(bg.sarakt.attributes.Attribute)
      */
     @Override
-    protected PrimaryAttributeEntry getEntry(PrimaryAttribute attr) {
+    public PrimaryAttributeEntry get(PrimaryAttribute attr) {
         return entries[attr.ordinal()];
     }
 

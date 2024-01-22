@@ -20,7 +20,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.base.utils.Dummy;
 
+@Dummy
 public class SimpleAttributeFormulaImpl implements AttributeFormula
 {
 

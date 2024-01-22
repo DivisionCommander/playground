@@ -12,7 +12,10 @@ public class ToolsRunner
 
     public static void main(String[] args)
     {
-        DBPopulator.getInstance().populateLevels();
+        DBPopulator.getInstance()
+        .populateLevels()
+//        .populateAttributes()
+        ;
     }
 }
 

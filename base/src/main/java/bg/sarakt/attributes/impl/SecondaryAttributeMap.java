@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.characters.Level;
@@ -27,21 +28,21 @@ public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribu
     private final Set<SecondaryAttribute>                          knownAttributes;
     private final Map<SecondaryAttribute, SecondaryAttributeEntry> entries;
 
-    protected SecondaryAttributeMap(PrimaryAttributeMap primary, Set<SecondaryAttribute> secondary, Level level) {
-        super(level);
+    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Set<SecondaryAttribute> secondary, Level level) {
+        super();
         knownAttributes = Set.copyOf(secondary);
         entries = new HashMap<>();
-        secondary.stream().map(sa -> new SecondaryAttributeEntry(sa, primary, level));
+        secondary.stream().forEach(sa -> entries.put(sa, sa.getEntry(primary, level)));
     }
 
-    protected SecondaryAttributeMap(PrimaryAttributeMap primary, SecondaryAttributeMap secondaryAttributesMap, Level level) {
-        this(primary, secondaryAttributesMap.knownAttributes, level);
-    }
-
+    /**
+     *
+     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#get(bg.sarakt.attributes.Attribute)
+     */
     @Override
-    protected SecondaryAttributeEntry getEntry(SecondaryAttribute attr) {
+    public SecondaryAttributeEntry get(SecondaryAttribute attr) {
         checkAttribute(attr);
-        return this.entries.get(attr);
+        return entries.get(attr);
     }
 
     private void checkAttribute(SecondaryAttribute attr) {
@@ -59,9 +60,9 @@ public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribu
         Map<SecondaryAttribute, ModifierLayer> layers = new HashMap<>();
         for (AttributeModifier<SecondaryAttribute> m : modifiers) {
             if (add) {
-                getEntry(m.getAttribute()).addModifier(m, false);
+                get(m.getAttribute()).addModifier(m, false);
             } else {
-                getEntry(m.getAttribute()).removeModifier(m, false);
+                get(m.getAttribute()).removeModifier(m, false);
             }
             ModifierLayer lower = m.getLayer().checkLower(layers.get(m.getAttribute()));
             layers.put(m.getAttribute(), lower);
@@ -77,7 +78,7 @@ public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribu
     }
 
     private void doRecalculate(Entry<SecondaryAttribute, ModifierLayer> entry) {
-        getEntry(entry.getKey()).recalculate(entry.getValue());
+        get(entry.getKey()).recalculate(entry.getValue());
     }
 
     /**
@@ -94,15 +95,6 @@ public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribu
     @Override
     public void levelUp() {
         entries.values().forEach(SecondaryAttributeEntry::levelUp);
-    }
-
-    /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#levelUp(bg.sarakt.characters.Level)
-     */
-    @Override
-    public void levelUp(Level level) {
-        entries.values().forEach(e -> e.levelUp(level));
-
     }
 
     /**

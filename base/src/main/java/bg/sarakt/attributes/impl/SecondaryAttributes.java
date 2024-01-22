@@ -15,8 +15,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.AttributeFormula;
+import bg.sarakt.attributes.AttributeGroup;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.attributes.Attribute.AttributeGroup;
+import bg.sarakt.characters.Level;
 
 @Deprecated
 public final class SecondaryAttributes {
@@ -94,6 +96,15 @@ public final class SecondaryAttributes {
         @Override
         public AttributeFormula getFormula(int level) {
             return SecondaryAttributes.getInstance().getFormula(this, level);
+        }
+        
+        /**
+         * @see bg.sarakt.attributes.SecondaryAttribute#getEntry(bg.sarakt.attributes.IterableAttributeMap,
+         *      bg.sarakt.characters.Level)
+         */
+        @Override
+        public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes, Level level) {
+            return new SecondaryAttributeEntry(this, primaryAttributes, level);
         }
     }
 }

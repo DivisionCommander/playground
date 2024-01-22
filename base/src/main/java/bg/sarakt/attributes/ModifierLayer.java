@@ -8,48 +8,95 @@
 
 package bg.sarakt.attributes;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.NavigableSet;
+import java.util.Iterator;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 
 public enum ModifierLayer
 {
 
-    BASELINE_LAYER(2),
-    CLASS_LAYER(3),
-    GEAR_LAYER(7),
-    TEMPORARY_LAYER(19)
+    // Usually depends on species (animals, Eg. wolves, bears), race (sentient
+    // being, Eg. humans, gnolls, etc. ) and level
+    BASELINE_LAYER(2, null)
+    {
+
+        @Override
+        public Optional<ModifierLayer> higherLayer() {
+            return Optional.of(CLASS_LAYER);
+        }
+    },
+    // Changes due to character/unit class
+    CLASS_LAYER(3, BASELINE_LAYER)
+    {
+
+        /**
+         * @see bg.sarakt.attributes.ModifierLayer#higherLayer()
+         */
+        @Override
+        public Optional<ModifierLayer> higherLayer() {
+            return Optional.of(GEAR_LAYER);
+        }
+    },
+    // Changes applied by used gear.
+    GEAR_LAYER(7, CLASS_LAYER)
+    {
+
+        /**
+         * @see bg.sarakt.attributes.ModifierLayer#higherLayer()
+         */
+        @Override
+        public Optional<ModifierLayer> higherLayer() {
+            return Optional.of(SKIRMISH_LAYER);
+        }
+    },
+    // Temporary bonuses applied only during a combat
+    SKIRMISH_LAYER(17, GEAR_LAYER)
+    {
+
+        /**
+         * @see bg.sarakt.attributes.ModifierLayer#higherLayer()
+         */
+        @Override
+        public Optional<ModifierLayer> higherLayer() {
+            return Optional.of(TEMPORARY_LAYER);
+        }
+    },
+    // All additional bonuses applied afterward.
+    TEMPORARY_LAYER(19, SKIRMISH_LAYER)
+    {
+
+        /**
+         * @see bg.sarakt.attributes.ModifierLayer#higherLayer()
+         */
+        @Override
+        public Optional<ModifierLayer> higherLayer() {
+            return Optional.empty();
+        }
+    }
 
     ;
 
-    private static final Set<ModifierLayer>          ALL       = Set.copyOf(EnumSet.allOf(ModifierLayer.class));
-    private static final NavigableSet<ModifierLayer> NAVIGABLE = Collections.unmodifiableNavigableSet(new TreeSet<>(ALL));
-
-    private final int position;
+    private final int               position;
+    private Optional<ModifierLayer> previous;
 
     private ModifierLayer(int pos) {
         this.position = pos;
     }
 
+    private ModifierLayer(int pos, ModifierLayer previous) {
+        this.position = pos;
+        this.previous = Optional.ofNullable(previous);
+    }
+
     public int getPosition() { return this.position; }
 
-    public static NavigableSet<ModifierLayer> getNavigableLayers() { return NAVIGABLE; }
-
-    public static NavigableSet<ModifierLayer> getHigherLayers(ModifierLayer layer) {
-        return NAVIGABLE.tailSet(layer, true);
+    public Optional<ModifierLayer> lowerLayer() {
+        return previous;
     }
 
-    public static Optional<ModifierLayer> getLowerLayer(ModifierLayer layer) {
-        ModifierLayer lower = NAVIGABLE.lower(layer);
-        return Optional.ofNullable(lower);
-    }
+    public abstract Optional<ModifierLayer> higherLayer();
 
-    public static Optional<ModifierLayer> getHigherLayer(ModifierLayer layer) {
-        ModifierLayer higher = NAVIGABLE.higher(layer);
-        return Optional.ofNullable(higher);
+    public boolean hasHigherLayer() {
+        return higherLayer().isPresent();
     }
 
     public ModifierLayer checkLower(ModifierLayer other) {
@@ -66,5 +113,44 @@ public enum ModifierLayer
         return this.ordinal() > other.ordinal() ? this : other;
     }
 
+    public static Iterator<ModifierLayer> getIterator() { return new ModifierLayerIterator(); }
+
+    public static Iterator<ModifierLayer> getIterator(ModifierLayer start) {
+        return new ModifierLayerIterator(start);
+    }
+
+    public static ModifierLayer getLowestLayer() { return BASELINE_LAYER; }
+
     public static ModifierLayer getHighestLayer() { return TEMPORARY_LAYER; }
+
+    private static class ModifierLayerIterator implements Iterator<ModifierLayer> {
+
+        private ModifierLayer layer;
+
+        public ModifierLayerIterator() {
+            this(ModifierLayer.getLowestLayer());
+        }
+
+        public ModifierLayerIterator(ModifierLayer modifierLayer) {
+            this.layer = modifierLayer;
+        }
+
+        /**
+         * @see java.util.Iterator#hasNext()
+         */
+        @Override
+        public boolean hasNext() {
+            return layer.hasHigherLayer();
+        }
+
+        /**
+         * @see java.util.Iterator#next()
+         */
+        @Override
+        public ModifierLayer next() {
+            this.layer = layer.higherLayer().get();
+            return layer;
+
+        }
+    }
 }

@@ -15,38 +15,38 @@ import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.characters.Level;
 
-public  abstract class ResourceAttributeEntry extends AbstractAttributeMapEntry<ResourceAttribute> implements AttributeMapEntry<ResourceAttribute> {
+public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<ResourceAttribute> {
 
-    /**
-     * @param attribute
-     * @param level
-     */
-    protected ResourceAttributeEntry(ResourceAttribute attribute, Level level) {
+    private final AttributeMapEntry<PrimaryAttribute> primaryAttribute;
+
+    ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
         super(attribute, level);
+        primaryAttribute = primaryAttributeEntry;
     }
 
+
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBasicValue()
+     * {@link PrimaryAttributeEntry#getBaseValue()} multiplied by {@link ResourceAttribute#getCoefficientForLevel(Level)}
+     * Need considering general strategy for calculations.
+     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()
      */
     @Override
-    public BigDecimal getBasicValue() { // TODO Auto-generated method stub
-    return null; }
+    public BigDecimal getBaseValue() {
+        BigDecimal primaryAttributeValue = primaryAttribute.getBaseValue();
+        BigDecimal coefficient = getAttribute().getCoefficientForLevel(getLevel());
+        BigDecimal baseValue = coefficient.multiply(primaryAttributeValue);
+        return baseValue;
+    }
+
 
     /**
      * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValueForLayer(bg.sarakt.attributes.ModifierLayer)
      */
     @Override
     protected BigDecimal getBaseValueForLayer(ModifierLayer layer) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#levelUp(bg.sarakt.characters.Level)
-     */
-    @Override
-    protected void levelUp(Level nextLevel) {
-
+        BigDecimal coefficient = getAttribute().getCoefficientForLevel(getLevel());
+        BigDecimal primaryAttributeValue = primaryAttribute.getValueForLayer(layer);
+        return coefficient.multiply(primaryAttributeValue);
     }
 
 }

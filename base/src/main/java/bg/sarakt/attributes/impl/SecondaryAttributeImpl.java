@@ -17,33 +17,31 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import bg.sarakt.attributes.AttributeFormula;
+import bg.sarakt.attributes.AttributeGroup;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.base.Pair;
-import bg.sarakt.base.Pair.PairImpl;
 import bg.sarakt.base.utils.FormulaSerializer;
+import bg.sarakt.characters.Level;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
-import bg.sarakt.storing.hibernate.entities.SecondaryAttributesEntity;
+import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
-public class SecondaryAttributeImpl implements SecondaryAttribute
+public class SecondaryAttributeImpl extends AbstractAttribute implements SecondaryAttribute
 {
 
-    private long id;
+    /** field <code>serialVersionUID</code> */
+    private static final long serialVersionUID = 202401202125L;
 
-    private final String        fullName;
-    private final String        abbreviation;
-    private final AttributeGroup type;
-    private final String        description;
 
     private final NavigableMap<Integer, AttributeFormula> formulas = new TreeMap<>();
 
-    public SecondaryAttributeImpl(long id, String fullName, String abbreviation, AttributeGroup type, String description)
+    SecondaryAttributeImpl(SecondaryAttributeEntity e) {
+        this(e.getId(), e.getName(), e.getAbbr(), e.getGroup(), e.getDescription());
+        formulas.putAll(convert(e.getFormulas()));
+    }
+
+    public SecondaryAttributeImpl(long id, String fullName, String abbreviation, AttributeGroup group, String description)
     {
-        super();
-        this.id = id;
-        this.fullName = fullName;
-        this.abbreviation = abbreviation;
-        this.type = type;
-        this.description = description;
+        super(id, fullName, abbreviation, group, description);
     }
 
     public SecondaryAttributeImpl(String fullName, String abbreviation, AttributeGroup type, String description)
@@ -52,68 +50,24 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
     }
 
     /**
-     * @see bg.sarakt.attributes.Attribute#fullName()
+     * @see bg.sarakt.attributes.impl.AbstractAttribute#getId()
      */
     @Override
-    public String fullName()
-    {
-        return fullName;
-    }
+    public long getId() { return super.getId(); }
 
-    /**
-     * @see bg.sarakt.attributes.Attribute#abbreviation()
-     */
-    @Override
-    public String abbreviation()
-    {
-        return abbreviation;
-    }
-
-    @Override
-    public AttributeGroup group()
-    {
-        return this.type;
-    }
-
-    @Override
-    public String description()
-    {
-        return this.description;
-    }
-
-    public void addFormula(int level, AttributeFormula formula)
-    {
+    public void addFormula(int level, AttributeFormula formula) {
         formulas.put(level, formula);
     }
+
 
     /**
      * @see bg.sarakt.attributes.SecondaryAttribute#getFormula()
      */
     @Override
-    public AttributeFormula getFormula(int level)
-    {
+    public AttributeFormula getFormula(int level) {
         return formulas.floorEntry(level).getValue();
     }
 
-    public List<Pair<Integer, AttributeFormula>> getAllFormulas()
-    {
-        return formulas.entrySet().stream().map(this::formula).collect(Collectors.toList());
-
-    }
-
-    private Pair<Integer, AttributeFormula> formula(Entry<Integer, AttributeFormula> e)
-    {
-        return new PairImpl<Integer, AttributeFormula>(e.getKey(), e.getValue());
-    }
-
-    /**
-     * @see bg.sarakt.attributes.SecondaryAttribute#getId()
-     */
-    @Override
-    public long getId()
-    {
-        return id;
-    }
 
     /**
      * @see java.lang.Object#toString()
@@ -122,20 +76,20 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append('[').append(id).append(']').append(fullName).append(" -[").append(abbreviation).append("]-\t").append(type).append(type.ordinal());
+        sb.append('[').append(getId()).append(']').append(fullName()).append(" -[").append(abbreviation()).append("]-\t").append(group()).append(group().ordinal());
 
         return sb.toString();
     }
 
-    public SecondaryAttributesEntity toEntity()
+    public SecondaryAttributeEntity toHibernateEntity()
     {
 
-        SecondaryAttributesEntity aae = new SecondaryAttributesEntity();
-        aae.setName(this.fullName);
-        aae.setAbbr(this.abbreviation);
-        aae.setGroup(this.type);
-        List<AttributeFormulaEntity> preparedFormulas = this.formulas.entrySet().stream().map(this::convert).collect(Collectors.toList());
-        aae.setDescription(this.description);
+        SecondaryAttributeEntity aae = new SecondaryAttributeEntity();
+        aae.setName(fullName());
+        aae.setAbbr(abbreviation());
+        aae.setGroup(group() );
+        List<AttributeFormulaEntity> preparedFormulas = formulas.entrySet().stream().map(this::convert).collect(Collectors.toList());
+        aae.setDescription(description());
         aae.setFormulas(preparedFormulas);
 
         return aae;
@@ -156,10 +110,37 @@ public class SecondaryAttributeImpl implements SecondaryAttribute
         }
 
         AttributeFormulaEntity aafe = new AttributeFormulaEntity();
-        aafe.setAttributeId(id);
+        aafe.setAttributeId(getId());
         aafe.setLevel(level);
         aafe.setFormula(byteFormula);
         return aafe;
     }
 
+
+    /**
+     *
+     * @see bg.sarakt.attributes.SecondaryAttribute#getEntry(bg.sarakt.attributes.IterableAttributeMap,
+     *      bg.sarakt.characters.Level)
+     */
+    @Override
+    public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttribute, Level level) {
+        return new SecondaryAttributeEntry(this, primaryAttribute, level);
+    }
+
+    private NavigableMap<Integer, AttributeFormula> convert(List<AttributeFormulaEntity> formulas) {
+        NavigableMap<Integer, AttributeFormula> results = new TreeMap<>();
+        for (var formula : formulas) {
+            try {
+                byte[] bytearrayFormula = formula.getFormula();
+                if (bytearrayFormula != null && bytearrayFormula.length > 0) {
+                    AttributeFormula deseriallized = FormulaSerializer.getInstance().deseriallize(bytearrayFormula);
+                    results.put(formula.getLevel(), deseriallized);
+
+                }
+            } catch (Exception e) {
+                System.err.println("FIXME:LOGG AND process error!");
+            }
+        }
+        return results;
+    }
 }

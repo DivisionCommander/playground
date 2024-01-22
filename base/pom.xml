@@ -5,10 +5,10 @@
 
     <groupId>bg.sarakt</groupId>
     <artifactId>base</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <!-- TODO set project info -->
     <name>Base Game</name>
-    <description>Example description.</description>
+    <description>Generic RPG backbone</description>
     <url>https://example.com/</url>
     <inceptionYear>2023</inceptionYear>
 

@@ -15,6 +15,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import bg.sarakt.storing.hibernate.LevelDAO;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 
 public final class LevelCalculator {
@@ -26,17 +27,24 @@ public final class LevelCalculator {
     protected SessionFactory sessionFactory;
 
     private NavigableMap<Long, Integer> getAllLevels() {
-        Session session = sessionFactory.getCurrentSession();
-        // Session session = HibernateUtils.getSessionFactory().openSession();
+        Session session = (sessionFactory != null) ? sessionFactory.getCurrentSession() : HibernateUtils.getSessionFactory().openSession();
         // session.beginTransaction();
-        try {
+//        try {
 
             NavigableMap<Long, Integer> levels = new TreeMap<>();
             session.createQuery("SELECT l FROM Level l", LevelEntity.class).getResultList().forEach(l -> levels.put(l.getXp(), l.getLevel()));
+            System.out.println(levels);
             return levels;
-        } finally {
-            session.flush();
-        }
+//        } finally {
+//            session.flush();
+//        }
+    }
+
+    private NavigableMap<Long, Integer> getLevels(){
+
+        NavigableMap<Long, Integer> levels = new TreeMap<>();
+        new LevelDAO().findAll().stream().forEach(l->levels.put(l.getXp()   , l.getLevel()));
+        return levels;
     }
 
     public int calculateLevel(long experience) {

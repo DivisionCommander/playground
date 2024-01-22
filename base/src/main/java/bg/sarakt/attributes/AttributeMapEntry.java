@@ -37,7 +37,7 @@ public interface AttributeMapEntry<T extends Attribute> {
 
     T getAttribute();
 
-    BigDecimal getBasicValue();
+    BigDecimal getBaseValue();
 
     BigDecimal getValueForLayer(ModifierLayer layer);
 

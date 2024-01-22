@@ -1,5 +1,5 @@
 /*
- * AttributeFormulaEntity.java
+ * SecondaryAttributeFormulaEntity.java
  *
  * created at 2023-12-01 by Roman Tsonev <roman.tsonev@yandex.ru>
  *
@@ -21,7 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "formulas")
+@Table(name = "tbl_attribute_formulas")
 public class AttributeFormulaEntity implements Serializable
 {
 
@@ -43,7 +43,7 @@ public class AttributeFormulaEntity implements Serializable
 
     @ManyToOne
     @JoinColumn(name = "attribute_id", nullable = false)
-    private SecondaryAttributesEntity advancedAttributesEntity;
+    private SecondaryAttributeEntity advancedAttributesEntity;
 
     public long getFormulaId()
     {
@@ -65,7 +65,7 @@ public class AttributeFormulaEntity implements Serializable
         return formula;
     }
 
-    public SecondaryAttributesEntity getAdvancedAttributesEntity()
+    public SecondaryAttributeEntity getAdvancedAttributesEntity()
     {
         return advancedAttributesEntity;
     }
@@ -90,7 +90,7 @@ public class AttributeFormulaEntity implements Serializable
         this.formula = formula;
     }
 
-    public void setAdvancedAttributesEntity(SecondaryAttributesEntity aae)
+    public void setAdvancedAttributesEntity(SecondaryAttributeEntity aae)
     {
         this.advancedAttributesEntity = aae;
     }

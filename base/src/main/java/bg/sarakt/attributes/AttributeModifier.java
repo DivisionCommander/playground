@@ -8,11 +8,13 @@
 
 package bg.sarakt.attributes;
 
+import java.math.BigDecimal;
+
 public interface AttributeModifier<A extends Attribute> {
 
     A getAttribute();
 
-    <T extends Number> T getValue();
+    BigDecimal getValue();
 
     ModifierType getBonusType();
 

@@ -23,6 +23,7 @@ import bg.sarakt.characters.attributes.AttributeBonus.ApplyLevel;
 import bg.sarakt.characters.attributes.AttributeBonus.BonusType;
 import bg.sarakt.characters.attributes.AttributeMap;
 
+@Deprecated
 public abstract class AttributeMapImpl1 implements AttributeMap {
 
     /**

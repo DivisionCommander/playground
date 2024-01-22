@@ -10,7 +10,6 @@ package bg.sarakt.storing.hibernate;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,9 +20,9 @@ import org.springframework.stereotype.Repository;
 import bg.sarakt.base.utils.HibernateUtils;
 
 @Repository
-public abstract class AbstractHibernateDAO<T extends Serializable> {
+public abstract class AbstractHibernateDAO<T extends Serializable>{
 
-    private Class<T> clazz;
+    private final Class<T> clazz;
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -31,19 +30,17 @@ public abstract class AbstractHibernateDAO<T extends Serializable> {
     @Autowired
     protected LocalSessionFactoryBean sessionFactoryBean;
 
-
-    protected AbstractHibernateDAO() {
-
+    protected AbstractHibernateDAO(Class<T> entityClass) {
+        this.clazz = entityClass;
     }
-
-    public final void setClazz(final Class<T> clazzToSet) { clazz = Objects.requireNonNull(clazzToSet); }
 
     public void setSessionFactory(SessionFactory sessionFactory) { this.sessionFactory = sessionFactory; }
 
     protected Session getCurrentSession() {
         System.out.println(sessionFactory + "\tsfb");
         System.out.println(sessionFactoryBean + "\tsfb");
-        if( sessionFactory == null) {
+        if (sessionFactory == null) {
+            //TODO: better interaction with Spring and @Autowired and uncomment following code
             return HibernateUtils.getSessionFactory().openSession();
         }
         return sessionFactory.getCurrentSession();
@@ -53,8 +50,24 @@ public abstract class AbstractHibernateDAO<T extends Serializable> {
         return getCurrentSession().get(clazz, id);
     }
 
+    /**
+     * TODO: better interaction with Spring and uncomment following code
+     * @formatter:off;
+    @Transactional
+    public T save(T entity) {
+        return getCurrentSession().merge(entity);
+    }
+
+    @Transactional
+    public Collection<T> save(Collection<T> entities) {
+        Session session = getCurrentSession();
+        return entities.stream().map(session::merge).collect(Collectors.toList());
+    }
+    @formatter:on
+    **/
+
     public List<T> findAll() {
-        return getCurrentSession().createSelectionQuery("SELECT t FROM Tags t", clazz).getResultList();
+        return getCurrentSession().createSelectionQuery("SELECT e FROM " + clazz.getName() + " e ", clazz).getResultList();
     }
 
 }

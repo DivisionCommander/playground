@@ -10,7 +10,9 @@ package bg.sarakt.attributes;
 
 import java.util.Collection;
 
-public interface ModifiableAttributeMap<A extends Attribute, I extends AttributeMapEntry<A>> extends Iterable<I>, AttributeMap<A> {
+public interface ModifiableAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> extends IterableAttributeMap<A, E>{
+
+    E get(A attribute);
 
     void addModifier(AttributeModifier<A> modifier);
 
@@ -19,4 +21,5 @@ public interface ModifiableAttributeMap<A extends Attribute, I extends Attribute
     void removeModifier(AttributeModifier<A> modifier);
 
     void removeModifiers(Collection<AttributeModifier<A>> modifiers);
+
 }

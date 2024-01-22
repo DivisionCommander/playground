@@ -10,16 +10,14 @@ package bg.sarakt.attributes;
 
 import java.util.Comparator;
 
-import bg.sarakt.attributes.impl.SimpleAttribute;
+import bg.sarakt.attributes.impl.AttributeFactory;
 
 public interface Attribute {
 
-    Attribute PHYSIQUE    = new SimpleAttribute("Physique", "PH", AttributeGroup.PHYSICAL, "");
-    Attribute PSYCHE      = new SimpleAttribute("Psyche", "PS", AttributeGroup.PSYCHICAL, "Ability to continue works under stress.");
-    Attribute PERSONALITY = new SimpleAttribute("Personality", "PN", AttributeGroup.PERSON, "Sliders that hold information about person");
-    // Needs rework
-    // public Attribute UNALLOCATED = new SimpleAttribute("Unallocated points",
-    // "UL", "Point still not allocated to any attribute");
+    //Root Attributes
+//    Attribute PHYSIQUE    = AttributeFactory.PHYSIQUE;
+//    Attribute PSYCHE      = AttributeFactory.PSYCHE;
+//    Attribute PERSONALITY = AttributeFactory.PERSONALITY;
 
 
     String fullName();
@@ -31,7 +29,7 @@ public interface Attribute {
     String description();
 
     static Comparator<Attribute> getComparator() {
-        return new Comparator<Attribute>()
+        return new Comparator<>()
         {
 
             @Override
@@ -50,12 +48,5 @@ public interface Attribute {
                 return a1.fullName().compareTo(a2.fullName());
             };
         };
-    }
-
-    static enum AttributeGroup
-    {
-        PHYSICAL,
-        PSYCHICAL,
-        PERSON;
     }
 }

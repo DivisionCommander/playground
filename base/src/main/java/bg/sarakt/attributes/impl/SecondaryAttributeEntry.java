@@ -15,17 +15,18 @@ import java.util.Map;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.characters.Level;
 
-public class SecondaryAttributeEntry extends AbstractAttributeMapEntry<SecondaryAttribute> {
+public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<SecondaryAttribute> implements AttributeMapEntry<SecondaryAttribute>{
 
-    private final PrimaryAttributeMap primaryAttributes;
+    private final IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttMap;
 
-    public SecondaryAttributeEntry(SecondaryAttribute attribute, PrimaryAttributeMap primary, Level level) {
+    SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap, Level level) {
         super(attribute, level);
-        this.primaryAttributes = primary;
+        primaryAttMap = primaryMap;
     }
 
     /**
@@ -33,28 +34,20 @@ public class SecondaryAttributeEntry extends AbstractAttributeMapEntry<Secondary
      */
     @Override
     protected BigDecimal getBaseValueForLayer(ModifierLayer layer) {
-        Map<Attribute, Number> map = new HashMap<>();
-        for (AttributeMapEntry<PrimaryAttribute> pa : primaryAttributes) {
+        Map<Attribute, Number> values = new HashMap<>();
+        for (AttributeMapEntry<PrimaryAttribute> pa : primaryAttMap) {
             BigDecimal valueForLayer = pa.getValueForLayer(layer);
-            map.put(pa.getAttribute(), valueForLayer);
+            values.put(pa.getAttribute(), valueForLayer);
         }
-        AttributeFormula formula = getAttribute().getFormula(level.getLevelNumber());
-        return formula.calculate(map);
+        AttributeFormula formula = getAttribute().getFormula(getLevel().getLevelNumber());
+        return formula.calculate(values);
     }
 
-    /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#levelUp(bg.sarakt.characters.Level)
-     */
-    @Override
-    public void levelUp(Level level) {
-        super.level = level;
-        recalculate();
-    }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBasicValue()
+     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()
      */
     @Override
-    public BigDecimal getBasicValue() { return getBaseValueForLayer(ModifierLayer.BASELINE_LAYER); }
+    public BigDecimal getBaseValue() { return getBaseValueForLayer(ModifierLayer.getLowestLayer()); }
 
 }

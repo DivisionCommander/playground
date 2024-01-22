@@ -18,6 +18,7 @@ import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 
+@Deprecated(forRemoval = true)
 public abstract class DualAttributeMap implements AttributeMap
 {
 

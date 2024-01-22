@@ -5,11 +5,30 @@
  *
  * Copyright (c) Roman Tsonev
  */
+
 package bg.sarakt.attributes;
 
-public interface ResourceAttribute extends Attribute{
+import java.math.BigDecimal;
 
+import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.impl.ResourceAttributeEntry;
+import bg.sarakt.characters.Level;
+
+public interface ResourceAttribute extends Attribute, Comparable<Attribute> {
+
+    long getId();
+
+    PrimaryAttribute getPrimaryAttribute();
+
+    BigDecimal getCoefficientForLevel(Level level);
+
+    ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level);
+
+    /**
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    default int compareTo(Attribute o) {
+        return Attribute.getComparator().compare(this, o);
+    }
 }
-
-
-

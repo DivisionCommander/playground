@@ -8,15 +8,22 @@
 
 package bg.sarakt.storing.hibernate.entities;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
-@Entity
+@Entity(name = "Level")
 @Table(name = "Levels")
-public class LevelEntity
+public class LevelEntity implements Serializable
 {
+
+    /** field <code>serialVersionUID</code> */
+    @Transient
+    private static final long serialVersionUID = -6584892784131956865L;
 
     @Id
     @Column(name = "level", unique = true)

@@ -23,6 +23,7 @@ import bg.sarakt.characters.attributes1.AttributeMap;
 import bg.sarakt.characters.impls.PlayerCharacterImpl;
 import bg.sarakt.logging.Logger;
 
+@Deprecated
 public class CharacterAttributeWindow
 {
 

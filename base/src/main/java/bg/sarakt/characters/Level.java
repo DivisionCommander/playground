@@ -9,38 +9,47 @@
 package bg.sarakt.characters;
 
 import java.math.BigDecimal;
-import java.util.EnumMap;
 import java.util.Map;
 
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 
 public interface Level {
 
-    Map<PrimaryAttribute, BigDecimal> getPrimaryAttributeBonuses();
+    Map<PrimaryAttribute, BigDecimal> getPermanentAttributesBonuses();
+
+    /**
+     *
+     * @param resource
+     * @return
+     *
+     * @since 0.0.3
+     */
+    AttributeModifier<ResourceAttribute> getResourceBonus(ResourceAttribute resource);
+
+    <A extends Attribute> AttributeModifier<A> getModifiers(A attribute);
 
     Integer getLevelNumber();
 
-    Level getNextLevel();
+    /**
+     * @since 0.0.3
+     */
+    Level viewPreviousLevel();
 
-    public static final Level TEMP = new Level()
-    {
+    /**
+     * For symmetry.
+     * @return
+     * @since 0.0.3
+     */
+    default Level CurrentLevel() {
+        return this;
+    }
 
-        @Override
-        public Map<PrimaryAttribute, BigDecimal> getPrimaryAttributeBonuses() { // TODO Auto-generated method stub
-            EnumMap<PrimaryAttribute, BigDecimal> map = new EnumMap<>(PrimaryAttribute.class);
-            PrimaryAttribute.getAllPrimaryAttributes().stream().forEach(pa -> map.put(pa, BigDecimal.valueOf(3)));
-            return map;
-        }
+    Level viewNextLevel();
 
-        @Override
-        public Level getNextLevel() { // TODO Auto-generated method stub
-            return this;
-        }
-
-        @Override
-        public Integer getLevelNumber() { // TODO Auto-generated method stub
-            return -1;
-        }
-    };
+    public static final Level TEMP = new DummyLevelImpl();
 
 }

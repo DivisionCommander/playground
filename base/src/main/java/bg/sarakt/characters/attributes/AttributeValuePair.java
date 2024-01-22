@@ -9,6 +9,7 @@ package bg.sarakt.characters.attributes;
 
 import bg.sarakt.attributes.Attribute;
 
+@Deprecated
 public record AttributeValuePair(Attribute attribute, int value)
 {
 

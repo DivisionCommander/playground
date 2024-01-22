@@ -8,6 +8,11 @@
 
 package bg.sarakt.attributes;
 
+import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.impl.PrimaryAttributeEntry;
+import bg.sarakt.attributes.impl.SecondaryAttributeEntry;
+import bg.sarakt.characters.Level;
+
 public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
 
     long getId();
@@ -15,10 +20,23 @@ public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
     AttributeFormula getFormula(int level);
 
     /**
+     *
+     * @param level
+     * @return
+     *
+     * @since version 0.0.3
+     */
+    default AttributeFormula getFormula(Level level) {
+        return getFormula(level.getLevelNumber());
+    }
+
+    SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes, Level level);
+
+    /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
-    default int compareTo(Attribute o) {
-        return Attribute.getComparator().compare(this, o);
+    default int compareTo(Attribute attribute2) {
+        return Attribute.getComparator().compare(this, attribute2);
     }
 }

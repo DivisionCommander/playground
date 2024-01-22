@@ -9,8 +9,9 @@
 package bg.sarakt.characters.attributes1;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.Attribute.AttributeGroup;
+import bg.sarakt.attributes.AttributeGroup;
 
+@Deprecated
 public final class Attributes
 {
 

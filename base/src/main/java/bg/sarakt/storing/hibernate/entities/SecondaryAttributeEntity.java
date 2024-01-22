@@ -8,9 +8,11 @@
 
 package bg.sarakt.storing.hibernate.entities;
 
+import java.io.Serializable;
 import java.util.List;
 
-import bg.sarakt.attributes.Attribute.AttributeGroup;
+import bg.sarakt.attributes.AttributeGroup;
+import bg.sarakt.attributes.SecondaryAttribute;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,11 +23,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "advanced_attributes")
-public class SecondaryAttributesEntity
+@Table(name = "tbl_attributes_secondary")
+public class SecondaryAttributeEntity implements Serializable
 {
+    @Transient()
+    public static final Class<?> ENTRY = SecondaryAttribute.class;
+
+    /** field <code>serialVersionUID</code> */
+    private static final long serialVersionUID = 202401201803L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,9 +41,9 @@ public class SecondaryAttributesEntity
     private long          id;
     @Column(name = "attribute_name")
     private String        name;
-    @Column(name = "type")
+    @Column(name = "attribute_group")
     @Enumerated(EnumType.STRING)
-    private AttributeGroup type;
+    private AttributeGroup group;
     @Column(name = "abbreviation")
     private String        abbr;
     @Column(name = "description")
@@ -54,9 +62,9 @@ public class SecondaryAttributesEntity
         return name;
     }
 
-    public AttributeGroup getType()
+    public AttributeGroup getGroup()
     {
-        return type;
+        return group;
     }
 
     public String getAbbr()
@@ -86,7 +94,7 @@ public class SecondaryAttributesEntity
 
     public void setGroup(AttributeGroup type)
     {
-        this.type = type;
+        this.group = type;
     }
 
     public void setAbbr(String abbr)
@@ -108,7 +116,7 @@ public class SecondaryAttributesEntity
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append('[').append(id).append(']').append(name).append(" -[").append(abbr).append("]-\t").append(type).append(type);
+        sb.append('[').append(id).append(']').append(name).append(" -[").append(abbr).append("]-\t").append(group).append(group);
 
         return sb.toString();
     }
