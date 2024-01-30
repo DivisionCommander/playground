@@ -31,11 +31,13 @@ public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<Prima
     public void addPermanentBonus(BigDecimal bonus) {
         this.basicValue.add(bonus);
     }
+
     /**
      *
      * @see bg.sarakt.attributes.AttributeMapEntry#levelUp()
      */
-    @Override
+    @Override()
+    @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
         BigDecimal bonusPoints = getLevel().getPermanentAttributesBonuses().get(attr);
         basicValue = basicValue.add(bonusPoints);

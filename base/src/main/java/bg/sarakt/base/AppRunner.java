@@ -8,8 +8,10 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import bg.sarakt.attributes.experience.impl.DummyLevelImpl;
@@ -25,6 +27,7 @@ import bg.sarakt.storing.hibernate.HibernateConf;
 @SuppressWarnings("deprecation")
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties(HibernateConf.class)
+@EntityScan(basePackages = "bg.sarakt.storing.hibernate.entities")
 public class AppRunner {
 
     private static final int CONDITION =2;
@@ -37,8 +40,8 @@ public class AppRunner {
         };
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(AppRunner.class, args);
         System.setProperty("java.awt.headless", "false");
+         SpringApplication.run(AppRunner.class, args);
         switch (CONDITION)
         {
         case 0:

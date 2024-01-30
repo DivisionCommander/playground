@@ -14,7 +14,10 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.springframework.lang.Nullable;
 
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
@@ -24,18 +27,29 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
 
     private final PrimaryAttributeEntry[] entries;
 
-
-    @Deprecated
+    /**
+     *
+     * @param level
+     * @deprecated in favour of {@link PrimaryAttributeMap#PrimaryAttributeMap(Map, Level)}
+     */
+    @Deprecated(forRemoval =  true)
     public PrimaryAttributeMap(Level level) {
         this(null, level);
     }
 
-    public PrimaryAttributeMap(Map<PrimaryAttribute, Number> valuesArg, Level level) {
+    /**
+     *  Construct new {@link PrimaryAttributeMap}
+     *
+     *
+     * @param valuesArg if is null, map will be populated with default values;
+     * @param level
+     */
+    public PrimaryAttributeMap(@Nullable Map<PrimaryAttribute, Number> valuesArg, Level level) {
         super();
         entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
         Map<PrimaryAttribute, Number> values = valuesArg == null? Collections.emptyMap() : valuesArg;
         for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
-            entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, values.get(pa), level);
+            entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, values.getOrDefault(pa, null), level);
         }
     }
 
@@ -62,6 +76,7 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
         for (int index = 0; index < entries.length; index++) {
             entries[index].levelUp();
@@ -115,7 +130,10 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
          */
         @Override
         public PrimaryAttributeEntry next() {
-            return entries[index.getAndIncrement()];
+            if (index.get() < entries.length) {
+                return entries[index.getAndIncrement()];
+            }
+            throw new NoSuchElementException();
         }
 
     }

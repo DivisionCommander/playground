@@ -33,6 +33,7 @@ public interface AttributeMapEntry<T extends Attribute> {
 
     void replaceModifier(AttributeModifier<T> old, AttributeModifier<T> newM);
 
+    @Deprecated(forRemoval = true, since = "0.0.6")
     void levelUp();
 
     T getAttribute();

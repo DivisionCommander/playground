@@ -31,4 +31,16 @@ public @interface Dummy
      * @return
      */
     String description() default "";
+
+    /**
+     *
+     * @since 0.0.6
+     */
+    String since() default "";
+
+    /**
+     *
+     * @since 0.0.6
+     */
+    String to() default "";
 }

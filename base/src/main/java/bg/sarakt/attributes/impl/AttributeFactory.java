@@ -26,13 +26,16 @@ import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.characters.Level;
 import bg.sarakt.characters.attributes1.impls.SimpleAttributeFormulaImpl;
+import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.AttributesResourceDAO;
 import bg.sarakt.storing.hibernate.AttributesSecondaryDAO;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
+@SuppressWarnings("removal")
 public final class AttributeFactory implements Attributes {
 
+    private static final Logger LOG = Logger.getLogger();
     private static final AttributeFactory FACTORY     = new AttributeFactory();
     public static AttributeFactory getInstance() { return FACTORY; }
 
@@ -111,14 +114,12 @@ public final class AttributeFactory implements Attributes {
         try {
             AttributesSecondaryDAO dao = new AttributesSecondaryDAO();
             List<SecondaryAttributeEntity> results = dao.findAll();
-            if(results== null || results.isEmpty()) {
+            if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
             }
-            return results.stream().map(this::mapSecondary).collect(Collectors.toMap(sa-> sa.fullName() , sa-> sa));
+            return results.stream().map(this::mapSecondary).collect(Collectors.toMap(sa -> sa.fullName(), sa -> sa));
         } catch (Exception e) {
-            // FIXME: better handle;
-            System.out.println("SOMETHING GOES WRONG.");
-            e.printStackTrace();
+            LOG.error("Cannot get data from DB! Reason " + e.getMessage());
             return Collections.emptyMap();
         }
     }
@@ -127,14 +128,12 @@ public final class AttributeFactory implements Attributes {
         try {
             AttributesResourceDAO dao = new AttributesResourceDAO();
             List<ResourceAttributeEntity> results = dao.findAll();
-            if(results== null || results.isEmpty()) {
+            if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
             }
-            return results.stream().map(this::mapResources).collect(Collectors.toMap(ra->ra.fullName(), ra->ra));
+            return results.stream().map(this::mapResources).collect(Collectors.toMap(ra -> ra.fullName(), ra -> ra));
         } catch (Exception e) {
-            // FIXME: better handle;
-            System.out.println("SOMETHING GOES WRONG.");
-            e.printStackTrace();
+            LOG.error("Cannot get data from DB! Reason " + e.getMessage());
             return Collections.emptyMap();
         }
     }

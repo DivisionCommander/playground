@@ -93,6 +93,7 @@ public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribu
      * @see bg.sarakt.attributes.ModifiableAttributeMap#levelUp()
      */
     @Override
+    @Deprecated(forRemoval = true, since ="0.0.6")
     public void levelUp() {
         entries.values().forEach(SecondaryAttributeEntry::levelUp);
     }

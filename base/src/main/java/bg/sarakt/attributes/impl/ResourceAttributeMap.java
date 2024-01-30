@@ -43,6 +43,7 @@ public class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute
      * @see bg.sarakt.attributes.AttributeMap#levelUp()
      */
     @Override
+    @Deprecated(forRemoval =  true, since = "0.0.6")
     public void levelUp() {
         entries.values().stream().forEach(ResourceAttributeEntry::levelUp);
 

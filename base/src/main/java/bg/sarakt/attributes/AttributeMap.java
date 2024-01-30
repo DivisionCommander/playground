@@ -36,6 +36,7 @@ public interface AttributeMap<A extends Attribute> {
 
     Map<A, BigDecimal> getAllValues();
 
+    @Deprecated(forRemoval =  true, since ="0.0.6")
     void levelUp();
 
 }

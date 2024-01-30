@@ -169,6 +169,7 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
     protected final Level getLevel() {return this.level;}
 
     @Override
+    @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
         AttributeModifier<T> mod = level.viewPreviousLevel().getModifiers(attr);
         if (mod != null) {

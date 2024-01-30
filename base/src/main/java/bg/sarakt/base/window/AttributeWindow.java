@@ -43,11 +43,10 @@ public class AttributeWindow extends AbstractWindow{
 
     private final AttributeMapImpl attributes;
     private JTextField fldXP = new JTextField(8);
-//    private JButton btnXP = new JButton("Add XP");
 
     public AttributeWindow(AttributeMapImpl attrMap, DummyLevelImpl lvl) {
         super();
-        map  = new TreeMap<>();
+        map  = new TreeMap<>(Attribute.getComparator());
         this.level = lvl;
         attributes= attrMap;
         freePoints = new AtomicInteger(lvl.getUnallocatedPonts());
@@ -134,7 +133,6 @@ public class AttributeWindow extends AbstractWindow{
     }
 
 
-    // lambda err, move to stand-alone method
     private void att(Attribute a) {
         if (map.containsKey(a)) {
             JTextField field = map.get(a);
