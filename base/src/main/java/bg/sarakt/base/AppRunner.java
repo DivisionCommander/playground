@@ -3,15 +3,16 @@ package bg.sarakt.base;
 
 import java.awt.EventQueue;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 
-import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeMap;
+import bg.sarakt.attributes.experience.impl.DummyLevelImpl;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
@@ -20,8 +21,11 @@ import bg.sarakt.base.window.CharacterAttributeWindow;
 import bg.sarakt.storing.hibernate.HibernateConf;
 
 /** Application runner for encapsulating the application. */
-@ComponentScan("bg.sarakt.storing.hibernate")
-public final class AppRunner {
+
+@SuppressWarnings("deprecation")
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@EnableConfigurationProperties(HibernateConf.class)
+public class AppRunner {
 
     private static final int CONDITION =2;
 
@@ -33,26 +37,28 @@ public final class AppRunner {
         };
 
     public static void main(String[] args) throws Exception {
+        SpringApplication.run(AppRunner.class, args);
+        System.setProperty("java.awt.headless", "false");
         switch (CONDITION)
         {
         case 0:
             main_0(args);
-            return;
+            break;
         case 1:
             main_1(args);
-            return;
+            break;
         case 2:
             main_2(args);
-            return;
+            break;
         default:
-            return;
+            break;
         }
     }
     public static <T extends Serializable>void main_2(String[] args) throws Exception {
         System.out.println("Test ground");
-
-        AttributeMap<Attribute> map = new AttributeMapImpl();
-        EventQueue.invokeAndWait(()->new AttributeWindow(map ));
+        DummyLevelImpl lvl = new DummyLevelImpl();
+        AttributeMapImpl map = new AttributeMapImpl(lvl);
+        EventQueue.invokeAndWait(()->new AttributeWindow(map, lvl ));
     }
 
 

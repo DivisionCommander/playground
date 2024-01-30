@@ -22,7 +22,7 @@ public abstract class AbstractWindow {
         window = new JFrame("Attributes");
         window.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         panel = new JPanel();
-        panel.setLayout(new GridLayout(0, 3));
+        panel.setLayout(new GridLayout(0, 2));
 
 //        window.setLocationRelativeTo(null);
 //        validate();

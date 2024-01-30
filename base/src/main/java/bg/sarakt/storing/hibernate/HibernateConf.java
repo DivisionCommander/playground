@@ -12,19 +12,19 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
-@Configuration
 @EnableTransactionManagement
+@Configuration
+@ConfigurationProperties
 public class HibernateConf {
 
     @Bean()

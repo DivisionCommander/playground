@@ -39,12 +39,12 @@ public class SecondaryAttributeEntity implements Serializable
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "attribute_id", unique = true)
     private long          id;
-    @Column(name = "attribute_name")
+    @Column(name = "attribute_name", unique = true)
     private String        name;
     @Column(name = "attribute_group")
     @Enumerated(EnumType.STRING)
     private AttributeGroup group;
-    @Column(name = "abbreviation")
+    @Column(name = "abbreviation", unique = true)
     private String        abbr;
     @Column(name = "description")
     private String        description;

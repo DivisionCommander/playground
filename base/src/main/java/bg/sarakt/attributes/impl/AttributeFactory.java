@@ -9,20 +9,21 @@
 package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
+import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.characters.Level;
 import bg.sarakt.characters.attributes1.impls.SimpleAttributeFormulaImpl;
 import bg.sarakt.storing.hibernate.AttributesResourceDAO;
@@ -30,50 +31,15 @@ import bg.sarakt.storing.hibernate.AttributesSecondaryDAO;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
-public final class AttributeFactory {
+public final class AttributeFactory implements Attributes {
 
     private static final AttributeFactory FACTORY     = new AttributeFactory();
-//    public static final Attribute         PHYSIQUE;
-//    public static final Attribute         PSYCHE;
-//    public static final Attribute         PERSONALITY;
-
-
-//    static {
-//            PHYSIQUE    = new BaseAttribute("Physique", "PH", AttributeGroup.PHYSICAL, "");
-//                PSYCHE      = new BaseAttribute("Psyche", "PS", AttributeGroup.PSYCHICAL,
-//                "Ability to continue works under stress.");
-//               PERSONALITY = new BaseAttribute("Personality", "PN", AttributeGroup.PERSON,
-//                "Sliders that hold information about person");
-//
-//
-//    }
     public static AttributeFactory getInstance() { return FACTORY; }
 
-    private static final String NAME_ACCURACY            = "Accuracy";
-    private static final String NAME_ARMOR_PIERCING      = "Armor Piercing";
-    private static final String NAME_ATTACK_SKILL        = "Attack Skill";
-    private static final String NAME_ATTACK_SPEED        = "Attack Speed";
-    private static final String NAME_CAST_RATE           = "Cast rate";
-    private static final String NAME_COMBAT_QUICKNESS    = "Combat Quickness";
-    private static final String NAME_COMBAT_RATING       = "Combat rating";
-    private static final String NAME_CRITICAL_CHANCE     = "Critical Chance";
-    private static final String NAME_CURRENT_HIT_POINT   = "Current HP";
-    private static final String NAME_CURRENT_MANA_POINTS = "Current MP";
-    private static final String NAME_DEFENCE_RATE        = "Defence Rate";
-    private static final String NAME_ENERGY              = "Energy";
-    private static final String NAME_EVADE               = "Evade";
-    private static final String NAME_HIT_POINTS          = "Hit Points";
-    private static final String NAME_HIT_RATE            = "Hit Rate";
-    private static final String NAME_HITTING             = "Hitting";
-    private static final String NAME_IQ                  = "IQ";
-    private static final String NAME_KNOWLEDGE           = "Knowledge";
-    private static final String NAME_MANA_POINTS         = "Mana Points";
-    private static final String NAME_RESISTANCE          = "Resistance";
-    private static final String NAME_VIGOUR              = "Vigour";
-
-
-    private final Set<SecondaryAttribute> secondaryAttributes;
-    private final Set<ResourceAttribute>  resourceAttributes;
+    private static final   String NAME_CURRENT_HIT_POINT   = "Current HP";
+    private static final   String NAME_CURRENT_MANA_POINTS = "Current MP";
+    private final Map<String, SecondaryAttribute> secondaryAttributes;
+    private final Map<String, ResourceAttribute>  resourceAttributes;
 
 
     private AttributeFormula getDummyFormula(SecondaryAttribute sa, int level) {
@@ -84,97 +50,92 @@ public final class AttributeFactory {
     }
 
     private AttributeFactory() {
-        Set<SecondaryAttribute> secondary = getSecondaryAttributesFromDB();
+        Map<String, SecondaryAttribute> secondary = getSecondaryAttributesFromDB();
         if (secondary == null || secondary.isEmpty()) {
-            secondary = defaultSecondaryAttributes();
-            Map<SecondaryAttribute, Map<Integer, AttributeFormula>> map = secondary.stream()
-                    .collect(Collectors.toMap(sa -> sa, sa -> new HashMap<>()));
+            secondary = defaultSecondaryAttributesMap();
         }
-        Set<ResourceAttribute> resource = getResourceAttributesFromDB();
+        Map<String, ResourceAttribute> resource = getResourceAttributesFromDB();
         if (resource == null || resource.isEmpty()) {
-            resource = defaultResourceAttributes();
+            resource = defaultResourceAttributesMap();
         }
 
-        secondaryAttributes = Set.copyOf(secondary);
-        resourceAttributes = Set.copyOf(resource);
+        secondaryAttributes = Map.copyOf(secondary);
+        resourceAttributes = Map.copyOf(resource);
     }
 
-    public  Set<SecondaryAttribute> defaultSecondaryAttributes() {
-        Set<SecondaryAttribute> set = new HashSet<>();
+    public  Collection< SecondaryAttribute> defaultSecondaryAttributes() {
+        return defaultSecondaryAttributesMap().values();
+    }
+    private  Map<String, SecondaryAttribute> defaultSecondaryAttributesMap() {
+        Map<String, SecondaryAttribute> map = new HashMap<>();
 
         // AttributeGroup.PHYSICAL:
-        set.add(new DummySecondaryAttribute(NAME_ACCURACY, "ACC", AttributeGroup.PHYSICAL, "", 100));
-        set.add(new DummySecondaryAttribute(NAME_ATTACK_SKILL, "ATT", AttributeGroup.PHYSICAL, "", 101));
-        set.add(new DummySecondaryAttribute(NAME_CRITICAL_CHANCE, "CC", AttributeGroup.PHYSICAL, "", 102));
-        set.add(new DummySecondaryAttribute(NAME_ATTACK_SPEED, "IAS", AttributeGroup.PHYSICAL, "", 103));
-        set.add(new DummySecondaryAttribute(NAME_COMBAT_QUICKNESS, "CoQ", AttributeGroup.PHYSICAL, "", 104));
-        set.add(new DummySecondaryAttribute(NAME_HITTING, "HIT", AttributeGroup.PHYSICAL, "", 105));
-        set.add(new DummySecondaryAttribute(NAME_DEFENCE_RATE, "DEF", AttributeGroup.PHYSICAL, "", 106));
-        // set.add(new DummySecondaryAttributeRecord(NAME_HIT_POINTS, "HP",
-        // AttributeGroup.PHYSICAL, "", 107));
-        // set.add(new DummySecondaryAttributeRecord(NAME_CURRENT_HIT_POINT, "cHP",
-        // AttributeGroup.PHYSICAL, "", 108));
-        set.add(new DummySecondaryAttribute(NAME_ARMOR_PIERCING, "ArP", AttributeGroup.PHYSICAL, "", 109));
-        set.add(new DummySecondaryAttribute(NAME_HIT_RATE, "HRt", AttributeGroup.PHYSICAL, "", 110));
-        set.add(new DummySecondaryAttribute(NAME_EVADE, "EVA", AttributeGroup.PHYSICAL, "", 111));
+       map.put(NAME_ACCURACY,        new DummySecondaryAttribute(NAME_ACCURACY,          "ACC", AttributeGroup.PHYSICAL, "", 100));
+       map.put(NAME_ATTACK_SKILL,    new DummySecondaryAttribute(NAME_ATTACK_SKILL,      "ATT", AttributeGroup.PHYSICAL, "", 101));
+       map.put(NAME_CRITICAL_CHANCE, new DummySecondaryAttribute(NAME_CRITICAL_CHANCE,   "CC", AttributeGroup.PHYSICAL, "", 102));
+       map.put(NAME_ATTACK_SPEED,    new DummySecondaryAttribute(NAME_ATTACK_SPEED,      "IAS", AttributeGroup.PHYSICAL, "", 103));
+       map.put(NAME_COMBAT_QUICKNESS,new DummySecondaryAttribute(NAME_COMBAT_QUICKNESS,  "CoQ", AttributeGroup.PHYSICAL, "", 104));
+       map.put(NAME_HITTING,         new DummySecondaryAttribute(NAME_HITTING,           "HIT", AttributeGroup.PHYSICAL, "", 105));
+       map.put(NAME_DEFENCE_RATE,    new DummySecondaryAttribute(NAME_DEFENCE_RATE,      "DEF", AttributeGroup.PHYSICAL, "", 106));
+       map.put(NAME_ARMOR_PIERCING,  new DummySecondaryAttribute(NAME_ARMOR_PIERCING,     "ArP", AttributeGroup.PHYSICAL, "", 109));
+       map.put(NAME_HIT_RATE,        new DummySecondaryAttribute(NAME_HIT_RATE,          "HRt", AttributeGroup.PHYSICAL, "", 110));
+       map.put(NAME_EVADE,           new DummySecondaryAttribute(NAME_EVADE,             "EVA", AttributeGroup.PHYSICAL, "", 111));
 
         // AttributeGroup.PSYCHICAL:
-        set.add(new DummySecondaryAttribute(NAME_IQ, "IQ", AttributeGroup.PSYCHICAL, "", 200));
-        set.add(new DummySecondaryAttribute(NAME_CAST_RATE, "FCR", AttributeGroup.PSYCHICAL, "", 201));
-        // set.add(new DummySecondaryAttributeRecord(NAME_MANA_POINTS, "MP",
-        // AttributeGroup.PSYCHICAL, "", 202));
-        // set.add(new DummySecondaryAttributeRecord(NAME_CURRENT_MANA_POINTS, "cMP",
-        // AttributeGroup.PSYCHICAL, "", 203));
-        set.add(new DummySecondaryAttribute(NAME_RESISTANCE, "RES", AttributeGroup.PSYCHICAL, "", 204));
-        set.add(new DummySecondaryAttribute(NAME_KNOWLEDGE, "KNW", AttributeGroup.PSYCHICAL, "", 205));
+        map.put(NAME_IQ,        new DummySecondaryAttribute(NAME_IQ,        "IQ", AttributeGroup.PSYCHICAL, "", 200));
+        map.put(NAME_CAST_RATE, new DummySecondaryAttribute(NAME_CAST_RATE, "FCR", AttributeGroup.PSYCHICAL, "", 201));
+        map.put(NAME_RESISTANCE,new DummySecondaryAttribute(NAME_RESISTANCE, "RES", AttributeGroup.PSYCHICAL, "", 204));
+        map.put(NAME_KNOWLEDGE, new DummySecondaryAttribute(NAME_KNOWLEDGE, "KNW", AttributeGroup.PSYCHICAL, "", 205));
 
         // AttributeGroup.PERSON:
-        set.add(new DummySecondaryAttribute(NAME_COMBAT_RATING, "CoR", AttributeGroup.PERSON, "", 301));
-        return set;
+        map.put(NAME_COMBAT_RATING, new DummySecondaryAttribute(NAME_COMBAT_RATING, "CoR", AttributeGroup.PERSON, "", 301));
+        return map;
     }
 
-    public Set<ResourceAttribute> defaultResourceAttributes() {
-        Set<ResourceAttribute> set = new HashSet<>();
+    public Collection<ResourceAttribute> defaultResourceAttributes() {
+        return defaultResourceAttributesMap().values();
+    }
+    private Map<String, ResourceAttribute> defaultResourceAttributesMap() {
+        Map<String, ResourceAttribute> map = new HashMap<>();
 
-        set.add(new DummyResourceAttribute(NAME_HIT_POINTS, "HP", PrimaryAttribute.CONSTITUTION, NAME_CURRENT_HIT_POINT, 107));
-        set.add(new DummyResourceAttribute(NAME_MANA_POINTS, "MP", PrimaryAttribute.INTELLIGENCE, NAME_CURRENT_MANA_POINTS, 202));
+        map.put(NAME_HIT_POINTS, new DummyResourceAttribute(NAME_HIT_POINTS, "HP", PrimaryAttribute.CONSTITUTION, NAME_CURRENT_HIT_POINT, 107));
+        map.put(NAME_MANA_POINTS, new DummyResourceAttribute(NAME_MANA_POINTS, "MP", PrimaryAttribute.INTELLIGENCE, NAME_CURRENT_MANA_POINTS, 202));
 
-        set.add(new DummyResourceAttribute(NAME_ENERGY, "NGY", PrimaryAttribute.WILL, NAME_ENERGY, 302));
-        set.add(new DummyResourceAttribute(NAME_VIGOUR, "VIG", PrimaryAttribute.SPIRIT, NAME_VIGOUR, 303));
+        map.put(NAME_ENERGY, new DummyResourceAttribute(NAME_ENERGY, "NGY", PrimaryAttribute.WILL, NAME_ENERGY, 302));
+        map.put(NAME_VIGOUR, new DummyResourceAttribute(NAME_VIGOUR, "VIG", PrimaryAttribute.SPIRIT, NAME_VIGOUR, 303));
 
-
-        return set;
+        return map;
     }
 
-    private Set<SecondaryAttribute> getSecondaryAttributesFromDB() {
+    private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB() {
         try {
             AttributesSecondaryDAO dao = new AttributesSecondaryDAO();
             List<SecondaryAttributeEntity> results = dao.findAll();
             if(results== null || results.isEmpty()) {
-                return Collections.emptySet();
+                return Collections.emptyMap();
             }
-            return results.stream().map(this::mapSecondary).collect(Collectors.toSet());
+            return results.stream().map(this::mapSecondary).collect(Collectors.toMap(sa-> sa.fullName() , sa-> sa));
         } catch (Exception e) {
             // FIXME: better handle;
             System.out.println("SOMETHING GOES WRONG.");
             e.printStackTrace();
-            return Collections.emptySet();
+            return Collections.emptyMap();
         }
     }
 
-    private Set<ResourceAttribute> getResourceAttributesFromDB() {
+    private Map<String, ResourceAttribute> getResourceAttributesFromDB() {
         try {
             AttributesResourceDAO dao = new AttributesResourceDAO();
             List<ResourceAttributeEntity> results = dao.findAll();
             if(results== null || results.isEmpty()) {
-                return Collections.emptySet();
+                return Collections.emptyMap();
             }
-            return results.stream().map(this::mapResources).collect(Collectors.toSet());
+            return results.stream().map(this::mapResources).collect(Collectors.toMap(ra->ra.fullName(), ra->ra));
         } catch (Exception e) {
             // FIXME: better handle;
             System.out.println("SOMETHING GOES WRONG.");
             e.printStackTrace();
-            return Collections.emptySet();
+            return Collections.emptyMap();
         }
     }
 
@@ -186,9 +147,9 @@ public final class AttributeFactory {
         return new ResourceAttributeImpl(entity);
     }
 
-    public Set<SecondaryAttribute> getSecondaryAttributes() { return secondaryAttributes; }
+    public Collection<SecondaryAttribute> getSecondaryAttributes() { return secondaryAttributes.values(); }
 
-    public Set<ResourceAttribute> getResourceAttribute() { return resourceAttributes; }
+    public Collection<ResourceAttribute> getResourceAttribute() { return resourceAttributes.values(); }
 
     private record DummySecondaryAttribute(String fullName, String abbreviation, AttributeGroup group, String description, long getId)
             implements SecondaryAttribute {
@@ -241,10 +202,27 @@ public final class AttributeFactory {
 
         @Override
         public String toString() {
-            // TODO Auto-generated method stub
             return fullName;
         }
 
     }
 
+    /**
+     * @param attribute
+     * @return
+     */
+    public Attribute ofName(String attribute) {
+        try {
+            return PrimaryAttribute.ofName(attribute);
+        } catch (Exception e) {
+            // IGNORE seams its not primary attribute
+        }
+        if (secondaryAttributes.containsKey(attribute)) {
+            return secondaryAttributes.get(attribute);
+        }
+        if (resourceAttributes.containsKey(attribute)) {
+            return resourceAttributes.get(attribute);
+        }
+        throw new UnknownValueException("Unknown or unsupported attribute!");
+    }
 }

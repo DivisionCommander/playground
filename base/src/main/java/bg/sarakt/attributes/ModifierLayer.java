@@ -9,6 +9,7 @@
 package bg.sarakt.attributes;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public enum ModifierLayer
@@ -78,10 +79,6 @@ public enum ModifierLayer
     private final int               position;
     private Optional<ModifierLayer> previous;
 
-    private ModifierLayer(int pos) {
-        this.position = pos;
-    }
-
     private ModifierLayer(int pos, ModifierLayer previous) {
         this.position = pos;
         this.previous = Optional.ofNullable(previous);
@@ -125,14 +122,14 @@ public enum ModifierLayer
 
     private static class ModifierLayerIterator implements Iterator<ModifierLayer> {
 
-        private ModifierLayer layer;
+        private Optional<ModifierLayer> layer;
 
         public ModifierLayerIterator() {
             this(ModifierLayer.getLowestLayer());
         }
 
         public ModifierLayerIterator(ModifierLayer modifierLayer) {
-            this.layer = modifierLayer;
+            this.layer = Optional.of(modifierLayer);
         }
 
         /**
@@ -140,7 +137,7 @@ public enum ModifierLayer
          */
         @Override
         public boolean hasNext() {
-            return layer.hasHigherLayer();
+            return this.layer.isPresent();
         }
 
         /**
@@ -148,9 +145,12 @@ public enum ModifierLayer
          */
         @Override
         public ModifierLayer next() {
-            this.layer = layer.higherLayer().get();
-            return layer;
-
+            if (layer.isEmpty()) {
+                throw new NoSuchElementException();
+            }
+            ModifierLayer next = layer.get();
+            layer = next.higherLayer();
+            return next;
         }
     }
 }

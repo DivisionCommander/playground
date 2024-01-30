@@ -15,7 +15,11 @@ module sarakt {
     requires mysql.connector.j;
     requires spring.boot.autoconfigure;
     requires spring.boot;
+    requires spring.data.commons;
 
+
+    opens bg.sarakt.z.tools;
+    opens bg.sarakt.base;
     opens bg.sarakt.characters.attributes1.impls to com.fasterxml.jackson.databind;
     opens bg.sarakt.storing.hibernate;
     opens bg.sarakt.storing.hibernate.entities;

@@ -73,4 +73,12 @@ public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<Prima
             DEFAULT_VALUE.set(newValue);
         }
     }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "Entry for Primary Attribute= ["+attr.fullName() + "] Base value= "+ basicValue;
+    }
 }

@@ -9,13 +9,14 @@
 package bg.sarakt.characters;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ResourceAttribute;
+import bg.sarakt.attributes.experience.impl.DummyLevelImpl;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
-import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 
 public interface Level {
 
@@ -34,6 +35,10 @@ public interface Level {
 
     Integer getLevelNumber();
 
+    int getUnallocatedPonts();
+
+    boolean earnExperience(BigInteger amount);
+
     /**
      * @since 0.0.3
      */
@@ -44,7 +49,7 @@ public interface Level {
      * @return
      * @since 0.0.3
      */
-    default Level CurrentLevel() {
+    default Level viewCurrentLevel() {
         return this;
     }
 

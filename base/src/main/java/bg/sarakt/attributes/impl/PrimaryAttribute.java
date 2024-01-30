@@ -8,7 +8,6 @@
 
 package bg.sarakt.attributes.impl;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
@@ -20,37 +19,25 @@ public enum PrimaryAttribute implements Attribute
 {
 
     // Physical
-    /**
-     * Physical Attributes: {@link Attribute#PHYSIQUESliders that hold information
-     * about person}
-     */
-    STRENGTH(
-            "Strength", "STR", AttributeGroup.PHYSICAL, "Basic physical strangth. Affect force attacks and (gear) lifting and carring capacities."
-    ),
-    AGILITY(
-            "Fine Motoric", "FMS", AttributeGroup.PHYSICAL, "Basic fine motoric skills. Affects delicate, fast and multi-movement attacks."
-    ),
-    CONSTITUTION("STAMINA", "STA", AttributeGroup.PHYSICAL, "Basic ability to take damage without die."),
+    STRENGTH(Attributes.NAME_STRENGTH, "STR", AttributeGroup.PHYSICAL, Attributes.DESC_STRENGTH),
+    AGILITY(Attributes.NAME_AGILITY, "FMS", AttributeGroup.PHYSICAL, Attributes.DESC_AGILITY),
+    CONSTITUTION(Attributes.NAME_CONSTITUTION, "STA", AttributeGroup.PHYSICAL, Attributes.DESC_CONSTITUTION),
 
     // Mental
-    /**
-     * Mental Attributes: {@link Attribute#PSYCHE}
-     */
-    INTELLIGENCE("Intelligence", "INT", AttributeGroup.PSYCHICAL, "The ability to learn new thing and solve problems."),
-    WISDOM("WISDOM", "WIS", AttributeGroup.PSYCHICAL, "Identify thing, Understand more complicated spells"),
-    PSIONIC("Psionic", "PSI", AttributeGroup.PSYCHICAL, "Increace effectiveness of certain magical and mental abilities"),
+    INTELLIGENCE(Attributes.NAME_INTELLIGENCE, "INT", AttributeGroup.PSYCHICAL, Attributes.DESC_INTELLIGENCE),
+    WISDOM(Attributes.NAME_WISDOM, "WIS", AttributeGroup.PSYCHICAL, Attributes.DESC_WISDOM),
+    PSIONIC(Attributes.NAME_PSIONIC, "PSI", AttributeGroup.PSYCHICAL, Attributes.DESC_PSIONIC),
 
-    /**
-     * Personality attributes: {@link Attribute#PERSONALITY}
-     */
-    SPIRIT("Spirit", "SPI", AttributeGroup.PERSON, "Ability to recover from magical, mental and spiritual affects"),
-    WILL(
-            "Will Power", "WIL", AttributeGroup.PERSON, "Projecting will over another character of protect from influence from person, artifacts and etc."
-    ),
+    // Personality attributes:
+    SPIRIT(Attributes.NAME_SPIRIT, "SPI", AttributeGroup.PERSON, Attributes.DESC_SPIRIT),
+    WILL(Attributes.NAME_WILL, "WIL", AttributeGroup.PERSON, Attributes.DESC_WILL),
 
     ;
 
-    private static final Set<PrimaryAttribute> ALL_BASICS = Set.copyOf(EnumSet.allOf(PrimaryAttribute.class));
+    private static final Set<PrimaryAttribute> ALL_PRIMARY_ATTRIBUTES = Set.of(
+            STRENGTH, AGILITY, CONSTITUTION,
+            INTELLIGENCE, WISDOM, PSIONIC,
+            SPIRIT, WILL);
 
     private final String         name;
     private final String         abbreviation;
@@ -105,9 +92,17 @@ public enum PrimaryAttribute implements Attribute
         return new PrimaryAttributeEntry(this, value, level);
     }
 
+    public static PrimaryAttribute ofName(String name) {
+        for(PrimaryAttribute pa : ALL_PRIMARY_ATTRIBUTES) {
+            if(pa.name.equals(name)) {
+                return pa;
+            }
+        }
+        throw new UnknownValueException("Unknown or unsupported attribute <"+name+">.");
+    }
 
     public static PrimaryAttribute ofAbbreviation(String abbr) {
-        for (PrimaryAttribute a : ALL_BASICS) {
+        for (PrimaryAttribute a : ALL_PRIMARY_ATTRIBUTES) {
             if (a.abbreviation.equals(abbr)) {
                 return a;
             }
@@ -115,9 +110,9 @@ public enum PrimaryAttribute implements Attribute
         throw new UnknownValueException("The attribute abbreviation " + abbr + " is unknown or unsupported, or is not basic attribute.");
     }
 
-    public static Set<PrimaryAttribute> getAllPrimaryAttributes() { return ALL_BASICS; }
+    public static Set<PrimaryAttribute> getAllPrimaryAttributes() { return ALL_PRIMARY_ATTRIBUTES; }
 
     public static int count() {
-        return ALL_BASICS.size();
+        return ALL_PRIMARY_ATTRIBUTES.size();
     }
 }

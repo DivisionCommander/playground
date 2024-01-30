@@ -5,19 +5,25 @@
  *
  * Copyright (c) Roman Tsonev
  */
+
 package bg.sarakt.z.tools;
 
-public class ToolsRunner
-{
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-    public static void main(String[] args)
-    {
+import bg.sarakt.storing.hibernate.HibernateConf;
+
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@EnableConfigurationProperties(value = HibernateConf.class)
+public class ToolsRunner {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ToolsRunner.class, args);
         DBPopulator.getInstance()
-        .populateLevels()
-//        .populateAttributes()
-        ;
+                 .populateLevels()
+                 .populateAttributes()
+                .populateLevelNodes();
     }
 }
-
-
-

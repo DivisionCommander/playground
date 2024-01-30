@@ -105,7 +105,7 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
             this.experience = LevelCalculator.EXPERIENCE_CAP;
         }
 
-        int newLevel = new LevelCalculator().calculateLevel(experience);
+        int newLevel = LevelCalculator.getInstance().calculateLevel(experience);
         if (this.level >= newLevel) {
             return;
         }

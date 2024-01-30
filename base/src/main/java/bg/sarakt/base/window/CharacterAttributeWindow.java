@@ -18,12 +18,19 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import bg.sarakt.characters.GameCharacter;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 import bg.sarakt.characters.impls.PlayerCharacterImpl;
 import bg.sarakt.logging.Logger;
 
-@Deprecated
+/**
+ *
+ * @deprecated still need better version. New version will be implemented when
+ *             the new version of {@link GameCharacter} is live, then this class
+ *             will be removed
+ */
+@Deprecated(forRemoval = false)
 public class CharacterAttributeWindow
 {
 

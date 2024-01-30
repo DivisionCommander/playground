@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 
 import bg.sarakt.attributes.Attribute;
@@ -154,29 +153,4 @@ public abstract class AbstractAttributeMap<A extends Attribute, E extends Attrib
         }
     }
 
-    protected abstract class Node implements Entry<A, E>{
-
-        /**
-         * @see java.util.Map.Entry#getKey()
-         */
-        @Override
-        public A getKey() { // TODO Auto-generated method stub
-        return null; }
-
-        /**
-         * @see java.util.Map.Entry#getValue()
-         */
-        @Override
-        public E getValue() { // TODO Auto-generated method stub
-        return null; }
-
-        /**
-         * @see java.util.Map.Entry#setValue(java.lang.Object)
-         */
-        @Override
-        public E setValue(E value) {
-            throw new UnsupportedOperationException();
-        }
-
-    }
 }

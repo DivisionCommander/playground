@@ -46,7 +46,9 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
         valuesPerLayer = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
         modifiers = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
 
-        Iterator<ModifierLayer> it = ModifierLayer.getIterator();
+        Iterator<ModifierLayer> it =// EnumSet.allOf(ModifierLayer.class).iterator();
+
+                ModifierLayer.getIterator();
         while (it.hasNext()) {
             ModifierLayer layer = it.next();
             modifiers.put(layer, new ArrayList<>());
@@ -168,8 +170,14 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
 
     @Override
     public void levelUp() {
-        removeModifier(level.viewPreviousLevel().getModifiers(attr), false);
-        addModifier(level.getModifiers(attr), false);
+        AttributeModifier<T> mod = level.viewPreviousLevel().getModifiers(attr);
+        if (mod != null) {
+            removeModifier(mod, false);
+        }
+        mod = level.viewCurrentLevel().getModifiers(attr);
+        if (mod != null) {
+            addModifier(mod, false);
+        }
         recalculate();
     }
 

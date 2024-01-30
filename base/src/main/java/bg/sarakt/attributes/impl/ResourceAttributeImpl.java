@@ -65,6 +65,9 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     @Override
     public BigDecimal getCoefficientForLevel(Level level) {
         Entry<Integer, BigDecimal> entry = coefficients.floorEntry(level.getLevelNumber());
+        if(entry == null) {
+            return BigDecimal.ONE;
+        }
         return entry.getValue();
     }
 

@@ -32,6 +32,9 @@ public class LevelEntity implements Serializable
     @Column(name = "experience", unique = true)
     private long xp;
 
+    @Column(name = "free_points", unique = false)
+    private Integer freePoints = 5;
+
     public LevelEntity()
     {}
 
@@ -59,6 +62,15 @@ public class LevelEntity implements Serializable
     public void setXp(long xp)
     {
         this.xp = xp;
+    }
+
+    public Integer getFreePoints() {
+        return freePoints;
+    }
+
+    public void setFreePoints(Integer freePoints) {
+        if(freePoints != null)
+        this.freePoints = freePoints;
     }
 
 }

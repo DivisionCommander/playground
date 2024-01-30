@@ -10,6 +10,7 @@ package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,20 +24,16 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
 
     private final PrimaryAttributeEntry[] entries;
 
-    private PrimaryAttributeMap(boolean dummy, Level level) {
+
+    @Deprecated
+    public PrimaryAttributeMap(Level level) {
+        this(null, level);
+    }
+
+    public PrimaryAttributeMap(Map<PrimaryAttribute, Number> valuesArg, Level level) {
         super();
         entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
-    }
-
-    public PrimaryAttributeMap(Level level) {
-        this(false, level);
-        for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
-            entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, null, level);
-        }
-    }
-
-    public PrimaryAttributeMap(Map<PrimaryAttribute, Number> values, Level level) {
-        this(false, level);
+        Map<PrimaryAttribute, Number> values = valuesArg == null? Collections.emptyMap() : valuesArg;
         for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
             entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, values.get(pa), level);
         }

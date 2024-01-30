@@ -9,9 +9,12 @@
 package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
+import org.springframework.lang.Nullable;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMap;
@@ -27,26 +30,40 @@ public class AttributeMapImpl implements AttributeMap<Attribute> {
     private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry> resourceMap;
     private final ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> secondaryMap;
 
+    private final Level level;
+
     public AttributeMapImpl() {
         this(Level.TEMP);
     }
 
     public AttributeMapImpl(Level level) {
-        this(new PrimaryAttributeMap(level), AttributeFactory.getInstance().getSecondaryAttributes(), level);
+        this(null, AttributeFactory.getInstance().getSecondaryAttributes(), level);
     }
 
-    public AttributeMapImpl(Map<PrimaryAttribute, Number> values, Set<SecondaryAttribute> secondary, Level level) {
-        this(new PrimaryAttributeMap(values, level), secondary, level);
+    public AttributeMapImpl(Map<PrimaryAttribute, Number> values, Collection<SecondaryAttribute> secondary, Level level) {
+        this(values, AttributeFactory.getInstance().getResourceAttribute(), secondary, level);
     }
 
-    public AttributeMapImpl(ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Set<SecondaryAttribute> secondary, Level level) {
-
-        primaryMap = primary;
-        resourceMap = new ResourceAttributeMap(level, AttributeFactory.getInstance().getResourceAttribute(), primaryMap);;
-        secondaryMap = new SecondaryAttributeMap(primary, secondary, level);
+    /**
+     *
+     * @param primary if it is null, a default values Will be used.
+     * @param resources
+     * @param secondary
+     * @param level
+     */
+    public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources, Collection<SecondaryAttribute> secondary, Level level) {
+        primaryMap = new PrimaryAttributeMap(primary, level);
+        resourceMap = new ResourceAttributeMap(level, resources, primaryMap);
+        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary, level);
+        this.level = level;
     }
 
 
+    public void earnExperience(BigInteger amount) {
+        if(level.earnExperience(amount)) {
+            levelUp();
+        }
+    }
 
     @Override
     public BigDecimal getBaseValue(Attribute attribute) {

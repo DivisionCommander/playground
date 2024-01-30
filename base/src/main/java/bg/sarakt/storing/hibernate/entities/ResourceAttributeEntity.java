@@ -11,6 +11,7 @@ package bg.sarakt.storing.hibernate.entities;
 import java.io.Serializable;
 import java.util.List;
 
+
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
@@ -38,7 +39,7 @@ public class ResourceAttributeEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "attribute_id", unique = true)
     private long             id;
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String           name;
     @Column(name = "attribute_group")
     @Enumerated(EnumType.STRING)
@@ -46,7 +47,7 @@ public class ResourceAttributeEntity implements Serializable {
     @Column(name = "primary_attribute")
     @Enumerated(EnumType.STRING)
     private PrimaryAttribute primeAttribute;
-    @Column(name = "abbreviation")
+    @Column(name = "abbreviation", unique = true)
     private String           abbr;
     @Column(name = "description")
     private String           descrption;

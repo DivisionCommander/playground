@@ -8,7 +8,11 @@
 
 package bg.sarakt.z.tools;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -18,22 +22,32 @@ import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.impl.AttributeFactory;
+import bg.sarakt.attributes.impl.Attributes;
+import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.base.utils.FormulaSerializer;
 import bg.sarakt.base.utils.HibernateUtils;
 import bg.sarakt.characters.Level;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.logging.LoggerFactory;
+import bg.sarakt.storing.hibernate.AdditionaAttrValuesDAO;
+import bg.sarakt.storing.hibernate.PrimaryAttrValuesDAO;
+import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
+import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
+import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
+import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeCoefficientEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
-import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
+import bg.sarakt.storing.hibernate.entities.UnitClassEntity;
 
-public class DBPopulator {
+public final class DBPopulator {
 
-    private final Logger LOGGER = LoggerFactory.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger();
 
     private static final DBPopulator INSTANCE = new DBPopulator();
+
+    private DBPopulator() {}
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -74,7 +88,6 @@ public class DBPopulator {
             session.merge(new LevelEntity(1000L, 14));
             session.merge(new LevelEntity(1800L, 15));
 
-            System.out.println(session.isDirty());
             System.out.println(session.isDirty());
             session.flush();
         }
@@ -157,21 +170,98 @@ public class DBPopulator {
         return e;
     }
 
-    private ResourceAttributeEntity map(ResourceAttribute a) {
+    private ResourceAttributeEntity map(ResourceAttribute attribute) {
         ResourceAttributeEntity e = new ResourceAttributeEntity();
-        e.setId(a.getId());
-        e.setName(a.fullName());
-        e.setAbbr(a.abbreviation());
-        e.setDescrption(a.description());
-        e.setGroup(a.group());
-        e.setPrimaryAttribute(a.getPrimaryAttribute());
+        e.setId(attribute.getId());
+        e.setName(attribute.fullName());
+        e.setAbbr(attribute.abbreviation());
+        e.setDescrption(attribute.description());
+        e.setGroup(attribute.group());
+        e.setPrimaryAttribute(attribute.getPrimaryAttribute());
 
         ResourceAttributeCoefficientEntity coef = new ResourceAttributeCoefficientEntity();
         coef.setResourceAttributeEntity(e);
         coef.setLevel(1);
-        coef.setCoefficient(a.getCoefficientForLevel(Level.TEMP));
+        coef.setCoefficient(attribute.getCoefficientForLevel(Level.TEMP));
         e.setCoefficients(List.of(coef));
 
         return e;
+    }
+
+    public DBPopulator populateLevelNodes() {
+        try (Session session = beginSeesion()) {
+            PrimaryAttrValuesDAO pavDAO = new PrimaryAttrValuesDAO();
+            AdditionaAttrValuesDAO aavDAO = new AdditionaAttrValuesDAO();
+            LOGGER.debug("Populating level nodes.......");
+            session.beginTransaction();
+
+            UnitClassEntity uce1=  new UnitClassEntity();
+            uce1.setClassName("drum class");
+
+//            ExampleMatcher m = ExampleMatcher.matching()
+//                    .withIgnorePaths("class_id");
+//            Example<UnitClassEntity> ex = Example.of(uce1, m);
+
+            UnitClassEntity uce = session.get(UnitClassEntity.class, 1L);
+            if (uce == null) {
+                uce = new UnitClassEntity();
+                uce.setClassName("dummy class 2");
+                uce = session.merge(uce);
+                session.flush();
+            }
+
+            var vaae0 = persistAddAttrValue(session, aavDAO, Attributes.NAME_ACCURACY, BigDecimal.TEN);
+            var vaae1 = persistAddAttrValue(session, aavDAO, Attributes.NAME_ENERGY, BigDecimal.ONE);
+            for (int level = 1; level < 21; level++) {
+                Map<PrimaryAttribute, BigInteger> map = mapPrimaryAttribute(level);
+                PrimaryAttributeValuesEntity primaryEntity = pavDAO.get(map);
+                if (primaryEntity == null) {
+                    primaryEntity = new PrimaryAttributeValuesEntity().fromIntegerMap(map);
+                    primaryEntity = session.merge(primaryEntity);
+                }
+                var vaae2 = persistAddAttrValue(session, aavDAO, Attributes.NAME_HIT_POINTS, BigDecimal.valueOf(level));
+                var vaae3 = persistAddAttrValue(session, aavDAO, Attributes.NAME_COMBAT_RATING, BigDecimal.valueOf(5 * level));
+                var list = List.of(vaae0, vaae1, vaae2, vaae3);
+                LevelNodeEntity node = new LevelNodeEntity(level, primaryEntity, list);
+                 node.setUnitClass(uce);
+                session.merge(node);
+            }
+
+            if (session.isDirty()) {
+                session.flush();
+            }
+        }
+        return this;
+    }
+
+
+    private Map<PrimaryAttribute, BigInteger> mapPrimaryAttribute(int levelArg)
+    {
+        BigInteger level = BigInteger.valueOf(levelArg);
+        Map<PrimaryAttribute, BigInteger> map = new EnumMap<>(PrimaryAttribute.class);
+        map.put(PrimaryAttribute.STRENGTH, BigInteger.TWO);
+        map.put(PrimaryAttribute.AGILITY, BigInteger.TWO);
+        map.put(PrimaryAttribute.CONSTITUTION, BigInteger.TEN.multiply(level));
+
+        map.put(PrimaryAttribute.INTELLIGENCE, level.divide(BigInteger.TWO));
+        map.put(PrimaryAttribute.WISDOM, level.divide(BigInteger.TWO));
+        map.put(PrimaryAttribute.PSIONIC, BigInteger.ONE.add(level.divide(BigInteger.TEN)));
+
+        map.put(PrimaryAttribute.PSIONIC, level);
+        map.put(PrimaryAttribute.WILL, BigInteger.TWO.add(level.divide(BigInteger.TEN)));
+
+
+        return map;
+    }
+
+    private AdditionalAttrValueEntity persistAddAttrValue(Session s, AdditionaAttrValuesDAO dao, String attr, BigDecimal value) {
+        AdditionalAttrValueEntity entity = dao.get(attr, value);
+            if(entity == null) {
+                entity = new AdditionalAttrValueEntity(attr, value);
+                entity = s.merge(entity);
+            }
+
+        return entity;
+
     }
 }

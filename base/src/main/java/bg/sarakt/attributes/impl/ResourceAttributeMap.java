@@ -22,18 +22,18 @@ import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.characters.Level;
 
-// FIXME WIP
 public class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute, ResourceAttributeEntry> {
 
     private final Map<ResourceAttribute, ResourceAttributeEntry> entries;
 
 
-    ResourceAttributeMap(Level level, Set<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> pa) {
+    ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> pa) {
         super();
         this.entries = new HashMap<>();
         resource.stream().forEach(r -> entries.put(r, r.getEntry(pa.get(r.getPrimaryAttribute()), level)));
     }
-    ResourceAttributeMap(Level level, Set<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> pa) {
+
+    ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> pa) {
         super();
         this.entries = new HashMap<>();
         resource.stream().forEach(r -> entries.put(r, r.getEntry(pa.get(r.getPrimaryAttribute()), level)));

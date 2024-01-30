@@ -28,7 +28,7 @@ public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribu
     private final Set<SecondaryAttribute>                          knownAttributes;
     private final Map<SecondaryAttribute, SecondaryAttributeEntry> entries;
 
-    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Set<SecondaryAttribute> secondary, Level level) {
+    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Collection<SecondaryAttribute> secondary, Level level) {
         super();
         knownAttributes = Set.copyOf(secondary);
         entries = new HashMap<>();
