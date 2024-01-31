@@ -15,15 +15,28 @@ import java.util.Map;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 
 public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<SecondaryAttribute> implements AttributeMapEntry<SecondaryAttribute>{
 
     private final IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttMap;
 
+    SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap) {
+        this(attribute, primaryMap, null);
+    }
+
+    /**
+    *
+    * @deprecated dropping support of {@link Level} and
+    *             {@link bg.sarakt.characters.Level} as now
+    *             {@link CharacterAttributeMap} would manage leveling of
+    *             {@link Attribute}s and their {@link AttributeMapEntry}
+    */
+    @Deprecated(forRemoval =  true, since = "0.0.7")
     SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap, Level level) {
         super(attribute, level);
         primaryAttMap = primaryMap;

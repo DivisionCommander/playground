@@ -9,26 +9,40 @@
 package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 
 public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<PrimaryAttribute> implements AttributeMapEntry<PrimaryAttribute> {
 
     private static final AtomicInteger DEFAULT_VALUE = new AtomicInteger(10);
 
-    private BigDecimal basicValue;
+    private BigInteger basicValue;
 
-    PrimaryAttributeEntry(PrimaryAttribute pa, Number initialValue, Level level) {
-        super(pa, level);
+    PrimaryAttributeEntry(PrimaryAttribute pa, Number initialValue) {
+        super(pa);
         int init = initialValue != null ? initialValue.intValue() : DEFAULT_VALUE.get();
-        basicValue = BigDecimal.valueOf(init);
+        basicValue = BigInteger.valueOf(init);
+    }
+    /**
+    *
+    * @deprecated dropping support of {@link Level} and
+    *             {@link bg.sarakt.characters.Level} as now
+    *             {@link CharacterAttributeMap} would manage leveling of
+    *             {@link Attribute}s and their {@link AttributeMapEntry}
+    */
+    @Deprecated(forRemoval = true, since ="0.0.7")
+    PrimaryAttributeEntry(PrimaryAttribute pa, Number initialValue, Level level) {
+       this(pa, initialValue);
     }
 
-    public void addPermanentBonus(BigDecimal bonus) {
+    public void addPermanentBonus(BigInteger bonus) {
         this.basicValue.add(bonus);
     }
 
@@ -39,7 +53,7 @@ public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<Prima
     @Override()
     @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
-        BigDecimal bonusPoints = getLevel().getPermanentAttributesBonuses().get(attr);
+        BigInteger bonusPoints = getLevel().getPermanentBonuses().get(attr);
         basicValue = basicValue.add(bonusPoints);
         super.levelUp();
     }
@@ -48,7 +62,7 @@ public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<Prima
      * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()
      */
     @Override
-    public BigDecimal getBaseValue() { return basicValue; }
+    public BigDecimal getBaseValue() { return new BigDecimal(basicValue);}
 
     /**
      * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()

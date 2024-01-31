@@ -20,7 +20,8 @@ import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 public class AdditionaAttrValuesDAO extends AbstractHibernateDAO<AdditionalAttrValueEntity> {
 
     public AdditionaAttrValuesDAO() {
-        super(AdditionalAttrValueEntity.class);
+        super();
+        setClazz( AdditionalAttrValueEntity.class);
     }
 
     public AdditionalAttrValueEntity get(String attr, BigDecimal value) {

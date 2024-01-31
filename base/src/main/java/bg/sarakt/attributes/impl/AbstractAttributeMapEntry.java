@@ -22,23 +22,38 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
+import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.exceptions.SaraktRuntimeException;
-import bg.sarakt.characters.Level;
 import bg.sarakt.logging.Logger;
 
-public abstract class AbstractAttributeMapEntry<T extends Attribute> implements AttributeMapEntry<T> {
+public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> implements AttributeMapEntry<T>
+        permits PrimaryAttributeEntry, ResourceAttributeEntry, SecondaryAttributeEntry {
 
     private static final boolean  USE_OLD = false;
     protected static final Logger LOG     = Logger.getLogger();
 
+    @Deprecated(forRemoval = true, since = "0.0.7")
     private final Level                                                 level;
     protected final T                                                   attr;
     private final ConcurrentNavigableMap<ModifierLayer, BigDecimal>     valuesPerLayer;
     private final ConcurrentNavigableMap<ModifierLayer, List<Modifier>> modifiers;
 
+    protected AbstractAttributeMapEntry(T attribute) {
+        this(attribute, null);
+    }
+
+    /**
+     *
+     * @deprecated dropping support of {@link Level} and
+     *             {@link bg.sarakt.characters.Level} as now
+     *             {@link CharacterAttributeMap} would manage leveling of
+     *             {@link Attribute}s and their {@link AttributeMapEntry}
+     */
+    @Deprecated(forRemoval = true, since = "0.0.7")
     protected AbstractAttributeMapEntry(T attribute, Level level) {
         Objects.requireNonNull(attribute, "Attribute cannot be null!");
         this.attr = attribute;
@@ -46,9 +61,7 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
         valuesPerLayer = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
         modifiers = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
 
-        Iterator<ModifierLayer> it =// EnumSet.allOf(ModifierLayer.class).iterator();
-
-                ModifierLayer.getIterator();
+        Iterator<ModifierLayer> it = ModifierLayer.getIterator();
         while (it.hasNext()) {
             ModifierLayer layer = it.next();
             modifiers.put(layer, new ArrayList<>());
@@ -171,11 +184,11 @@ public abstract class AbstractAttributeMapEntry<T extends Attribute> implements 
     @Override
     @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
-        AttributeModifier<T> mod = level.viewPreviousLevel().getModifiers(attr);
+        AttributeModifier<T> mod = level.viewPreviousLevel().getModifier(attr);
         if (mod != null) {
             removeModifier(mod, false);
         }
-        mod = level.viewCurrentLevel().getModifiers(attr);
+        mod = level.viewCurrentLevel().getModifier(attr);
         if (mod != null) {
             addModifier(mod, false);
         }

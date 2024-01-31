@@ -18,6 +18,7 @@ import java.util.TreeMap;
 
 import bg.sarakt.attributes.Attribute;
 
+@Deprecated(forRemoval = true, since="0.0.7")
 public final class UnitClassFactory
 {
 

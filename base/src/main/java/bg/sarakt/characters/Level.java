@@ -17,9 +17,14 @@ import java.util.Map;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.attributes.experience.impl.DummyLevelImpl;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 
+/**
+ *
+ * @deprecated in favour of the newer {@link bg.sarakt.attributes.levels.Level}
+ */
+@Deprecated(forRemoval =  true, since = "0.0.7" )
 public interface Level {
 
     Map<PrimaryAttribute, BigDecimal> getPermanentAttributesBonuses();
@@ -69,6 +74,6 @@ public interface Level {
 
     Level viewNextLevel();
 
-    public static final Level TEMP = new DummyLevelImpl();
+//    public static final Level TEMP = new DummyLevelImpl();
 
 }

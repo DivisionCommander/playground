@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,12 +25,13 @@ import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.Attributes;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.utils.FormulaSerializer;
 import bg.sarakt.base.utils.HibernateUtils;
-import bg.sarakt.characters.Level;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.logging.LoggerFactory;
 import bg.sarakt.storing.hibernate.AdditionaAttrValuesDAO;
+import bg.sarakt.storing.hibernate.LevelDAO;
 import bg.sarakt.storing.hibernate.PrimaryAttrValuesDAO;
 import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
@@ -56,8 +58,8 @@ public final class DBPopulator {
 
     private synchronized Session beginSeesion() {
         if (sessionFactory != null) {
-            Session session = sessionFactory.getCurrentSession();
-            return session;
+            return sessionFactory.getCurrentSession();
+
         }
         return HibernateUtils.getSessionFactory().openSession();
 
@@ -88,10 +90,13 @@ public final class DBPopulator {
             session.merge(new LevelEntity(1000L, 14));
             session.merge(new LevelEntity(1800L, 15));
 
-            System.out.println(session.isDirty());
-            session.flush();
+            if (session.isDirty()) {
+                session.flush();
+            }
+            LOGGER.debug("Levels populated.");
+        } catch (Exception e) {
+            LOGGER.error("Level population failed! Reason=" + e.getMessage());
         }
-        LOGGER.debug("Levels populated.");
 
         return this;
     }
@@ -113,15 +118,14 @@ public final class DBPopulator {
             afe.setFormula(fes.seriallize(formula));
             e.setFormulas(List.of(afe));
 
-            System.out.println(afe);
             session.persist(e);
             session.persist(afe);
 
             if (session.isDirty())
                 session.flush();
         } catch (Exception e) {
-            System.out.println("ERROR!!!");
-            e.printStackTrace();
+            LOGGER.error("Level population failed! Reason=" + e.getMessage());
+
         }
         return this;
     }
@@ -145,9 +149,10 @@ public final class DBPopulator {
 
             );
             if (session.isDirty()) {
-                System.out.println("Flushing");
                 session.flush();
             }
+        } catch (Exception e) {
+            LOGGER.error("Attributes population failed! Reason=" + e.getMessage());
         }
         return this;
     }
@@ -195,14 +200,10 @@ public final class DBPopulator {
             LOGGER.debug("Populating level nodes.......");
             session.beginTransaction();
 
-            UnitClassEntity uce1=  new UnitClassEntity();
+            UnitClassEntity uce1 = new UnitClassEntity();
             uce1.setClassName("drum class");
 
-//            ExampleMatcher m = ExampleMatcher.matching()
-//                    .withIgnorePaths("class_id");
-//            Example<UnitClassEntity> ex = Example.of(uce1, m);
-
-            UnitClassEntity uce = session.get(UnitClassEntity.class, 1L);
+            UnitClassEntity uce = session.get(UnitClassEntity.class, 3L);
             if (uce == null) {
                 uce = new UnitClassEntity();
                 uce.setClassName("dummy class 2");
@@ -210,9 +211,12 @@ public final class DBPopulator {
                 session.flush();
             }
 
+            LevelDAO lvlDao = new LevelDAO();
+            Map<Integer, LevelEntity> levels = lvlDao.findAll().stream().collect(Collectors.toMap(LevelEntity::getLevel, l -> l));
+
             var vaae0 = persistAddAttrValue(session, aavDAO, Attributes.NAME_ACCURACY, BigDecimal.TEN);
             var vaae1 = persistAddAttrValue(session, aavDAO, Attributes.NAME_ENERGY, BigDecimal.ONE);
-            for (int level = 1; level < 21; level++) {
+            for (int level = 1; level < 16; level++) {
                 Map<PrimaryAttribute, BigInteger> map = mapPrimaryAttribute(level);
                 PrimaryAttributeValuesEntity primaryEntity = pavDAO.get(map);
                 if (primaryEntity == null) {
@@ -222,14 +226,19 @@ public final class DBPopulator {
                 var vaae2 = persistAddAttrValue(session, aavDAO, Attributes.NAME_HIT_POINTS, BigDecimal.valueOf(level));
                 var vaae3 = persistAddAttrValue(session, aavDAO, Attributes.NAME_COMBAT_RATING, BigDecimal.valueOf(5 * level));
                 var list = List.of(vaae0, vaae1, vaae2, vaae3);
-                LevelNodeEntity node = new LevelNodeEntity(level, primaryEntity, list);
-                 node.setUnitClass(uce);
+                LevelNodeEntity node = new LevelNodeEntity(primaryEntity, list);
+                LevelEntity lvl = levels.get(level);
+                node.setLevelEntity(lvl);
+                node.setUnitClass(uce);
                 session.merge(node);
             }
 
             if (session.isDirty()) {
                 session.flush();
             }
+        } catch (Exception e) {
+            LOGGER.error("Attributes population failed! Reason=" + e.getMessage());
+            e.printStackTrace();
         }
         return this;
     }
@@ -257,7 +266,8 @@ public final class DBPopulator {
     private AdditionalAttrValueEntity persistAddAttrValue(Session s, AdditionaAttrValuesDAO dao, String attr, BigDecimal value) {
         AdditionalAttrValueEntity entity = dao.get(attr, value);
             if(entity == null) {
-                entity = new AdditionalAttrValueEntity(attr, value);
+                entity =
+        new AdditionalAttrValueEntity(attr, value);
                 entity = s.merge(entity);
             }
 

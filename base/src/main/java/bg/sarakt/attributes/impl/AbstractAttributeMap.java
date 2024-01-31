@@ -20,7 +20,8 @@ import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 
-public abstract class AbstractAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> implements ModifiableAttributeMap<A, E> {
+public abstract sealed class AbstractAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> implements ModifiableAttributeMap<A, E>
+        permits PrimaryAttributeMap, ResourceAttributeMap, SecondaryAttributeMap {
 
     AbstractAttributeMap() {}
 

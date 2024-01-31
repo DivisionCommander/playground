@@ -15,7 +15,8 @@ import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 @Repository
 public class AttributesSecondaryDAO extends AbstractHibernateDAO<SecondaryAttributeEntity> {
 
-    public AttributesSecondaryDAO() {
-        super(SecondaryAttributeEntity.class);
+    private AttributesSecondaryDAO() {
+        super();
+        setClazz(SecondaryAttributeEntity.class);
     }
 }

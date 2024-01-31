@@ -16,7 +16,8 @@ import bg.sarakt.glossary.entitites.TagEntity;
 public class TagsDAO extends AbstractHibernateDAO<TagEntity> {
 
     public TagsDAO() {
-        super(TagEntity.class);
+        super();
+        setClazz(TagEntity.class);
     }
 
 }

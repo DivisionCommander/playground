@@ -15,7 +15,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mock-up, dummy or experimental class, using during development, testing or other activity.
+ * Dummy classes, methods and constructors are subject of continuous changes and
+ * reworks to best suit development process Mock-up, dummy or experimental
+ * class, using during development, testing or other activity.
  *
  */
 @Documented
@@ -23,11 +25,13 @@ import java.lang.annotation.Target;
 @Target(
     {
             ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR
-    })
+})
 public @interface Dummy
 {
+
     /**
      * Descriptions about the Dummy
+     *
      * @return
      */
     String description() default "";

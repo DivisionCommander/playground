@@ -19,16 +19,17 @@ import java.util.Map;
 import org.springframework.lang.Nullable;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeMap;
 import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.levels.LevelNode;
 
-public class AttributeMapImpl implements AttributeMap<Attribute> {
+public class AttributeMapImpl implements CharacterAttributeMap{
 
     /** field <code>UNKNOWN_ATTRIBUTE_SUBTYPE</code> */
     private static final String UNKNOWN_ATTRIBUTE_SUBTYPE = "Unknown attribute subtype";
@@ -67,13 +68,14 @@ public class AttributeMapImpl implements AttributeMap<Attribute> {
      * @param level
      */
     public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources, Collection<SecondaryAttribute> secondary, Level level) {
-        primaryMap = new PrimaryAttributeMap(primary, level);
-        resourceMap = new ResourceAttributeMap(level, resources, primaryMap);
-        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary, level);
+        primaryMap = new PrimaryAttributeMap(primary);
+        resourceMap = new ResourceAttributeMap(resources, primaryMap);
+        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary);
         this.level = level;
     }
 
 
+    @Override
     public void earnExperience(BigInteger amount) {
         if(level.earnExperience(amount)) {
             levelUp();
@@ -150,15 +152,15 @@ public class AttributeMapImpl implements AttributeMap<Attribute> {
             return;
         }
 
-        Level previous = level.viewPreviousLevel();
+        LevelNode previous = level.viewPreviousLevel();
         if (previous != null && !previous.getAllModifiers().isEmpty()) {
             applyModifiers(previous.getAllModifiers(), false);
             previous.getAllModifiers().forEach(this::removeModifier);
         }
 
-        Level next = level.viewCurrentLevel();
+        LevelNode next = level.viewCurrentLevel();
         if (next != null && !next.getAllModifiers().isEmpty()) {
-            next.getPermanentAttributesBonuses().entrySet().forEach(e -> primaryMap.get(e.getKey()).addPermanentBonus(e.getValue()));
+            next.getPermanentBonuses().entrySet().forEach(e -> primaryMap.get(e.getKey()).addPermanentBonus(e.getValue()));
             applyModifiers(next.getAllModifiers(), true);
         }
     }
@@ -170,19 +172,19 @@ public class AttributeMapImpl implements AttributeMap<Attribute> {
         secondaryMap.levelUp();
     }
 
-    private void applyModifiers(Collection<AttributeModifier<Attribute>> ams, boolean add) {
+    private void applyModifiers(Collection<AttributeModifier<Attribute>> modifiers, boolean add) {
         List<AttributeModifier<PrimaryAttribute>> primary = new LinkedList<>();
         List<AttributeModifier<ResourceAttribute>> res = new LinkedList<>();
         List<AttributeModifier<SecondaryAttribute>> sec = new LinkedList<>();
-        for (var am : ams) {
-            if (am.getAttribute() instanceof PrimaryAttribute pa) {
-                primary.add(new AttributeMoDWrapper<>(am, pa));
+        for (var modifier : modifiers) {
+            if (modifier.getAttribute() instanceof PrimaryAttribute pa) {
+                primary.add(new AttributeMoDWrapper<>(modifier, pa));
             }
-            if (am.getAttribute() instanceof ResourceAttribute ra) {
-                res.add(new AttributeMoDWrapper<>(am, ra));
+            if (modifier.getAttribute() instanceof ResourceAttribute ra) {
+                res.add(new AttributeMoDWrapper<>(modifier, ra));
             }
-            if (am.getAttribute() instanceof SecondaryAttribute sa) {
-                sec.add(new AttributeMoDWrapper<>(am, sa));
+            if (modifier.getAttribute() instanceof SecondaryAttribute sa) {
+                sec.add(new AttributeMoDWrapper<>(modifier, sa));
             }
         }
         if (add) {

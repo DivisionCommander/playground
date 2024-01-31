@@ -17,26 +17,60 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 
-public class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute, ResourceAttributeEntry> {
+public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute, ResourceAttributeEntry> {
 
     private final Map<ResourceAttribute, ResourceAttributeEntry> entries;
 
 
-    ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> pa) {
+
+    ResourceAttributeMap(Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap) {
         super();
         this.entries = new HashMap<>();
-        resource.stream().forEach(r -> entries.put(r, r.getEntry(pa.get(r.getPrimaryAttribute()), level)));
+        for (ResourceAttribute r : resource) {
+            PrimaryAttribute pa = r.getPrimaryAttribute();
+            entries.put(r, r.getEntry(primaryMap.get(pa)));
+        }
     }
 
-    ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> pa) {
+    /**
+     *
+     * @deprecated dropping support of {@link Level} and
+     *             {@link bg.sarakt.characters.Level} as now
+     *             {@link CharacterAttributeMap} would manage leveling of
+     *             {@link Attribute}s and their {@link AttributeMapEntry}
+     */
+    @Deprecated(forRemoval =  true, since ="0.0.7")
+    ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> pa) {
+        this(resource, pa);
+    }
+
+    ResourceAttributeMap(Collection<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> primaryMap) {
         super();
         this.entries = new HashMap<>();
-        resource.stream().forEach(r -> entries.put(r, r.getEntry(pa.get(r.getPrimaryAttribute()), level)));
+        for (ResourceAttribute r : resource) {
+            PrimaryAttribute pa = r.getPrimaryAttribute();
+            entries.put(r, r.getEntry(primaryMap.get(pa)));
+        }
+    }
+
+    /**
+     *
+     * @deprecated dropping support of {@link Level} and
+     *             {@link bg.sarakt.characters.Level} as now
+     *             {@link CharacterAttributeMap} would manage leveling of
+     *             {@link Attribute}s and their {@link AttributeMapEntry}
+     */
+    @Deprecated
+    ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> pa) {
+        this(resource, pa);
     }
 
     /**

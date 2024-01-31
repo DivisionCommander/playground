@@ -13,6 +13,7 @@ import org.hibernate.cfg.Configuration;
 
 import bg.sarakt.glossary.entitites.CreatureEntity;
 import bg.sarakt.glossary.entitites.TagEntity;
+import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
@@ -42,6 +43,7 @@ public class HibernateUtils {
                 ;
         //@formatter:on
         System.err.println("get as factory");
+        Logger.getLogger().error( "!!!!!");
         return conf.buildSessionFactory();
     }
 

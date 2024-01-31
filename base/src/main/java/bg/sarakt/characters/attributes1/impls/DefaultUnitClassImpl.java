@@ -22,6 +22,13 @@ import bg.sarakt.characters.attributes1.UnitClass;
 
 public class DefaultUnitClassImpl implements UnitClass
 {
+    /**
+     * @see bg.sarakt.characters.attributes1.UnitClass#unitClassId()
+     */
+    @Override
+    public String unitClassId() {
+        return "00000000-0000-0000-0000-000000000001";
+    }
 
     /**
      * @see bg.sarakt.characters.attributes1.UnitClass#className()

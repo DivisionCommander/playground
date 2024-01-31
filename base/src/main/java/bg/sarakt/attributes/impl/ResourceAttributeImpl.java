@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 
 public final class ResourceAttributeImpl extends AbstractAttribute implements ResourceAttribute {
@@ -55,12 +55,22 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
      * @see bg.sarakt.attributes.ResourceAttribute#getEntry()
      */
     @Override
+    @Deprecated(forRemoval =  true, since ="0.0.7")
     public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
         return new ResourceAttributeEntry(this, primaryAttributeEntry, level);
     }
 
     /**
-     * @see bg.sarakt.attributes.ResourceAttribute#getCoefficientForLevel(bg.sarakt.characters.Level)
+     *
+     * @see bg.sarakt.attributes.ResourceAttribute#getEntry(bg.sarakt.attributes.AttributeMapEntry)
+     */
+    @Override
+    public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
+        return new ResourceAttributeEntry(this, primaryAttributeEntry);
+    }
+
+    /**
+     * @see bg.sarakt.attributes.ResourceAttribute#getCoefficientForLevel(bg.sarakt.attributes.levels.Level)
      */
     @Override
     public BigDecimal getCoefficientForLevel(Level level) {

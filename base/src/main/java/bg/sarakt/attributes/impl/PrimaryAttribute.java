@@ -12,8 +12,8 @@ import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeGroup;
+import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.exceptions.UnknownValueException;
-import bg.sarakt.characters.Level;
 
 public enum PrimaryAttribute implements Attribute
 {

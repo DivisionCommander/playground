@@ -16,7 +16,7 @@ module sarakt {
     requires spring.boot.autoconfigure;
     requires spring.boot;
     requires spring.data.commons;
-
+    requires java.instrument;
 
     opens bg.sarakt.z.tools;
     opens bg.sarakt.base;

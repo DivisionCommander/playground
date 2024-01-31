@@ -16,16 +16,20 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.base.utils.factories.UnitClassFactory;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.UnitClass;
 
+@Dummy
 public class DynamicUnitClass implements UnitClass
 {
 
+    private final UUID uuid  =UUID.randomUUID();
     private final Map<PrimaryAttribute, Integer>                 basicAttributes;
     private final Map<PrimaryAttribute, Double>                  basicAttributesCoefficients;
     private final NavigableMap<Integer, Map<Attribute, Double>> advancedAttribute;
@@ -44,7 +48,13 @@ public class DynamicUnitClass implements UnitClass
         advancedAttribute = new TreeMap<>();
         TEMP();
     }
-
+/**
+ * @see bg.sarakt.characters.attributes1.UnitClass#unitClassId()
+ */
+@Override
+public String unitClassId() {
+    return uuid.toString();
+}
     // FIXME
     private void TEMP()
     {

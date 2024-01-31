@@ -6,10 +6,11 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.experience.impl;
+package bg.sarakt.attributes.levels.impl;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +23,14 @@ import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
 import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 
 public class LevelNodeImpl implements LevelNode {
 
+    private  BigInteger threshold;
     private final int                                          level;
     private final Map<PrimaryAttribute, BigInteger>            permanentBonues;
     private final Map<Attribute, AttributeModifier<Attribute>> mods;
@@ -52,32 +55,40 @@ public class LevelNodeImpl implements LevelNode {
     }
 
     /**
-     * @see bg.sarakt.attributes.experience.impl.LevelNode#getPermanentBonuses()
+     * @see bg.sarakt.attributes.levels.LevelNode#experienceThreshold()
+     */
+    @Override
+    public BigInteger experienceThreshold() { return threshold;}
+
+    /**
+     * @see bg.sarakt.attributes.levels.LevelNode#getPermanentBonuses()
      */
     @Override
     public Map<PrimaryAttribute, BigInteger> getPermanentBonuses() { return permanentBonues; }
 
     /**
      *
-     * @see bg.sarakt.attributes.experience.impl.LevelNode#getLevelNumber()
+     * @see bg.sarakt.attributes.levels.LevelNode#getLevelNumber()
      */
     @Override
-    public int getLevelNumber() { return level; }
+    public Integer getLevelNumber() { return level; }
 
     /**
      *
-     * @see bg.sarakt.attributes.experience.impl.LevelNode#affectedAttributes()
+     * @see bg.sarakt.attributes.levels.LevelNode#affectedAttributes()
      */
     @Override
+    @Deprecated(forRemoval = true, since = "0.0.7")
     public Set<Attribute> affectedAttributes() {
         return mods.keySet();
     }
 
     /**
      *
-     * @see bg.sarakt.attributes.experience.impl.LevelNode#getModifier(bg.sarakt.attributes.Attribute)
+     * @see bg.sarakt.attributes.levels.LevelNode#getModifier(bg.sarakt.attributes.Attribute)
      */
     @Override
+    @Deprecated(forRemoval = true, since = "0.0.7")
     public AttributeModifier<Attribute> getModifier(Attribute attribute) {
         return mods.get(attribute);
     }
@@ -116,4 +127,10 @@ public class LevelNodeImpl implements LevelNode {
         @Override
         public ModifierLayer getLayer() { return ModifierLayer.CLASS_LAYER; }
     }
+
+    /**
+     * @see bg.sarakt.attributes.levels.LevelNode#getAllModifiers()
+     */
+    @Override
+    public List<AttributeModifier<Attribute>> getAllModifiers() { return Collections.emptyList();}
 }

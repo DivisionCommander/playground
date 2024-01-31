@@ -11,7 +11,7 @@ package bg.sarakt.attributes;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.impl.PrimaryAttributeEntry;
 import bg.sarakt.attributes.impl.SecondaryAttributeEntry;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 
 public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
 
@@ -30,6 +30,9 @@ public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
         return getFormula(level.getLevelNumber());
     }
 
+    SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes);
+
+    @Deprecated(forRemoval = true, since = "0.0.7")
     SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes, Level level);
 
     /**

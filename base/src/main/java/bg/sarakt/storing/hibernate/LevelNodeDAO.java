@@ -7,14 +7,20 @@
  */
 package bg.sarakt.storing.hibernate;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
 
+@Repository
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class LevelNodeDAO  extends AbstractHibernateDAO<LevelNodeEntity>{
 
     public LevelNodeDAO() {
-        super(LevelNodeEntity.class);
+        super();
+        setClazz(LevelNodeEntity.class);
     }
-
 }
 
 

@@ -15,14 +15,17 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.query.SelectionQuery;
+import org.springframework.stereotype.Repository;
 
 import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 
+@Repository
 public class PrimaryAttrValuesDAO extends AbstractHibernateDAO<PrimaryAttributeValuesEntity> {
 
     public PrimaryAttrValuesDAO() {
-        super(PrimaryAttributeValuesEntity.class);
+        super();
+        setClazz(PrimaryAttributeValuesEntity.class);
     }
 
     public PrimaryAttributeValuesEntity get(Map<PrimaryAttribute, BigInteger> map) {

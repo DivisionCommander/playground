@@ -26,7 +26,7 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "LevelNode")
-@Table(name = "tbl_levels", uniqueConstraints = {
+@Table(name = "tbl_levels_nodes", uniqueConstraints = {
         @UniqueConstraint(name=  "classLevels", columnNames = {"level", "class_id"})
 })
 public class LevelNodeEntity implements Serializable {
@@ -39,8 +39,14 @@ public class LevelNodeEntity implements Serializable {
     @GeneratedValue
     @Column(name = "level_id", unique = true)
     private UUID levelId;
-    @Column(name = "level", unique = false)
+//    @Column(name = "level", unique = false)
+    @Transient
+    @Deprecated(forRemoval =  true , since = "0.0.7")
     private int  level;
+
+    @ManyToOne
+    @JoinColumn(name = "level", referencedColumnName = "level", nullable = false)
+    private LevelEntity levelEntity;
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
@@ -64,16 +70,30 @@ public class LevelNodeEntity implements Serializable {
         setAdditional(new ArrayList<>());
     }
 
+    /**
+     * Parameterized constructor for easier storing.
+     *
+     * @since 0.0.7
+     */
+    public LevelNodeEntity(PrimaryAttributeValuesEntity primary, List<AdditionalAttrValueEntity> additional) {
+        this();
+        this.setAdditional(additional);
+        this.primary = primary;
+    }
+
+    @Deprecated(forRemoval = true, since = "0.0.7")
     public LevelNodeEntity(int level) {
         this();
         this.level = level;
     }
 
+    @Deprecated(forRemoval = true, since = "0.0.7")
     public LevelNodeEntity(int level, List<AdditionalAttrValueEntity> additional) {
         this(level);
         this.setAdditional(additional);
     }
 
+    @Deprecated(forRemoval = true, since = "0.0.7")
     public LevelNodeEntity(int level, PrimaryAttributeValuesEntity primary, List<AdditionalAttrValueEntity> additional) {
         this(level, additional);
         this.primary = primary;
@@ -81,10 +101,12 @@ public class LevelNodeEntity implements Serializable {
 
     public UUID getLevelId() { return levelId; }
 
+    @Deprecated(forRemoval =  true, since ="0.0.7")
     public int getLevel() { return level; }
 
     public void setLevelId(UUID levelId) { this.levelId = levelId; }
 
+    @Deprecated(forRemoval =  true, since ="0.0.7")
     public void setLevel(int level) { this.level = level; }
 
     public PrimaryAttributeValuesEntity getPrimary() { return primary; }
@@ -98,5 +120,13 @@ public class LevelNodeEntity implements Serializable {
     public UnitClassEntity getUnitClass() { return unitClass; }
 
     public void setUnitClass(UnitClassEntity unitClass) { this.unitClass = unitClass; }
+
+    public LevelEntity getLevelEntity() {
+        return levelEntity;
+    }
+
+    public void setLevelEntity(LevelEntity levelEntity) {
+        this.levelEntity = levelEntity;
+    }
 
 }

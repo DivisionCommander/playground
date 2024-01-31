@@ -13,9 +13,11 @@ import java.util.Collections;
 import java.util.Set;
 
 import bg.sarakt.characters.attributes.AttributeValuePair;
+import bg.sarakt.characters.attributes1.impls.DefaultUnitClassImpl;
 
 public interface UnitClass
 {
+    String unitClassId();
 
     String className();
 
@@ -28,5 +30,6 @@ public interface UnitClass
 
     Set<AttributeValuePair> getAttributesForLevel(int newLevel);
 
+    static UnitClass getDefault() {return new DefaultUnitClassImpl();}
 
 }

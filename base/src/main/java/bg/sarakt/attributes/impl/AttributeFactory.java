@@ -23,16 +23,17 @@ import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
+import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.ApplicationContextProvider;
 import bg.sarakt.base.exceptions.UnknownValueException;
-import bg.sarakt.characters.Level;
 import bg.sarakt.characters.attributes1.impls.SimpleAttributeFormulaImpl;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.AttributesResourceDAO;
 import bg.sarakt.storing.hibernate.AttributesSecondaryDAO;
+import bg.sarakt.storing.hibernate.GenericHibernateDAO;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
-@SuppressWarnings("removal")
 public final class AttributeFactory implements Attributes {
 
     private static final Logger LOG = Logger.getLogger();
@@ -45,7 +46,7 @@ public final class AttributeFactory implements Attributes {
     private final Map<String, ResourceAttribute>  resourceAttributes;
 
 
-    private AttributeFormula getDummyFormula(SecondaryAttribute sa, int level) {
+    private AttributeFormula getDummyFormula(int level) {
 
         SimpleAttributeFormulaImpl f  = new SimpleAttributeFormulaImpl("Test");
         f.addAttributeFormula(PrimaryAttribute.STRENGTH, level);
@@ -112,12 +113,13 @@ public final class AttributeFactory implements Attributes {
 
     private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB() {
         try {
-            AttributesSecondaryDAO dao = new AttributesSecondaryDAO();
+//            GenericHibernateDAO<SecondaryAttributeEntity> dao = new GenericHibernateDAO<>();
+            AttributesSecondaryDAO dao = ApplicationContextProvider.getApplicationContext().getBean(AttributesSecondaryDAO.class);
             List<SecondaryAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
             }
-            return results.stream().map(this::mapSecondary).collect(Collectors.toMap(sa -> sa.fullName(), sa -> sa));
+            return results.stream().map(this::mapSecondary).collect(Collectors.toMap(Attribute::fullName, sa -> sa));
         } catch (Exception e) {
             LOG.error("Cannot get data from DB! Reason " + e.getMessage());
             return Collections.emptyMap();
@@ -126,7 +128,8 @@ public final class AttributeFactory implements Attributes {
 
     private Map<String, ResourceAttribute> getResourceAttributesFromDB() {
         try {
-            AttributesResourceDAO dao = new AttributesResourceDAO();
+
+            AttributesResourceDAO dao =    ApplicationContextProvider.getApplicationContext().getBean(AttributesResourceDAO.class);
             List<ResourceAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
@@ -158,13 +161,17 @@ public final class AttributeFactory implements Attributes {
          */
         @Override
         public AttributeFormula getFormula(int level) {
-            return getInstance().getDummyFormula(this, level);
+            return getInstance().getDummyFormula(level);
         }
 
         /**
          * @see bg.sarakt.attributes.SecondaryAttribute#getEntry(bg.sarakt.attributes.impl.PrimaryAttributeMap,
-         *      bg.sarakt.characters.Level)
+         *      bg.sarakt.attributes.levels.Level)
          */
+        @Override
+        public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes) {
+            return new SecondaryAttributeEntry(this, primaryAttributes);
+        }
         @Override
         public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes, Level level) {
             return new SecondaryAttributeEntry(this, primaryAttributes, level);
@@ -183,7 +190,7 @@ public final class AttributeFactory implements Attributes {
         }
 
         /**
-         * @see bg.sarakt.attributes.ResourceAttribute#getCoefficientForLevel(bg.sarakt.characters.Level)
+         * @see bg.sarakt.attributes.ResourceAttribute#getCoefficientForLevel(bg.sarakt.attributes.levels.Level)
          */
         @Override
         public BigDecimal getCoefficientForLevel(Level level) {
@@ -192,11 +199,15 @@ public final class AttributeFactory implements Attributes {
 
         /**
          * @see bg.sarakt.attributes.ResourceAttribute#getEntry(bg.sarakt.attributes.AttributeMapEntry,
-         *      bg.sarakt.characters.Level)
+         *      bg.sarakt.attributes.levels.Level)
          */
         @Override
         public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
             return new ResourceAttributeEntry(this, primaryAttributeEntry, level);
+        }
+        @Override
+        public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
+            return new ResourceAttributeEntry(this, primaryAttributeEntry);
         }
 
         @Override

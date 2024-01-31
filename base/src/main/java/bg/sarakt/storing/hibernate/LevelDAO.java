@@ -17,7 +17,8 @@ import bg.sarakt.storing.hibernate.entities.LevelEntity;
 public class LevelDAO extends AbstractHibernateDAO<LevelEntity> {
 
     public LevelDAO() {
-        super(LevelEntity.class);
+        super();
+        setClazz(LevelEntity.class);
     }
 
     public LevelEntity get(int level) {

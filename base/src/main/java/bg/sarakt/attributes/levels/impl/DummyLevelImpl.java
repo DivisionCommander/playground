@@ -6,28 +6,31 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.experience.impl;
+package bg.sarakt.attributes.levels.impl;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
-import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.base.utils.LevelCalculator;
-import bg.sarakt.characters.Level;
 
 @Dummy
-public class DummyLevelImpl implements Level {
+public class DummyLevelImpl implements Level, LevelNode {
 
     private final AtomicInteger levelNumber = new AtomicInteger(1);
     private BigInteger          experience  = BigInteger.ZERO;
@@ -39,9 +42,9 @@ public class DummyLevelImpl implements Level {
     }
 
     @Override
-    public Map<PrimaryAttribute, BigDecimal> getPermanentAttributesBonuses() {
-        EnumMap<PrimaryAttribute, BigDecimal> map = new EnumMap<>(PrimaryAttribute.class);
-        PrimaryAttribute.getAllPrimaryAttributes().stream().forEach(pa -> map.put(pa, BigDecimal.valueOf(3)));
+    public Map<PrimaryAttribute, BigInteger> getPermanentBonuses() {
+        EnumMap<PrimaryAttribute, BigInteger> map = new EnumMap<>(PrimaryAttribute.class);
+        PrimaryAttribute.getAllPrimaryAttributes().stream().forEach(pa -> map.put(pa, BigInteger.valueOf(3)));
         return map;
     }
 
@@ -66,35 +69,26 @@ public class DummyLevelImpl implements Level {
     }
 
     /**
-     * @see bg.sarakt.characters.Level#getUnallocatedPonts()
+     * @see bg.sarakt.attributes.levels.Level#getUnallocatedPonts()
      */
     @Override
     public int getUnallocatedPonts() { return 5; }
 
     /**
-     * @see bg.sarakt.characters.Level#getModifiers(bg.sarakt.attributes.Attribute)
+     * @see bg.sarakt.attributes.levels.Level#getModifiers(bg.sarakt.attributes.Attribute)
      */
     @Override
+    @Deprecated(forRemoval = true, since = "0.0.7")
     public <A extends Attribute> AttributeModifier<A> getModifiers(A attribute) {
         return new AttrMod<>(attribute, ModifierType.FLAT_VALUE, BigDecimal.ONE);
     }
 
-    /**
-     * WARINING! Applied after {@link Level#viewPreviousLevel()} cause exception
-     * when allocate attributes
-     *
-     * @see bg.sarakt.characters.Level#getResourceBonus(bg.sarakt.attributes.ResourceAttribute)
-     */
-    @Override
-    public AttributeModifier<ResourceAttribute> getResourceBonus(ResourceAttribute resource) {
-        return new AttributeModifierImpl(resource, new BigDecimal("0.55"), ModifierType.FLAT_VALUE);
-    }
 
     /**
-     * @see bg.sarakt.characters.Level#viewPreviousLevel()
+     * @see bg.sarakt.attributes.levels.Level#viewPreviousLevel()
      */
     @Override
-    public Level viewPreviousLevel() {
+    public LevelNode viewPreviousLevel() {
         if(levelNumber.get()==2)
         {
             return new LevelZero();
@@ -103,25 +97,13 @@ public class DummyLevelImpl implements Level {
     }
 
     @Override
-    public Level viewNextLevel() {
+    public LevelNode viewNextLevel() {
         return this;
     }
 
     @Override
     public Integer getLevelNumber() { return levelNumber.get(); }
 
-    @Dummy
-    private record AttributeModifierImpl(ResourceAttribute getAttribute, BigDecimal getValue, ModifierType getBonusType)
-            implements AttributeModifier<ResourceAttribute> {
-
-        public BigDecimal getValue() { return getValue(); }
-
-        /**
-         * @see bg.sarakt.attributes.AttributeModifier#getLayer()
-         */
-        @Override
-        public ModifierLayer getLayer() { return ModifierLayer.getLowestLayer(); }
-    }
 
     @Dummy
     private class AttrMod<A extends Attribute> implements AttributeModifier<A> {
@@ -164,66 +146,87 @@ public class DummyLevelImpl implements Level {
 
     public BigInteger getExperience() { return experience; }
 
-    private class LevelZero implements Level {
+    private class LevelZero implements LevelNode {
 
         /**
-         * @see bg.sarakt.characters.Level#getPermanentAttributesBonuses()
+         * @see bg.sarakt.attributes.levels.Level#getPermanentBonuses()
          */
         @Override
-        public Map<PrimaryAttribute, BigDecimal> getPermanentAttributesBonuses() {
+        public Map<PrimaryAttribute, BigInteger> getPermanentBonuses() {
             throw new UnsupportedOperationException();
         }
 
+
         /**
-         * @see bg.sarakt.characters.Level#getResourceBonus(bg.sarakt.attributes.ResourceAttribute)
+         * @see bg.sarakt.attributes.levels.Level#getLevelNumber()
          */
         @Override
-        public AttributeModifier<ResourceAttribute> getResourceBonus(ResourceAttribute resource) {
-            // TODO Auto-generated method stub
-            return null;
+        public final Integer getLevelNumber() { return 0; }
+
+
+        /**
+         * @see bg.sarakt.attributes.levels.LevelNode#getAllModifiers()
+         */
+        @Override
+        public List<AttributeModifier<Attribute>> getAllModifiers() { return Collections.emptyList(); }
+
+
+        /**
+         * @see bg.sarakt.attributes.levels.LevelNode#affectedAttributes()
+         */
+        @Override
+        public Set<Attribute> affectedAttributes() {return Collections.emptySet();        }
+
+
+        /**
+         * @see bg.sarakt.attributes.levels.LevelNode#getModifier(bg.sarakt.attributes.Attribute)
+         */
+        @Override
+        public <A extends Attribute> AttributeModifier<A> getModifier(A attribute) {return null;
         }
 
+
         /**
-         * @see bg.sarakt.characters.Level#getModifiers(bg.sarakt.attributes.Attribute)
+         * @see bg.sarakt.attributes.levels.LevelNode#experienceThreshold()
          */
         @Override
-        public <A extends Attribute> AttributeModifier<A> getModifiers(A attribute) {
-            return null;
+        public BigInteger experienceThreshold() {
+            return BigInteger.ZERO;
         }
 
-        /**
-         * @see bg.sarakt.characters.Level#getLevelNumber()
-         */
-        @Override
-        public Integer getLevelNumber() { return 0; }
 
-        /**
-         * @see bg.sarakt.characters.Level#getUnallocatedPonts()
-         */
-        @Override
-        public int getUnallocatedPonts() {  throw new UnsupportedOperationException();}
-        /**
-         * @see bg.sarakt.characters.Level#earnExperience(java.math.BigInteger)
-         */
-        @Override
-        public boolean earnExperience(BigInteger amount) {  throw new UnsupportedOperationException();
-        }
+    }
+    @Override
+    public BigInteger experienceThreshold() {
+        return BigInteger.ZERO;
+    }
 
-        /**
-         * @see bg.sarakt.characters.Level#viewPreviousLevel()
-         */
-        @Override
-        public Level viewPreviousLevel() {
-            throw new UnsupportedOperationException();
-        }
 
-        /**
-         * @see bg.sarakt.characters.Level#viewNextLevel()
-         */
-        @Override
-        public Level viewNextLevel() {
-            return this;
-        }
+    /**
+     * @see bg.sarakt.attributes.levels.LevelNode#affectedAttributes()
+     */
+    @Override
+    @Deprecated(forRemoval = true, since = "0.0.7")
+    public Set<Attribute> affectedAttributes() {return Collections.emptySet();}
 
+    /**
+     * @see bg.sarakt.attributes.levels.LevelNode#getModifier(bg.sarakt.attributes.Attribute)
+     */
+    @Override
+    @Deprecated(forRemoval = true, since = "0.0.7")
+    public <A extends Attribute> AttributeModifier<A> getModifier(A attribute) { return null;   }
+
+    /**
+     * @see bg.sarakt.attributes.levels.LevelNode#getAllModifiers()
+     */
+    @Override
+    public List<AttributeModifier<Attribute>> getAllModifiers() { return Level.super.getAllModifiers(); }
+
+    /**
+     * @see bg.sarakt.attributes.levels.Level#viewCurrentLevel()
+     */
+    @Override
+    public LevelNode viewCurrentLevel() {
+        return this;
     }
 }

@@ -16,6 +16,7 @@ import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 public class AttributesResourceDAO extends AbstractHibernateDAO<ResourceAttributeEntity> {
 
     public AttributesResourceDAO() {
-        super(ResourceAttributeEntity.class);
+        super();
+        setClazz(ResourceAttributeEntity.class);
     }
 }

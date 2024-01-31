@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity(name = "Level")
-@Table(name = "Levels")
+@Table(name = "tbl_levels")
 public class LevelEntity implements Serializable
 {
 

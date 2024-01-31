@@ -10,15 +10,29 @@ package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
 
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 
 public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<ResourceAttribute> {
 
     private final AttributeMapEntry<PrimaryAttribute> primaryAttribute;
 
+
+    ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
+        this(attribute,primaryAttributeEntry, null);
+    }
+    /**
+    *
+    * @deprecated dropping support of {@link Level} and
+    *             {@link bg.sarakt.characters.Level} as now
+    *             {@link CharacterAttributeMap} would manage leveling of
+    *             {@link Attribute}s and their {@link AttributeMapEntry}
+    */
+    @Deprecated
     ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
         super(attribute, level);
         primaryAttribute = primaryAttributeEntry;

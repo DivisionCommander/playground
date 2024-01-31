@@ -20,8 +20,9 @@ import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.SecondaryAttribute;
+import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.utils.FormulaSerializer;
-import bg.sarakt.characters.Level;
+import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
@@ -106,7 +107,7 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
         }
         catch (JsonProcessingException jpse)
         {
-            System.err.println("FIXME:LOGG AND process error!");
+            Logger.getLogger().debug("FIXME:LOGG AND process error!");
         }
 
         AttributeFormulaEntity aafe = new AttributeFormulaEntity();
@@ -117,10 +118,15 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
     }
 
 
+    @Override
+    public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttribute) {
+        return new SecondaryAttributeEntry(this, primaryAttribute);
+    }
+
     /**
      *
      * @see bg.sarakt.attributes.SecondaryAttribute#getEntry(bg.sarakt.attributes.IterableAttributeMap,
-     *      bg.sarakt.characters.Level)
+     *      bg.sarakt.attributes.levels.Level)
      */
     @Override
     public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttribute, Level level) {

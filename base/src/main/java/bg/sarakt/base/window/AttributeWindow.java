@@ -22,10 +22,11 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.experience.impl.DummyLevelImpl;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.logging.Logger;
 
@@ -41,7 +42,7 @@ public class AttributeWindow extends AbstractWindow{
     private final DummyLevelImpl level;
 
 
-    private final AttributeMapImpl attributes;
+    private final CharacterAttributeMap attributes;
     private JTextField fldXP = new JTextField(8);
 
     public AttributeWindow(AttributeMapImpl attrMap, DummyLevelImpl lvl) {

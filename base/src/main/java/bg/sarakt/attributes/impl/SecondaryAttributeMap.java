@@ -17,22 +17,38 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.characters.Level;
+import bg.sarakt.attributes.levels.Level;
 
-public class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> {
+public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> {
 
     private final Set<SecondaryAttribute>                          knownAttributes;
     private final Map<SecondaryAttribute, SecondaryAttributeEntry> entries;
 
-    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Collection<SecondaryAttribute> secondary, Level level) {
+    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Collection<SecondaryAttribute> secondary) {
         super();
         knownAttributes = Set.copyOf(secondary);
         entries = new HashMap<>();
-        secondary.stream().forEach(sa -> entries.put(sa, sa.getEntry(primary, level)));
+        secondary.stream().forEach(sa -> entries.put(sa, sa.getEntry(primary)));
+    }
+
+    /**
+     *
+     * @deprecated dropping support of {@link Level} and
+     *             {@link bg.sarakt.characters.Level} as now
+     *             {@link CharacterAttributeMap} would manage leveling of
+     *             {@link Attribute}s and their {@link AttributeMapEntry}
+     */
+    @Deprecated(forRemoval = true, since = "0.0.7")
+    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Collection<SecondaryAttribute> secondary,
+            Level level) {
+        this(primary, secondary);
     }
 
     /**

@@ -9,6 +9,7 @@
 package bg.sarakt.characters;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 import bg.sarakt.characters.attributes1.UnitClass;
