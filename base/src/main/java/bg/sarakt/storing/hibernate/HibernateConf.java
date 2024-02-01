@@ -36,7 +36,7 @@ public class HibernateConf {
     public LocalSessionFactoryBean sessionFactoryBean() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan("bg.sarakt.glossary.entities", "bg.sarakt.hibernate", "bg.sarakt.hibernate.entities");
+        sessionFactory.setPackagesToScan("bg.sarakt.glossary.entities", "bg.sarakt.storing.hibernate", "bg.sarakt.storing.hibernate.entities");
         sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
     }
