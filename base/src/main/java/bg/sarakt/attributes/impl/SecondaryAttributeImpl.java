@@ -129,6 +129,7 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
      *      bg.sarakt.attributes.levels.Level)
      */
     @Override
+    @Deprecated(forRemoval = true)
     public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttribute, Level level) {
         return new SecondaryAttributeEntry(this, primaryAttribute, level);
     }

@@ -36,8 +36,15 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements Hi
 
     @Autowired
     protected TransactionManager transactionManager;
-
-    public final void setClazz(Class<T> entityClass) { this.clazz = entityClass; }
+    
+    /**
+     * @see bg.sarakt.storing.hibernate.HibernateDAO#isEntityClassVacant()
+     */
+    @Override
+    public boolean isEntityClassVacant() { return this.clazz == null; }
+    
+    @Override
+    public final void setEntityClass(Class<T> entityClass) { this.clazz = entityClass; }
 
     public void setSessionFactory(LocalSessionFactoryBean sessionFactory) { this.sessionFactory = sessionFactory; }
 

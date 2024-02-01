@@ -21,7 +21,7 @@ public class AdditionaAttrValuesDAO extends AbstractHibernateDAO<AdditionalAttrV
 
     public AdditionaAttrValuesDAO() {
         super();
-        setClazz( AdditionalAttrValueEntity.class);
+        setEntityClass( AdditionalAttrValueEntity.class);
     }
 
     public AdditionalAttrValueEntity get(String attr, BigDecimal value) {

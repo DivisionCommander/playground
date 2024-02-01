@@ -15,11 +15,12 @@ import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
 
 @Repository
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Deprecated(forRemoval = true, since = "0.0.8")
 public class LevelNodeDAO  extends AbstractHibernateDAO<LevelNodeEntity>{
 
     public LevelNodeDAO() {
         super();
-        setClazz(LevelNodeEntity.class);
+        setEntityClass(LevelNodeEntity.class);
     }
 }
 

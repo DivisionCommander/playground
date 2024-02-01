@@ -47,11 +47,13 @@ public class ApplicationContextProvider implements ApplicationContextAware{
 
     @Bean
     public GenericHibernateDAO<TagEntity> generigTagDAO(){
-        GenericHibernateDAO<TagEntity> dao = new GenericHibernateDAO<>();
-        dao.setClazz(TagEntity.class);
+        GenericHibernateDAO<TagEntity> dao = new GenericHibernateDAO<>(TagEntity.class);
+//        dao.setClazz(TagEntity.class);
         return dao;
 
     }
+
+
 }
 
 

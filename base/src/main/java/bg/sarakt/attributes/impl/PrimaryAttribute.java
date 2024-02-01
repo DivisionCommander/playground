@@ -12,6 +12,8 @@ import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeGroup;
+import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.exceptions.UnknownValueException;
 
@@ -86,10 +88,19 @@ public enum PrimaryAttribute implements Attribute
         return description;
     }
 
+    /**
+     * @deprecated due to continuous efforts to handle leveling mechanism to {@link CharacterAttributeMap} and remove {@link Level} from all {@link AttributeMapEntry}
+     */
+    @Deprecated(forRemoval = true, since="0.0.8")
     public PrimaryAttributeEntry getEntry(Number initialValue, Level levelArg) {
         Number value = (initialValue != null) ? initialValue : PrimaryAttributeEntry.getDefaultValue();
         Level level = levelArg != null ? levelArg : Level.TEMP;
         return new PrimaryAttributeEntry(this, value, level);
+    }
+
+    public PrimaryAttributeEntry getEntry(Number initialValue) {
+        Number value = (initialValue != null) ? initialValue : PrimaryAttributeEntry.getDefaultValue();
+        return new PrimaryAttributeEntry(this, value);
     }
 
     public static PrimaryAttribute ofName(String name) {

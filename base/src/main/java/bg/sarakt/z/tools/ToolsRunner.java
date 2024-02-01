@@ -22,8 +22,8 @@ public class ToolsRunner {
     public static void main(String[] args) {
         SpringApplication.run(ToolsRunner.class, args);
         DBPopulator.getInstance()
-//                 .populateLevels()
-//                 .populateAttributes()
+                 .populateLevels()
+                 .populateAttributes()
                 .populateLevelNodes();
     }
 }

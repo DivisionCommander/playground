@@ -1,5 +1,11 @@
 module sarakt {
 
+    exports bg.sarakt.attributes;
+
+    exports bg.sarakt.attributes.impl to spring.beans;
+    exports bg.sarakt.storing.hibernate.entities;// to bg.sarakt.atttributes.impl;
+    opens bg.sarakt.attributes.impl to spring.core;
+
     requires java.desktop;
     requires com.fasterxml.jackson.databind;
     requires java.sql;
@@ -7,7 +13,7 @@ module sarakt {
     requires org.hibernate.orm.core;
     requires spring.jdbc;
     requires spring.beans;
-    requires spring.context;
+    requires transitive spring.context;
     requires spring.core;
     requires spring.orm;
     requires spring.tx;
@@ -17,6 +23,7 @@ module sarakt {
     requires spring.boot;
     requires spring.data.commons;
     requires java.instrument;
+    requires jakarta.annotation;
 
     opens bg.sarakt.z.tools;
     opens bg.sarakt.base;

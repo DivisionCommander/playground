@@ -224,7 +224,7 @@ public final class DBPopulator {
                     primaryEntity = session.merge(primaryEntity);
                 }
                 var vaae2 = persistAddAttrValue(session, aavDAO, Attributes.NAME_HIT_POINTS, BigDecimal.valueOf(level));
-                var vaae3 = persistAddAttrValue(session, aavDAO, Attributes.NAME_COMBAT_RATING, BigDecimal.valueOf(5 * level));
+                var vaae3 = persistAddAttrValue(session, aavDAO, Attributes.NAME_COMBAT_RATING, BigDecimal.valueOf(5L * level));
                 var list = List.of(vaae0, vaae1, vaae2, vaae3);
                 LevelNodeEntity node = new LevelNodeEntity(primaryEntity, list);
                 LevelEntity lvl = levels.get(level);

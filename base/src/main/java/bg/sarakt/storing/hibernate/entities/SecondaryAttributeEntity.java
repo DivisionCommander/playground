@@ -49,7 +49,7 @@ public class SecondaryAttributeEntity implements Serializable
     @Column(name = "description")
     private String        description;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "attributeId")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "attributeId")
     private List<AttributeFormulaEntity> formulas;
 
     public long getId()
@@ -116,7 +116,7 @@ public class SecondaryAttributeEntity implements Serializable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append('[').append(id).append(']').append(name).append(" -[").append(abbr).append("]-\t").append(group).append(group);
+        sb.append('[').append(id).append(']').append(name).append(" -[").append(abbr).append("]-\t").append("group[").append(group).append("]");
 
         return sb.toString();
     }

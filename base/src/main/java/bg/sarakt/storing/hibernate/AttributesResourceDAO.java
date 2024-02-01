@@ -13,10 +13,11 @@ import org.springframework.stereotype.Repository;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 
 @Repository
+@Deprecated(forRemoval = true, since = "0.0.8")
 public class AttributesResourceDAO extends AbstractHibernateDAO<ResourceAttributeEntity> {
 
     public AttributesResourceDAO() {
         super();
-        setClazz(ResourceAttributeEntity.class);
+        setEntityClass(ResourceAttributeEntity.class);
     }
 }

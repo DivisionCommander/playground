@@ -18,7 +18,7 @@ public class LevelDAO extends AbstractHibernateDAO<LevelEntity> {
 
     public LevelDAO() {
         super();
-        setClazz(LevelEntity.class);
+        setEntityClass(LevelEntity.class);
     }
 
     public LevelEntity get(int level) {

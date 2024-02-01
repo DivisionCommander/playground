@@ -13,11 +13,12 @@ import org.springframework.stereotype.Repository;
 import bg.sarakt.glossary.entitites.TagEntity;
 
 @Repository
+@Deprecated(forRemoval = true, since = "0.0.8")
 public class TagsDAO extends AbstractHibernateDAO<TagEntity> {
 
     public TagsDAO() {
         super();
-        setClazz(TagEntity.class);
+        setEntityClass(TagEntity.class);
     }
 
 }

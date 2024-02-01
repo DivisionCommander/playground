@@ -20,25 +20,39 @@ import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.AttributeService;
 import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
-import bg.sarakt.base.ApplicationContextProvider;
 import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.characters.attributes1.impls.SimpleAttributeFormulaImpl;
 import bg.sarakt.logging.Logger;
-import bg.sarakt.storing.hibernate.AttributesResourceDAO;
-import bg.sarakt.storing.hibernate.AttributesSecondaryDAO;
-import bg.sarakt.storing.hibernate.GenericHibernateDAO;
+import bg.sarakt.storing.hibernate.HibernateDAO;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
-public final class AttributeFactory implements Attributes {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
+
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public final class AttributeFactory implements Attributes, AttributeService {
+
+    private static AttributeFactory instance;
+    
+    @PostConstruct
+    private void bindFactory() {
+        instance = this; // NOSONAR
+        LOG.debug("Binding AttributeFactory#factory to" + this);
+    }
+    
     private static final Logger LOG = Logger.getLogger();
-    private static final AttributeFactory FACTORY     = new AttributeFactory();
-    public static AttributeFactory getInstance() { return FACTORY; }
+    public static AttributeFactory getInstance() { return instance; }
 
     private static final   String NAME_CURRENT_HIT_POINT   = "Current HP";
     private static final   String NAME_CURRENT_MANA_POINTS = "Current MP";
@@ -53,20 +67,22 @@ public final class AttributeFactory implements Attributes {
         return f;
     }
 
-    private AttributeFactory() {
-        Map<String, SecondaryAttribute> secondary = getSecondaryAttributesFromDB();
+    @Autowired
+    private AttributeFactory(HibernateDAO<SecondaryAttributeEntity> secDao, HibernateDAO<ResourceAttributeEntity> resDao) {
+        Map<String, SecondaryAttribute> secondary = getSecondaryAttributesFromDB(secDao);
         if (secondary == null || secondary.isEmpty()) {
             secondary = defaultSecondaryAttributesMap();
         }
-        Map<String, ResourceAttribute> resource = getResourceAttributesFromDB();
+        Map<String, ResourceAttribute> resource = getResourceAttributesFromDB(resDao);
         if (resource == null || resource.isEmpty()) {
             resource = defaultResourceAttributesMap();
         }
-
+        
         secondaryAttributes = Map.copyOf(secondary);
         resourceAttributes = Map.copyOf(resource);
     }
 
+    @Override
     public  Collection< SecondaryAttribute> defaultSecondaryAttributes() {
         return defaultSecondaryAttributesMap().values();
     }
@@ -96,6 +112,7 @@ public final class AttributeFactory implements Attributes {
         return map;
     }
 
+    @Override
     public Collection<ResourceAttribute> defaultResourceAttributes() {
         return defaultResourceAttributesMap().values();
     }
@@ -111,11 +128,13 @@ public final class AttributeFactory implements Attributes {
         return map;
     }
 
-    private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB() {
+    @Autowired
+    private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB(HibernateDAO<SecondaryAttributeEntity> dao) {
         try {
-            GenericHibernateDAO<SecondaryAttributeEntity> dao = new GenericHibernateDAO<>();
-            dao.setClazz(SecondaryAttributeEntity.class);
-//            AttributesSecondaryDAO dao = ApplicationContextProvider.getApplicationContext().getBean(AttributesSecondaryDAO.class);
+            if (dao.isEntityClassVacant()) {
+                dao.setEntityClass(SecondaryAttributeEntity.class);
+            }
+            dao.setEntityClass(SecondaryAttributeEntity.class);
             List<SecondaryAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
@@ -126,17 +145,19 @@ public final class AttributeFactory implements Attributes {
             return Collections.emptyMap();
         }
     }
-
-    private Map<String, ResourceAttribute> getResourceAttributesFromDB() {
+    
+    @Autowired
+    private Map<String, ResourceAttribute> getResourceAttributesFromDB(HibernateDAO<ResourceAttributeEntity> dao) {
         try {
-            GenericHibernateDAO<ResourceAttributeEntity> dao = new GenericHibernateDAO<>();
-            dao.setClazz(ResourceAttributeEntity.class);
-//            AttributesResourceDAO dao =    ApplicationContextProvider.getApplicationContext().getBean(AttributesResourceDAO.class);
+            if (dao.isEntityClassVacant()) {
+                dao.setEntityClass(ResourceAttributeEntity.class);
+            }
+            dao.setEntityClass(ResourceAttributeEntity.class);
             List<ResourceAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
             }
-            return results.stream().map(this::mapResources).collect(Collectors.toMap(ra -> ra.fullName(), ra -> ra));
+            return results.stream().map(this::mapResources).collect(Collectors.toMap(ResourceAttribute::fullName, ra -> ra));
         } catch (Exception e) {
             LOG.error("Cannot get data from DB! Reason " + e.getMessage());
             return Collections.emptyMap();
@@ -151,8 +172,10 @@ public final class AttributeFactory implements Attributes {
         return new ResourceAttributeImpl(entity);
     }
 
+    @Override
     public Collection<SecondaryAttribute> getSecondaryAttributes() { return secondaryAttributes.values(); }
 
+    @Override
     public Collection<ResourceAttribute> getResourceAttribute() { return resourceAttributes.values(); }
 
     private record DummySecondaryAttribute(String fullName, String abbreviation, AttributeGroup group, String description, long getId)
@@ -223,6 +246,7 @@ public final class AttributeFactory implements Attributes {
      * @param attribute
      * @return
      */
+    @Override
     public Attribute ofName(String attribute) {
         try {
             return PrimaryAttribute.ofName(attribute);

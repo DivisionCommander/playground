@@ -16,6 +16,10 @@ public interface HibernateDAO<T extends Serializable> {
 
     List<T> findAll();
 
+    void setEntityClass(Class<T> entityClass);
+
+    boolean isEntityClassVacant();
+
 }
 
 

@@ -5,7 +5,7 @@
 
     <groupId>bg.sarakt</groupId>
     <artifactId>base</artifactId>
-    <version>0.0.7b</version>
+    <version>0.0.8</version>
     <!-- TODO set project info -->
     <name>Base Game</name>
     <description>Generic RPG backbone</description>

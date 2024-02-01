@@ -25,7 +25,7 @@ public class PrimaryAttrValuesDAO extends AbstractHibernateDAO<PrimaryAttributeV
 
     public PrimaryAttrValuesDAO() {
         super();
-        setClazz(PrimaryAttributeValuesEntity.class);
+        setEntityClass(PrimaryAttributeValuesEntity.class);
     }
 
     public PrimaryAttributeValuesEntity get(Map<PrimaryAttribute, BigInteger> map) {

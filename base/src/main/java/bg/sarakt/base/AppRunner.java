@@ -45,10 +45,10 @@ import bg.sarakt.storing.hibernate.entities.LevelEntity;
 @EnableConfigurationProperties(HibernateConf.class)
 @Configuration(proxyBeanMethods =  false)
 @EntityScan(basePackages = "bg.sarakt.storing.hibernate.entities")
-@ComponentScan(basePackages = {"bg.sarakt.storing.hibernate", "bg.sarakt.base"})
+@ComponentScan(basePackages = {"bg.sarakt.storing.hibernate", "bg.sarakt.base", "bg.sarakt.attributes.impl"})
 public class AppRunner {
 
-    private static final int CONDITION =2;
+    private static final int CONDITION =3;
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -71,12 +71,25 @@ public class AppRunner {
         case 2:
             showAttributeWindow();
             break;
+        case 3:
+            checkBeanAgainstFactory();
+            break;
         default:
             System.out.println("unsupported");
             break;
         }
     }
 
+
+    public static void checkBeanAgainstFactory() {
+        AttributeFactory bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
+        AttributeFactory instance = AttributeFactory.getInstance();
+        System.out.println(instance);// NOSONAR
+        System.out.println(bean);// NOSONAR
+        System.out.println(bean.equals(instance));// NOSONAR
+        System.out.println(bean == instance);// NOSONAR
+    }
+    
     public static void showAttributeWindow() throws InterruptedException, InvocationTargetException {
         System.out.println("Test ground");
         DummyLevelImpl lvl = new DummyLevelImpl();
@@ -87,7 +100,7 @@ public class AppRunner {
 
     @Deprecated(forRemoval =  true, since ="0.0.7")
     public static void main_1(String[] args) throws Exception {
-        EventQueue.invokeAndWait(() -> new CharacterAttributeWindow());
+        EventQueue.invokeAndWait(CharacterAttributeWindow::new);
     }
 
     @Deprecated(forRemoval = true, since="0.0.7")

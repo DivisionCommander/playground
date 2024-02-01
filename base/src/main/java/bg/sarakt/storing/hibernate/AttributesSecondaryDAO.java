@@ -12,11 +12,12 @@ import org.springframework.stereotype.Repository;
 
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
-@Repository
+@Repository("secondaryDao")
+@Deprecated(forRemoval = true, since = "0.0.8")
 public class AttributesSecondaryDAO extends AbstractHibernateDAO<SecondaryAttributeEntity> {
 
     private AttributesSecondaryDAO() {
         super();
-        setClazz(SecondaryAttributeEntity.class);
+        setEntityClass(SecondaryAttributeEntity.class);
     }
 }

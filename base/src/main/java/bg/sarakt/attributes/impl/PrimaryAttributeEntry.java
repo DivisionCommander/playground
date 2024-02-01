@@ -43,7 +43,7 @@ public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<Prima
     }
 
     public void addPermanentBonus(BigInteger bonus) {
-        this.basicValue.add(bonus);
+        this.basicValue = this.basicValue.add(bonus);
     }
 
     /**

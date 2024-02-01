@@ -26,7 +26,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-@Entity
+@Entity(name ="attribute")
 @Table(name = "tbl_attributes_resource")
 public class ResourceAttributeEntity implements Serializable {
 
