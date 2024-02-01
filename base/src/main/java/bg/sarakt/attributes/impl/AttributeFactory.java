@@ -113,8 +113,9 @@ public final class AttributeFactory implements Attributes {
 
     private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB() {
         try {
-//            GenericHibernateDAO<SecondaryAttributeEntity> dao = new GenericHibernateDAO<>();
-            AttributesSecondaryDAO dao = ApplicationContextProvider.getApplicationContext().getBean(AttributesSecondaryDAO.class);
+            GenericHibernateDAO<SecondaryAttributeEntity> dao = new GenericHibernateDAO<>();
+            dao.setClazz(SecondaryAttributeEntity.class);
+//            AttributesSecondaryDAO dao = ApplicationContextProvider.getApplicationContext().getBean(AttributesSecondaryDAO.class);
             List<SecondaryAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
@@ -128,8 +129,9 @@ public final class AttributeFactory implements Attributes {
 
     private Map<String, ResourceAttribute> getResourceAttributesFromDB() {
         try {
-
-            AttributesResourceDAO dao =    ApplicationContextProvider.getApplicationContext().getBean(AttributesResourceDAO.class);
+            GenericHibernateDAO<ResourceAttributeEntity> dao = new GenericHibernateDAO<>();
+            dao.setClazz(ResourceAttributeEntity.class);
+//            AttributesResourceDAO dao =    ApplicationContextProvider.getApplicationContext().getBean(AttributesResourceDAO.class);
             List<ResourceAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();

@@ -13,16 +13,15 @@ import org.hibernate.cfg.Configuration;
 
 import bg.sarakt.glossary.entitites.CreatureEntity;
 import bg.sarakt.glossary.entitites.TagEntity;
-import bg.sarakt.logging.Logger;
+import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
+import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeCoefficientEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.UnitClassEntity;
-import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
-import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 
 public class HibernateUtils {
 
@@ -43,7 +42,6 @@ public class HibernateUtils {
                 ;
         //@formatter:on
         System.err.println("get as factory");
-        Logger.getLogger().error( "!!!!!");
         return conf.buildSessionFactory();
     }
 

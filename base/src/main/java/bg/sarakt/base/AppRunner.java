@@ -45,7 +45,7 @@ import bg.sarakt.storing.hibernate.entities.LevelEntity;
 @EnableConfigurationProperties(HibernateConf.class)
 @Configuration(proxyBeanMethods =  false)
 @EntityScan(basePackages = "bg.sarakt.storing.hibernate.entities")
-@ComponentScan(basePackages = "bg.sarakt.storing.hibernate")
+@ComponentScan(basePackages = {"bg.sarakt.storing.hibernate", "bg.sarakt.base"})
 public class AppRunner {
 
     private static final int CONDITION =2;

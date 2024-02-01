@@ -7,8 +7,6 @@
  */
 package bg.sarakt.base;
 
-import java.io.Serializable;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -31,7 +29,6 @@ public class ApplicationContextProvider implements ApplicationContextAware{
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         ApplicationContextProvider.applicationContext = applicationContext; //NOSONAR
-        System.out.println("Autowired");
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -40,22 +37,20 @@ public class ApplicationContextProvider implements ApplicationContextAware{
 
     @Bean
     public LevelNodeDAO levelNodeDAO() {
-        System.out.println("new ");
         return new LevelNodeDAO();
     }
 
     @Bean
     public LevelDAO levelDAO() {
-        System.out.println("LEVEL DAO");
         return new LevelDAO();
     }
-    
+
     @Bean
     public GenericHibernateDAO<TagEntity> generigTagDAO(){
         GenericHibernateDAO<TagEntity> dao = new GenericHibernateDAO<>();
         dao.setClazz(TagEntity.class);
         return dao;
-        
+
     }
 }
 
