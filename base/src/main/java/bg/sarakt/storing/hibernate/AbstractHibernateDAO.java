@@ -21,9 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import bg.sarakt.base.utils.HibernateUtils;
 import bg.sarakt.logging.Logger;
+import bg.sarakt.storing.hibernate.interfaces.IHibernateDAO;
 
 @Transactional
-public abstract class AbstractHibernateDAO<T extends Serializable> implements HibernateDAO<T> {
+public abstract class AbstractHibernateDAO<T extends Serializable> implements IHibernateDAO<T> {
 
     protected static final Logger LOGGER = Logger.getLogger();
     protected Class<T>            clazz;
@@ -38,7 +39,7 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements Hi
     protected TransactionManager transactionManager;
     
     /**
-     * @see bg.sarakt.storing.hibernate.HibernateDAO#isEntityClassVacant()
+     * @see bg.sarakt.storing.hibernate.interfaces.IHibernateDAO#isEntityClassVacant()
      */
     @Override
     public boolean isEntityClassVacant() { return this.clazz == null; }
@@ -63,7 +64,7 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements Hi
         return HibernateUtils.getSessionFactory().openSession();
     }
 
-    @Override
+    // @Override
     public T findOne(long id) {
         return getCurrentSession().get(clazz, id);
     }

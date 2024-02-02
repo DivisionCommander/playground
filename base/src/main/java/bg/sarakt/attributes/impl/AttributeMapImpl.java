@@ -16,8 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
-
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.CharacterAttributeMap;
@@ -28,14 +26,18 @@ import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
+import bg.sarakt.base.exceptions.UnsupportedSubtypeException;
+import bg.sarakt.logging.Logger;
+
+import org.springframework.lang.Nullable;
 
 public class AttributeMapImpl implements CharacterAttributeMap{
 
     /** field <code>UNKNOWN_ATTRIBUTE_SUBTYPE</code> */
     private static final String UNKNOWN_ATTRIBUTE_SUBTYPE = "Unknown attribute subtype";
-    private static final boolean USE_OLD_LEVELING = false;
-
-    private final ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>    primaryMap;
+    private static final boolean USE_OLD_LEVELING          = false;
+    
+    private final ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>     primaryMap;
     private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry> resourceMap;
     private final ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> secondaryMap;
 
@@ -67,7 +69,8 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      * @param secondary
      * @param level
      */
-    public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources, Collection<SecondaryAttribute> secondary, Level level) {
+    public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources,
+            Collection<SecondaryAttribute> secondary, Level level) {
         primaryMap = new PrimaryAttributeMap(primary);
         resourceMap = new ResourceAttributeMap(resources, primaryMap);
         secondaryMap = new SecondaryAttributeMap(primaryMap, secondary);
@@ -84,16 +87,17 @@ public class AttributeMapImpl implements CharacterAttributeMap{
 
     @Override
     public BigDecimal getBaseValue(Attribute attribute) {
-        if (attribute instanceof PrimaryAttribute pa) {
+        switch (attribute)
+        {
+        case PrimaryAttribute pa:
             return primaryMap.getBaseValue(pa);
-        }
-        if (attribute instanceof ResourceAttribute ra) {
+        case ResourceAttribute ra:
             return resourceMap.getBaseValue(ra);
-        }
-        if (attribute instanceof SecondaryAttribute sa) {
+        case SecondaryAttribute sa:
             return secondaryMap.getBaseValue(sa);
+        default:
+            throw new IllegalArgumentException(UNKNOWN_ATTRIBUTE_SUBTYPE);
         }
-        throw new IllegalArgumentException(UNKNOWN_ATTRIBUTE_SUBTYPE);
     }
 
     /**
@@ -102,16 +106,17 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      */
     @Override
     public BigDecimal getAttributeValueForLayer(Attribute attribute, ModifierLayer layer) {
-        if (attribute instanceof PrimaryAttribute pa) {
+        switch (attribute)
+        {
+        case PrimaryAttribute pa:
             return primaryMap.getAttributeValueForLayer(pa, layer);
-        }
-        if (attribute instanceof ResourceAttribute ra) {
+        case ResourceAttribute ra:
             return resourceMap.getAttributeValueForLayer(ra, layer);
-        }
-        if (attribute instanceof SecondaryAttribute sa) {
+        case SecondaryAttribute sa:
             return secondaryMap.getAttributeValueForLayer(sa, layer);
+        default:
+            throw new UnsupportedSubtypeException(attribute.getClass(), UNKNOWN_ATTRIBUTE_SUBTYPE);
         }
-        throw new IllegalArgumentException(UNKNOWN_ATTRIBUTE_SUBTYPE);
     }
 
     /**
@@ -119,16 +124,17 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      */
     @Override
     public BigDecimal getCurrentAttributeValue(Attribute attribute) {
-        if (attribute instanceof PrimaryAttribute pa) {
+        switch (attribute)
+        {
+        case PrimaryAttribute pa:
             return primaryMap.getCurrentAttributeValue(pa);
-        }
-        if (attribute instanceof ResourceAttribute ra) {
+        case ResourceAttribute ra:
             return resourceMap.getCurrentAttributeValue(ra);
-        }
-        if (attribute instanceof SecondaryAttribute sa) {
+        case SecondaryAttribute sa:
             return secondaryMap.getCurrentAttributeValue(sa);
+        default:
+            throw new UnsupportedSubtypeException(attribute.getClass(), UNKNOWN_ATTRIBUTE_SUBTYPE);
         }
-        throw new IllegalArgumentException(UNKNOWN_ATTRIBUTE_SUBTYPE);
     }
 
     /**
@@ -177,14 +183,20 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         List<AttributeModifier<ResourceAttribute>> res = new LinkedList<>();
         List<AttributeModifier<SecondaryAttribute>> sec = new LinkedList<>();
         for (var modifier : modifiers) {
-            if (modifier.getAttribute() instanceof PrimaryAttribute pa) {
+            switch (modifier.getAttribute())
+            {
+            case PrimaryAttribute pa:
                 primary.add(new AttributeMoDWrapper<>(modifier, pa));
-            }
-            if (modifier.getAttribute() instanceof ResourceAttribute ra) {
+                break;
+            case ResourceAttribute ra:
                 res.add(new AttributeMoDWrapper<>(modifier, ra));
-            }
-            if (modifier.getAttribute() instanceof SecondaryAttribute sa) {
+                break;
+            case SecondaryAttribute sa:
                 sec.add(new AttributeMoDWrapper<>(modifier, sa));
+                break;
+            default:
+                Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE + "\t" + modifier.getAttribute().getClass());
+                break;
             }
         }
         if (add) {
@@ -200,16 +212,22 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     }
 
     private void removeModifier(AttributeModifier<Attribute> am) {
-        if (am.getAttribute() instanceof PrimaryAttribute pa) {
+        switch (am.getAttribute())
+        {
+        case PrimaryAttribute pa:
             primaryMap.removeModifier(new AttributeMoDWrapper<>(am, pa));
-        }
-        if (am.getAttribute() instanceof ResourceAttribute ra) {
+            break;
+        case ResourceAttribute ra:
             resourceMap.removeModifier(new AttributeMoDWrapper<>(am, ra));
-        }
-        if( am.getAttribute() instanceof SecondaryAttribute sa) {
+            break;
+        case SecondaryAttribute sa:
             secondaryMap.removeModifier(new AttributeMoDWrapper<>(am, sa));
+            break;
+        
+        default:
+            Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE + "\t" + am.getAttribute().getClass());
+            break;
         }
-
     }
 
     private class AttributeMoDWrapper<A extends Attribute> implements AttributeModifier<A> {

@@ -27,7 +27,10 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     private final PrimaryAttribute                  primary;
     private final NavigableMap<Integer, BigDecimal> coefficients;
 
-
+    /**
+     * @deprecated let provided to take care for conversion;
+     */
+    @Deprecated(forRemoval = true, since = "0.0.8")
     ResourceAttributeImpl(ResourceAttributeEntity entity){
         this(entity.getId(), entity.getName(), entity.getAbbr(), entity.getGroup(), entity.getDescrption(), entity.getPrimaryAttribute());
     }

@@ -51,5 +51,7 @@ public interface Attributes {
     String DESC_PSIONIC      = "Increace effectiveness of certain magical and mental abilities";
     String DESC_SPIRIT       = "Ability to recover from magical, mental and spiritual affects";
     String DESC_WILL         = "Projecting will over another character of protect from influence from person, artifacts and etc.";
+    String NAME_CURRENT_HIT_POINT = "Current HP";
+    String NAME_CURRENT_MANA_POINTS = "Current MP";
 
 }

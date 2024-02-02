@@ -76,7 +76,7 @@ public class DefaultUnitClassImpl implements UnitClass
     public Set<AttributeValuePair> getAttributesForLevel(int newLevel)
     {
         Set<AttributeValuePair> bonuses = getBasicAttributesForLevel(newLevel);
-        bonuses.add(new AttributeValuePair(Attributes.HIT_POINTS, newLevel));
+        // bonuses.add(new AttributeValuePair(Attributes.HIT_POINTS, newLevel));
         // FIXME bonuses.add(new AttributeValuePair(Attribute.UNALLOCATED, newLevel));
         return bonuses;
     }

@@ -9,13 +9,15 @@
 package bg.sarakt.storing.hibernate;
 
 import org.hibernate.Session;
+import org.hibernate.query.SelectionQuery;
 import org.springframework.stereotype.Repository;
 
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
+import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
 
-@Repository
-public class LevelDAO extends AbstractHibernateDAO<LevelEntity> {
-
+@Repository("levelDAO")
+public class LevelDAO extends AbstractHibernateDAO<LevelEntity> implements ILevelDAO {
+    
     public LevelDAO() {
         super();
         setEntityClass(LevelEntity.class);
@@ -32,4 +34,14 @@ public class LevelDAO extends AbstractHibernateDAO<LevelEntity> {
     public LevelEntity get(LevelEntity entity) {
         return get(entity.getLevel());
     }
+    
+    @Override
+    public int getMaxlevel() {
+        String hql = "Select max(level) FROM " + clazz.getName();
+        
+        SelectionQuery<Integer> query = getCurrentSession().createSelectionQuery(hql, Integer.class);
+        Integer result = query.getSingleResultOrNull();
+        return result == null ? -1 : result;
+    }
+    
 }

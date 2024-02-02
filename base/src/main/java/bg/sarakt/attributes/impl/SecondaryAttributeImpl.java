@@ -11,10 +11,9 @@ package bg.sarakt.attributes.impl;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeGroup;
@@ -26,7 +25,9 @@ import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
-public class SecondaryAttributeImpl extends AbstractAttribute implements SecondaryAttribute
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+public final class SecondaryAttributeImpl extends AbstractAttribute implements SecondaryAttribute
 {
 
     /** field <code>serialVersionUID</code> */
@@ -35,6 +36,10 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
 
     private final NavigableMap<Integer, AttributeFormula> formulas = new TreeMap<>();
 
+    /**
+     * @deprecated let provided to take care for conversion;
+     */
+    @Deprecated(forRemoval = true, since = "0.0.8")
     SecondaryAttributeImpl(SecondaryAttributeEntity e) {
         this(e.getId(), e.getName(), e.getAbbr(), e.getGroup(), e.getDescription());
         formulas.putAll(convert(e.getFormulas()));
@@ -69,6 +74,9 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
         return formulas.floorEntry(level).getValue();
     }
 
+    void putFormulas(SortedMap<Integer, AttributeFormula> formulas) {
+        this.formulas.putAll(formulas);
+    }
 
     /**
      * @see java.lang.Object#toString()
@@ -82,6 +90,10 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
         return sb.toString();
     }
 
+    /**
+     * TODO: Generalize #toHibernateEntity extract somewhere else, maybe in the
+     * {@link AttributeFactory}
+     */
     public SecondaryAttributeEntity toHibernateEntity()
     {
 
@@ -134,6 +146,11 @@ public class SecondaryAttributeImpl extends AbstractAttribute implements Seconda
         return new SecondaryAttributeEntry(this, primaryAttribute, level);
     }
 
+    /**
+     * @deprecated since its use only in constructor from entity, it will be removed
+     *             alongs it.
+     */
+    @Deprecated(forRemoval = true, since = "0.0.8")
     private NavigableMap<Integer, AttributeFormula> convert(List<AttributeFormulaEntity> formulas) {
         NavigableMap<Integer, AttributeFormula> results = new TreeMap<>();
         for (var formula : formulas) {

@@ -149,8 +149,9 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
      */
     @Override
     public boolean isAlive() {
-        AttributeValuePair hitPoints = attributes.getAttribute(Attributes.HIT_POINTS);
-        return hitPoints.value() > 0;
+        // AttributeValuePair hitPoints =
+        // attributes.getAttribute(Attributes.HIT_POINTS);
+        return true;
     }
 
     /**

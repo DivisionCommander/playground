@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
+import bg.sarakt.attributes.impl.AttributeProvider;
+import bg.sarakt.attributes.impl.Attributes;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 import bg.sarakt.base.window.AttributeWindow;
@@ -48,7 +50,7 @@ import bg.sarakt.storing.hibernate.entities.LevelEntity;
 @ComponentScan(basePackages = {"bg.sarakt.storing.hibernate", "bg.sarakt.base", "bg.sarakt.attributes.impl"})
 public class AppRunner {
 
-    private static final int CONDITION =3;
+    private static final int CONDITION = 4;
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -74,16 +76,29 @@ public class AppRunner {
         case 3:
             checkBeanAgainstFactory();
             break;
+        case 4:
+            maxLevel();
+            break;
         default:
             System.out.println("unsupported");
             break;
         }
     }
+    
+    public static void maxLevel() {
+        AttributeFactory bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
+        int maxLevel = bean.getMaxLevel();
+        System.out.println(maxLevel);
+        
+        maxLevel = new AttributeProvider().asd();
+        System.out.println(maxLevel);
+        
+    }
 
 
     public static void checkBeanAgainstFactory() {
-        AttributeFactory bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
-        AttributeFactory instance = AttributeFactory.getInstance();
+        Attributes bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
+        Attributes instance = AttributeFactory.getInstance();
         System.out.println(instance);// NOSONAR
         System.out.println(bean);// NOSONAR
         System.out.println(bean.equals(instance));// NOSONAR

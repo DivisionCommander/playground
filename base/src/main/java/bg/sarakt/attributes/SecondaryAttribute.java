@@ -11,9 +11,11 @@ package bg.sarakt.attributes;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.impl.PrimaryAttributeEntry;
 import bg.sarakt.attributes.impl.SecondaryAttributeEntry;
+import bg.sarakt.attributes.impl.SecondaryAttributeImpl;
+import bg.sarakt.attributes.impl.AttributeProvider.DummySecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
 
-public interface SecondaryAttribute extends Attribute, Comparable<Attribute> {
+public sealed interface SecondaryAttribute extends Attribute, Comparable<Attribute> permits SecondaryAttributeImpl, DummySecondaryAttribute {
 
     long getId();
 

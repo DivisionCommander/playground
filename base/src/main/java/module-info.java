@@ -1,9 +1,10 @@
 module sarakt {
 
     exports bg.sarakt.attributes;
-
     exports bg.sarakt.attributes.impl to spring.beans;
-    exports bg.sarakt.storing.hibernate.entities;// to bg.sarakt.atttributes.impl;
+    exports bg.sarakt.attributes.levels to bg.sarakt.attributes;
+    exports bg.sarakt.storing.hibernate.interfaces;
+    
     opens bg.sarakt.attributes.impl to spring.core;
 
     requires java.desktop;
@@ -24,6 +25,7 @@ module sarakt {
     requires spring.data.commons;
     requires java.instrument;
     requires jakarta.annotation;
+    requires java.scripting;
 
     opens bg.sarakt.z.tools;
     opens bg.sarakt.base;

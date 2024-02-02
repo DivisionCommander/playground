@@ -37,13 +37,23 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
     protected static final Logger LOG     = Logger.getLogger();
 
     @Deprecated(forRemoval = true, since = "0.0.7")
-    private final Level                                                 level;
+    private Level                                                       level;
     protected final T                                                   attr;
     private final ConcurrentNavigableMap<ModifierLayer, BigDecimal>     valuesPerLayer;
     private final ConcurrentNavigableMap<ModifierLayer, List<Modifier>> modifiers;
 
     protected AbstractAttributeMapEntry(T attribute) {
-        this(attribute, null);
+        Objects.requireNonNull(attribute, "Attribute cannot be null!");
+        this.attr = attribute;
+        valuesPerLayer = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
+        modifiers = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
+
+        Iterator<ModifierLayer> it = ModifierLayer.getIterator();
+        while (it.hasNext()) {
+            ModifierLayer layer = it.next();
+            modifiers.put(layer, new ArrayList<>());
+            valuesPerLayer.put(layer, BigDecimal.ZERO);
+        }
     }
 
     /**
@@ -84,7 +94,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
             // TODO: some better handling;
             return;
         }
-        ModifierLayer layer = ModifierLayer.TEMPORARY_LAYER;
+        ModifierLayer layer = ModifierLayer.getHighestLayer();
         for (AttributeModifier<T> mod : modifiers) {
             addModifier(mod, false);
             layer = layer.checkLower(mod.getLayer());
@@ -98,7 +108,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
             // TODO: some better handling;
             return;
         }
-        ModifierLayer layer = ModifierLayer.TEMPORARY_LAYER;
+        ModifierLayer layer = ModifierLayer.getHighestLayer();
         for (AttributeModifier<T> mod : modifiers) {
             removeModifier(mod, false);
             layer = layer.checkLower(mod.getLayer());
@@ -184,6 +194,9 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
     @Override
     @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
+        if (this.level == null) {
+            return;
+        }
         AttributeModifier<T> mod = level.viewPreviousLevel().getModifier(attr);
         if (mod != null) {
             removeModifier(mod, false);
@@ -248,7 +261,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
      * @param coefficient
      * @return
      */
-    @Deprecated(forRemoval = false)
+    @Deprecated(forRemoval = true, since = "0.0.8")
     private BigDecimal applyModifiers(BigDecimal baseValue, BigDecimal flat, BigDecimal coefficient) {
 
         // result =(coef* flat) + int + flat;

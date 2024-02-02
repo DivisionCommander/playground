@@ -37,21 +37,20 @@ public final class UnitClassFactory
 
     }
 
-    private NavigableMap<Integer, Map<Attribute, Double>> TEMP()
-    {
+    private NavigableMap<Integer, Map<Attribute, Double>> TEMP() {
         NavigableMap<Integer, Map<Attribute, Double>> advancedAttribute = new TreeMap<>();
         Map<Attribute, Double> map = new HashMap<>();
-        map.put(HIT_POINTS, 5.5);
-        map.put(ATTACK_SPEED, 1.0);
-        map.put(CAST_RATE, 1.0);
-        advancedAttribute.put(1, map);
-        map = new HashMap<>();
-        map.put(HIT_POINTS, 6.0);
-        map.put(ATTACK_SPEED, 0.9);
-        map.put(CAST_RATE, 0.9);
-        advancedAttribute.put(10, map);
+//        map.put(HIT_POINTS, 5.5);
+//        map.put(ATTACK_SPEED, 1.0);
+//        map.put(CAST_RATE, 1.0);
+//        advancedAttribute.put(1, map);
+//        map = new HashMap<>();
+//        map.put(HIT_POINTS, 6.0);
+//        map.put(ATTACK_SPEED, 0.9);
+//        map.put(CAST_RATE, 0.9);
+//        advancedAttribute.put(10, map);
 
         return Collections.unmodifiableNavigableMap(advancedAttribute);
     }
-
+    
 }

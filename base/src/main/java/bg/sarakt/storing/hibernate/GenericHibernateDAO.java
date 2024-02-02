@@ -9,6 +9,8 @@ package bg.sarakt.storing.hibernate;
 
 import java.io.Serializable;
 
+import bg.sarakt.storing.hibernate.interfaces.IHibernateDAO;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
@@ -19,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository("genericDao")
 @Primary
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class GenericHibernateDAO<T extends Serializable> extends AbstractHibernateDAO<T> implements HibernateDAO<T>{
+public class GenericHibernateDAO<T extends Serializable> extends AbstractHibernateDAO<T> implements IHibernateDAO<T>{
 
     public GenericHibernateDAO() {
         super();

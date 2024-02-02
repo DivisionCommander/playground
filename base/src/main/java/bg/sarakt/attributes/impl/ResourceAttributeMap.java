@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
      *             {@link CharacterAttributeMap} would manage leveling of
      *             {@link Attribute}s and their {@link AttributeMapEntry}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> pa) {
         this(resource, pa);
     }
@@ -105,6 +106,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
                 modified.add(entry);
             } else {
                 entry.removeModifier(m, false);
+                modified.add(entry);
             }
         }
         modified.stream().forEach(ResourceAttributeEntry::recalculate);
@@ -115,7 +117,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
      */
     @Override
     public Map<ResourceAttribute, BigDecimal> getAllValues() {
-        return entries.entrySet().stream().collect(Collectors.toMap(e->e.getKey(), e->e.getValue().getCurrentValue()));
+        return entries.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e->e.getValue().getCurrentValue()));
     }
 
     /**

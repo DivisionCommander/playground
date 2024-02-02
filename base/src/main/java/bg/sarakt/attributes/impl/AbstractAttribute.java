@@ -13,7 +13,7 @@ import java.io.Serializable;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeGroup;
 
-public abstract class AbstractAttribute implements Attribute, Serializable {
+public abstract sealed class AbstractAttribute implements Attribute, Serializable permits ResourceAttributeImpl, SecondaryAttributeImpl {
 
     /** field <code>serialVersionUID</code> */
     private static final long serialVersionUID = 202401202119L;

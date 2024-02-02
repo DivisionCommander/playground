@@ -43,7 +43,7 @@ public final class LevelCalculator {
     public NavigableMap<Long, Integer> getLevels(){
 
         NavigableMap<Long, Integer> levels = new TreeMap<>();
-        new LevelDAO().findAll().stream().forEach(l->levels.put(l.getXp()   , l.getLevel()));
+        new LevelDAO().findAll().stream().forEach(l -> levels.put(l.getXp(), l.getLevel()));
         return levels;
     }
 

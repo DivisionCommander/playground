@@ -5,14 +5,14 @@
  *
  * Copyright (c) Roman Tsonev
  */
-package bg.sarakt.storing.hibernate;
+package bg.sarakt.storing.hibernate.interfaces;
 
 import java.io.Serializable;
 import java.util.List;
 
-public interface HibernateDAO<T extends Serializable> {
+public interface IHibernateDAO<T extends Serializable> {
 
-    T findOne(long id);
+    // T findOne(long id);
 
     List<T> findAll();
 

@@ -17,6 +17,7 @@ import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.exceptions.UnknownValueException;
 
+
 public enum PrimaryAttribute implements Attribute
 {
 
