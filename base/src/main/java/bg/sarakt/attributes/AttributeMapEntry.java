@@ -56,4 +56,6 @@ public interface AttributeMapEntry<T extends Attribute> {
     @Dummy(since = "0.0.11", to = "UNKNOWN", description = "Workarround until finally get remove Level from the enry")
     @ForRemoval(expectedRemovalVersion = "UNKNOWN")
     AttributeMapEntry<T> setLevel(Level level);
+    
+    void recalculate();
 }

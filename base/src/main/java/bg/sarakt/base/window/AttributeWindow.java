@@ -43,7 +43,7 @@ public class AttributeWindow extends AbstractWindow{
     private final DummyLevelImpl level;
 
 
-    private final CharacterAttributeMap attributes;
+    private final AttributeMapImpl attributes;
     private JTextField fldXP = new JTextField(8);
 
     public AttributeWindow(AttributeMapImpl attrMap, DummyLevelImpl lvl) {
@@ -88,6 +88,7 @@ public class AttributeWindow extends AbstractWindow{
 
         panel.validate();
         window.add(panel);
+        window.setTitle("Attributes for level# " + attributes.getLevel());
     }
 
     private void rem(Component c)
@@ -113,8 +114,6 @@ public class AttributeWindow extends AbstractWindow{
 
         JPanel pnl = new JPanel();
         pnl.add(new JLabel(a.fullName()));
-        BigDecimal cur = attributes.getCurrentAttributeValue(a);
-        // System.out.println(a + "\t" + cur);
         JTextField fld = new JTextField(attributes.getCurrentAttributeValue(a).toString());
         fld.setEditable(false);
         pnl.add(fld);
@@ -170,8 +169,6 @@ public class AttributeWindow extends AbstractWindow{
             e.printStackTrace();
             experience = DEFAULT;
         }
-        System.out.println(experience);
-        System.out.println("repopulate");
         attributes.earnExperience(experience);
         int unallocatedPonts = level.getUnallocatedPonts();
         freePoints.addAndGet(unallocatedPonts);

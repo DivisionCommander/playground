@@ -38,7 +38,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     private static final boolean USE_OLD_LEVELING          = false;
     
     private final ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>     primaryMap;
-    private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry> resourceMap;
+    private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry>   resourceMap;
     private final ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> secondaryMap;
 
     private final Level level;
@@ -77,6 +77,8 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         this.level = level;
         recalculate();
     }
+    
+    public int getLevel() { return this.level.getLevelNumber(); }
 
 
     @Override
@@ -154,8 +156,10 @@ public class AttributeMapImpl implements CharacterAttributeMap{
 
     @Override
     public void levelUp() {
+        System.out.println("Level Up");
         if (USE_OLD_LEVELING) {
             levelUp_old();
+            System.out.println(USE_OLD_LEVELING);
             return;
         }
 
@@ -166,9 +170,14 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         }
 
         LevelNode next = level.viewCurrentLevel();
-        if (next != null && !next.getAllModifiers().isEmpty()) {
+        if (next != null) {
             next.getPermanentBonuses().entrySet().forEach(e -> primaryMap.get(e.getKey()).addPermanentBonus(e.getValue()));
-            applyModifiers(next.getAllModifiers(), true);
+            if ( !next.getAllModifiers().isEmpty()) {
+                applyModifiers(next.getAllModifiers(), true);
+            }
+            else {
+                recalculate();
+            }
         }
     }
 
@@ -179,17 +188,10 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         secondaryMap.levelUp();
     }
     
-    public void recalculate() {
-        System.out.println("AMI");
-        primaryMap.forEach(System.out::println);
-        secondaryMap.forEach(System.out::println);
-        resourceMap.forEach(System.out::println);
-        // resourceMap.forEach(e -> recalculate());
-        // secondaryMap.forEach(e -> recalculate());
-        // primaryMap.iterator().forEachRemaining(e -> recalculate());
-        // resourceMap.iterator().forEachRemaining(e -> recalculate());
-        // secondaryMap.iterator().forEachRemaining(e -> recalculate());
-        System.out.println("AMI-end");
+    private void recalculate() {
+        primaryMap.forEach(PrimaryAttributeEntry::recalculate);
+        resourceMap.forEach(ResourceAttributeEntry::recalculate);
+        secondaryMap.forEach(SecondaryAttributeEntry::recalculate);
     }
 
     private void applyModifiers(Collection<AttributeModifier<Attribute>> modifiers, boolean add) {

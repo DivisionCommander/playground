@@ -173,8 +173,12 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
         }
     }
 
+    @Override
     public void recalculate() {
+        BigDecimal old = getCurrentValue();
         recalculate(ModifierLayer.getLowestLayer(), getBaseValue());
+        BigDecimal newV= getCurrentValue();
+        LOG.debug("[" + getAttribute().fullName() + "] changes from {" + old + "} to {" + newV + "}");
     }
 
     protected void recalculate(ModifierLayer layer) {
@@ -246,8 +250,8 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
             }
         }
 
-        LOG.debug("Flat bonus = " + flat);
-        LOG.debug("Modifier Coefficient =" + coefficient);
+        // LOG.debug("Flat bonus = " + flat);
+        // LOG.debug("Modifier Coefficient =" + coefficient);
 
         if (USE_OLD) {
             // deprecated formula
