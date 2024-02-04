@@ -28,6 +28,8 @@ import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.exceptions.SaraktRuntimeException;
+import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.logging.Logger;
 
 public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> implements AttributeMapEntry<T>
@@ -133,7 +135,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
             recalculate = true;
         }
         if (recalculate) {
-            ModifierLayer layer = old.getLayer().checkLower(newM.getLayer());
+            ModifierLayer layer = ModifierLayer.checkLower(old.getLayer(), newM.getLayer()).get();
             recalculate(layer);
         }
     }
@@ -162,6 +164,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
         List<Modifier> modifiersPerLayer = modifiers.get(modifier.getLayer());
         Modifier pair = new Modifier(modifier);
         if ( !modifiersPerLayer.contains(pair)) {
+            // FIXME: better handling
             throw new SaraktRuntimeException();
         }
         modifiersPerLayer.remove(pair);
@@ -170,7 +173,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
         }
     }
 
-    protected void recalculate() {
+    public void recalculate() {
         recalculate(ModifierLayer.getLowestLayer(), getBaseValue());
     }
 
@@ -189,8 +192,19 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
 
     }
 
+    @Deprecated(forRemoval = true)
+    @ForRemoval(expectedRemovalVersion = "0.0.15")
     protected final Level getLevel() {return this.level;}
 
+    @Override
+    @Dummy(since = "0.0.11", to = "UNKNOWN", description = "Workarround until finally get remove Level from the enry")
+    @ForRemoval(expectedRemovalVersion = "UNKNOWN")
+    public AttributeMapEntry<T> setLevel(Level level) {
+        this.level = level;
+        recalculate();
+        return this;
+    }
+    
     @Override
     @Deprecated(forRemoval = true, since = "0.0.6")
     public void levelUp() {
@@ -299,4 +313,19 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
             this(mod.getBonusType(), mod.getValue());
         }
     }
+    
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+               + "[level="
+               + level
+               + ", attr="
+               + attr
+               + ", valuesPerLayer="
+               + valuesPerLayer
+               + ", modifiers="
+               + modifiers
+               + "]";
+    }
+    
 }

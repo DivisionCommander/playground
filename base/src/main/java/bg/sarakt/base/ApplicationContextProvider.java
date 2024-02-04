@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import bg.sarakt.glossary.entitites.TagEntity;
 import bg.sarakt.storing.hibernate.GenericHibernateDAO;
 import bg.sarakt.storing.hibernate.LevelDAO;
-import bg.sarakt.storing.hibernate.LevelNodeDAO;
+import bg.sarakt.storing.hibernate.entities.UnitClassEntity;
 
 @Component
 public class ApplicationContextProvider implements ApplicationContextAware{
@@ -35,10 +35,10 @@ public class ApplicationContextProvider implements ApplicationContextAware{
         return applicationContext;
     }
 
-    @Bean
-    public LevelNodeDAO levelNodeDAO() {
-        return new LevelNodeDAO();
-    }
+    // @Bean
+    // public LevelNodeDAO levelNodeDAO() {
+    // return new LevelNodeDAO();
+    // }
 
     @Bean
     public LevelDAO levelDAO() {
@@ -53,6 +53,10 @@ public class ApplicationContextProvider implements ApplicationContextAware{
 
     }
 
+    @Bean
+    public GenericHibernateDAO<UnitClassEntity> unitClassDAO() {
+        return new GenericHibernateDAO<>(UnitClassEntity.class);
+    }
 
 }
 

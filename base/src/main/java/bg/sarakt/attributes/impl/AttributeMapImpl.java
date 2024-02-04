@@ -71,10 +71,11 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      */
     public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources,
             Collection<SecondaryAttribute> secondary, Level level) {
-        primaryMap = new PrimaryAttributeMap(primary);
-        resourceMap = new ResourceAttributeMap(resources, primaryMap);
-        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary);
+        primaryMap = new PrimaryAttributeMap(primary).setLevel(level);
+        resourceMap = new ResourceAttributeMap(primaryMap, resources).setLevel(level);
+        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary).setLevel(level);
         this.level = level;
+        recalculate();
     }
 
 
@@ -176,6 +177,19 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         primaryMap.levelUp();
         resourceMap.levelUp();
         secondaryMap.levelUp();
+    }
+    
+    public void recalculate() {
+        System.out.println("AMI");
+        primaryMap.forEach(System.out::println);
+        secondaryMap.forEach(System.out::println);
+        resourceMap.forEach(System.out::println);
+        // resourceMap.forEach(e -> recalculate());
+        // secondaryMap.forEach(e -> recalculate());
+        // primaryMap.iterator().forEachRemaining(e -> recalculate());
+        // resourceMap.iterator().forEachRemaining(e -> recalculate());
+        // secondaryMap.iterator().forEachRemaining(e -> recalculate());
+        System.out.println("AMI-end");
     }
 
     private void applyModifiers(Collection<AttributeModifier<Attribute>> modifiers, boolean add) {

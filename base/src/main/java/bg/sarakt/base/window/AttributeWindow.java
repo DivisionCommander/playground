@@ -10,6 +10,7 @@ package bg.sarakt.base.window;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.TreeMap;
@@ -112,6 +113,8 @@ public class AttributeWindow extends AbstractWindow{
 
         JPanel pnl = new JPanel();
         pnl.add(new JLabel(a.fullName()));
+        BigDecimal cur = attributes.getCurrentAttributeValue(a);
+        // System.out.println(a + "\t" + cur);
         JTextField fld = new JTextField(attributes.getCurrentAttributeValue(a).toString());
         fld.setEditable(false);
         pnl.add(fld);
@@ -138,8 +141,14 @@ public class AttributeWindow extends AbstractWindow{
         if (map.containsKey(a)) {
             JTextField field = map.get(a);
             String text = field.getText();
-            int intV = Integer.parseInt(text);
-            field.setText(String.valueOf(++intV));
+            try {
+                var intV = Integer.parseInt(text);
+                field.setText(String.valueOf(++intV));
+                
+            } catch (Exception e) {
+                var intV = Double.parseDouble(text);
+                field.setText(String.valueOf(++intV));
+            }
             freePoints.decrementAndGet();
             fldFreePoints.setText(freePoints.toString());
         }
@@ -154,7 +163,6 @@ public class AttributeWindow extends AbstractWindow{
         try
         {
             experience= new BigInteger(text);
-//            experience = Integer.parseInt(text);
         }
         catch (NumberFormatException e)
         {

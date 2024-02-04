@@ -25,6 +25,7 @@ import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.ForRemoval;
 
 public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute, ResourceAttributeEntry> {
 
@@ -32,13 +33,27 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
 
 
 
-    ResourceAttributeMap(Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap) {
+    ResourceAttributeMap(ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap, Collection<ResourceAttribute> resource) {
         super();
         this.entries = new HashMap<>();
         for (ResourceAttribute r : resource) {
             PrimaryAttribute pa = r.getPrimaryAttribute();
             entries.put(r, r.getEntry(primaryMap.get(pa)));
         }
+    }
+    
+    /**
+     * Use
+     * {@link ResourceAttributeMap#ResourceAttributeMap(ModifiableAttributeMap, Collection)}
+     * 
+     * @param resource
+     * @param primaryMap
+     */
+    @Deprecated(forRemoval = true, since = "0.0.11")
+    @ForRemoval(since = "0.0.11", expectedRemovalVersion = "0.0.15")
+    ResourceAttributeMap(Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap) {
+        this(primaryMap, resource);
+        
     }
 
     /**
@@ -126,5 +141,14 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     @Override
     public Iterator<ResourceAttributeEntry> iterator() {
         return entries.values().iterator();
+    }
+    
+    /**
+     * @see bg.sarakt.attributes.ModifiableAttributeMap#setLevel(bg.sarakt.attributes.levels.Level)
+     */
+    @Override
+    public ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry> setLevel(Level level) {
+        entries.values().forEach(rae -> rae.setLevel(level));
+        return this;
     }
 }

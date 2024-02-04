@@ -22,6 +22,7 @@ import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.IterableAttributeMap;
+import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
@@ -102,7 +103,7 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
      */
     @Override
     public Map<SecondaryAttribute, BigDecimal> getAllValues() {
-        return entries.values().stream().collect(Collectors.toMap(e -> e.getAttribute(), e -> e.getCurrentValue()));
+        return entries.values().stream().collect(Collectors.toMap(SecondaryAttributeEntry::getAttribute, SecondaryAttributeEntry::getCurrentValue));
     }
 
     /**
@@ -122,4 +123,13 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
         return entries.values().iterator();
     }
 
+    /**
+     * @see bg.sarakt.attributes.ModifiableAttributeMap#setLevel(bg.sarakt.attributes.levels.Level)
+     */
+    @Override
+    public ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> setLevel(Level level) {
+        entries.values().forEach(sae -> sae.setLevel(level));
+        // TODO Auto-generated method stub
+        return this;
+    }
 }

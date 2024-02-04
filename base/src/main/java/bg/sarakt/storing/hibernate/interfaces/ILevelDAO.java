@@ -7,12 +7,16 @@
  */
 package bg.sarakt.storing.hibernate.interfaces;
 
+import java.util.Map;
+import java.util.NavigableMap;
+
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 
 public interface ILevelDAO extends IHibernateDAO<LevelEntity> {
     
     int getMaxlevel();
     
+    NavigableMap<Integer, LevelEntity> allAsMap();
 }
 
 

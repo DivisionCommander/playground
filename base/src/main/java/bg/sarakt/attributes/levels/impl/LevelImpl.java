@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.characters.attributes1.UnitClass;
 import bg.sarakt.storing.hibernate.LevelDAO;
-import bg.sarakt.storing.hibernate.LevelNodeDAO;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 
 public abstract class LevelImpl {

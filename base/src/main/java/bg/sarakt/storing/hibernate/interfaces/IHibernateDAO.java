@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface IHibernateDAO<T extends Serializable> {
 
-    // T findOne(long id);
+    T findOne(long id);
 
     List<T> findAll();
 
@@ -20,6 +20,7 @@ public interface IHibernateDAO<T extends Serializable> {
 
     boolean isEntityClassVacant();
 
+    T save(T entity);
 }
 
 

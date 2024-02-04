@@ -77,7 +77,7 @@ public abstract sealed class AbstractAttribute implements Attribute, Serializabl
         StringBuilder sb = new StringBuilder();
         sb.append('[').append(id).append(']').append(fullName).append(" -[").append(abbreviation).append("]-\t").append(group);
         if (group != null) {
-            sb.append(group.ordinal());
+            sb.append("[").append(group.ordinal()).append("]");
         }
         return sb.toString();
     }

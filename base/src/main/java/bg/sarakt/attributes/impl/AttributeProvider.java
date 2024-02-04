@@ -9,167 +9,130 @@
 package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.SortedMap;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.AttributeFormula;
 import bg.sarakt.attributes.AttributeGroup;
-import bg.sarakt.attributes.AttributeMapEntry;
-import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.attributes.levels.Level;
-import bg.sarakt.base.ApplicationContextProvider;
 import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.characters.attributes1.impls.SimpleAttributeFormulaImpl;
+import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
 
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class AttributeProvider implements Attributes{
+@Component("defaultAttributeProvider")
+@Scope(BeanDefinition.SCOPE_SINGLETON)
+public class AttributeProvider implements Attributes {
     
-    private int maxLevel;
+    private static final Logger LOG = Logger.getLogger();
+    private Integer maxLevel;
     
-    private static AttributeFormula getDummyFormula(int level) {
-        
-        SimpleAttributeFormulaImpl f = new SimpleAttributeFormulaImpl("Test");
-        f.addAttributeFormula(PrimaryAttribute.STRENGTH, level);
-        return f;
+    private NavigableMap<Integer, AttributeFormula> formulas;
+    private NavigableMap<Integer, BigDecimal>       coefficients;
+    
+    private final Map<String, SecondaryAttribute> secondaryAttributes;
+    private final Map<String, ResourceAttribute>  resourceAttributes;
+    
+    @Autowired
+    AttributeProvider(ILevelDAO dao, @Value("${max.level.default.attributes:9}") int defaultMaxLevel) {
+        int dbMaxLevel = dao.getMaxlevel();
+        this.maxLevel = Math.max(defaultMaxLevel, dbMaxLevel);
+        LOG.debug("maxLevel " + maxLevel + "\tDBmax= " + dbMaxLevel + "\tdefaultMax= " + defaultMaxLevel);
+        this.formulas = createDummyFormulas();
+        this.coefficients = createDummyCoefficients();
+        this.secondaryAttributes = createDefaultSecondaryAttributesMap();
+        this.resourceAttributes = createDefaultResourceAttributesMap();
     }
     
-    @Dummy
-    private SortedMap<Integer, AttributeFormula> createDummyFormula() {
-        NavigableMap<Integer, AttributeFormula> formulas = new TreeMap<>();
+    @Dummy(since = "0.0.10")
+    private NavigableMap<Integer, AttributeFormula> createDummyFormulas() {
+        NavigableMap<Integer, AttributeFormula> dummyFormulas = new TreeMap<>();
         for (int level = 1; level <= maxLevel; level++) {
             SimpleAttributeFormulaImpl formula = new SimpleAttributeFormulaImpl();
             formula.addAttributeFormula(PrimaryAttribute.STRENGTH, level);
-            formulas.put(level, formula);
+            dummyFormulas.put(level, formula);
         }
-        return formulas;
+        return dummyFormulas;
     }
     
-    public int asd() {
-        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        ILevelDAO bean = context.getBean(ILevelDAO.class);
-        return bean.getMaxlevel();
+    @Dummy(since = "0.0.10")
+    private NavigableMap<Integer, BigDecimal> createDummyCoefficients() {
+        NavigableMap<Integer, BigDecimal> dummyCoefficients = new TreeMap<>();
+        
+        for (int level = 1; level <= maxLevel; level++) {
+            BigDecimal coefficient = BigDecimal.ONE.multiply(new BigDecimal(level));
+            dummyCoefficients.put(level, coefficient);
+        }
+        return dummyCoefficients;
     }
     
-    protected Map<String, SecondaryAttribute> defaultSecondaryAttributesMap() {
-        Map<String, SecondaryAttribute> map = new HashMap<>();
+    public Integer getMaxLevel() { return this.maxLevel; }
+    
+    public Map<String, SecondaryAttribute> defaultSecondaryAttributesMap() {
+        return secondaryAttributes;
+    }
+    
+    public Map<String, ResourceAttribute> defaultResourceAttributesMap() {
+        return resourceAttributes;
+    }
+    
+    private Map<String, SecondaryAttribute> createDefaultSecondaryAttributesMap() {
+        Set<SecondaryAttributeImpl> set = new HashSet<>();
         
         // AttributeGroup.PHYSICAL:
-        map.put(NAME_ACCURACY, new DummySecondaryAttribute(100, NAME_ACCURACY, "ACC", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_ATTACK_SKILL, new DummySecondaryAttribute(101, NAME_ATTACK_SKILL, "ATT", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_CRITICAL_CHANCE, new DummySecondaryAttribute(102, NAME_CRITICAL_CHANCE, "CC", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_ATTACK_SPEED, new DummySecondaryAttribute(103, NAME_ATTACK_SPEED, "IAS", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_COMBAT_QUICKNESS, new DummySecondaryAttribute(104, NAME_COMBAT_QUICKNESS, "CoQ", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_HITTING, new DummySecondaryAttribute(105, NAME_HITTING, "HIT", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_DEFENCE_RATE, new DummySecondaryAttribute(106, NAME_DEFENCE_RATE, "DEF", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_ARMOR_PIERCING, new DummySecondaryAttribute(109, NAME_ARMOR_PIERCING, "ArP", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_HIT_RATE, new DummySecondaryAttribute(110, NAME_HIT_RATE, "HRt", AttributeGroup.PHYSICAL, ""));
-        map.put(NAME_EVADE, new DummySecondaryAttribute(111, NAME_EVADE, "EVA", AttributeGroup.PHYSICAL, ""));
+        set.add(new SecondaryAttributeImpl(100, NAME_ACCURACY, ABBR_ACCURACY, AttributeGroup.PHYSICAL, DESC_ACCURACY));
+        set.add(new SecondaryAttributeImpl(101, NAME_ATTACK_SKILL, ABBR_ATTACK_SKILL, AttributeGroup.PHYSICAL, DESC_ATTACK_SKILL));
+        set.add(new SecondaryAttributeImpl(102, NAME_CRITICAL_CHANCE, ABBR_CRITICAL_CHANCE, AttributeGroup.PHYSICAL, DESC_CRITICAL_CHANCE));
+        set.add(new SecondaryAttributeImpl(103, NAME_ATTACK_SPEED, ABBR_ATTACK_SPEED, AttributeGroup.PHYSICAL, DESC_ATTACK_SPEED));
+        set.add(new SecondaryAttributeImpl(104, NAME_COMBAT_QUICKNESS, ABBR_COMBAT_QUICKNESS, AttributeGroup.PHYSICAL, DESC_COMBAT_QUICKNESS));
+        set.add(new SecondaryAttributeImpl(105, NAME_HITTING, ABBR_HITTING, AttributeGroup.PHYSICAL, DESC_HITTING));
+        set.add(new SecondaryAttributeImpl(106, NAME_DEFENCE_RATE, ABBR_DEFENCE_RATE, AttributeGroup.PHYSICAL, DESC_DEFENCE_RATE));
+        set.add(new SecondaryAttributeImpl(109, NAME_ARMOR_PIERCING, ABBR_ARMOR_PIERCING, AttributeGroup.PHYSICAL, DESC_ARMOR_PIERCING));
+        set.add(new SecondaryAttributeImpl(110, NAME_HIT_RATE, ABBR_HIT_RATE, AttributeGroup.PHYSICAL, DESC_HIT_RATE));
+        set.add(new SecondaryAttributeImpl(111, NAME_EVADE, ABBR_EVADE, AttributeGroup.PHYSICAL, DESC_EVADE));
         
         // AttributeGroup.PSYCHICAL:
-        map.put(NAME_IQ, new DummySecondaryAttribute(200, NAME_IQ, "IQ", AttributeGroup.PSYCHICAL, ""));
-        map.put(NAME_CAST_RATE, new DummySecondaryAttribute(201, NAME_CAST_RATE, "FCR", AttributeGroup.PSYCHICAL, ""));
-        map.put(NAME_RESISTANCE, new DummySecondaryAttribute(204, NAME_RESISTANCE, "RES", AttributeGroup.PSYCHICAL, ""));
-        map.put(NAME_KNOWLEDGE, new DummySecondaryAttribute(205, NAME_KNOWLEDGE, "KNW", AttributeGroup.PSYCHICAL, ""));
+        set.add(new SecondaryAttributeImpl(200, NAME_IQ, ABBR_IQ, AttributeGroup.PSYCHICAL, DESC_IQ));
+        set.add(new SecondaryAttributeImpl(201, NAME_CAST_RATE, ABBR_CAST_RATE, AttributeGroup.PSYCHICAL, DESC_CAST_RATE));
+        set.add(new SecondaryAttributeImpl(204, NAME_RESISTANCE, ABBR_RESISTANCE, AttributeGroup.PSYCHICAL, DESC_RESISTANCE));
+        set.add(new SecondaryAttributeImpl(205, NAME_KNOWLEDGE, ABBR_KNOWLEDGE, AttributeGroup.PSYCHICAL, DESC_KNOWLEDGE));
         
         // AttributeGroup.PERSON:
-        map.put(NAME_COMBAT_RATING, new DummySecondaryAttribute(301, NAME_COMBAT_RATING, "CoR", AttributeGroup.PERSON, ""));
-        return map;
-    }
-
-    protected Map<String, ResourceAttribute> defaultResourceAttributesMap() {
-        Map<String, ResourceAttribute> map = new HashMap<>();
-    
-        map.put(NAME_HIT_POINTS, new DummyResourceAttribute(107, NAME_HIT_POINTS, "HP", PrimaryAttribute.CONSTITUTION, NAME_CURRENT_HIT_POINT));
-        map.put(NAME_MANA_POINTS, new DummyResourceAttribute(202, NAME_MANA_POINTS, "MP", PrimaryAttribute.INTELLIGENCE, NAME_CURRENT_MANA_POINTS));
-    
-        map.put(NAME_ENERGY, new DummyResourceAttribute(302, NAME_ENERGY, "NGY", PrimaryAttribute.WILL, NAME_ENERGY));
-        map.put(NAME_VIGOUR, new DummyResourceAttribute(303, NAME_VIGOUR, "VIG", PrimaryAttribute.SPIRIT, NAME_VIGOUR));
-    
-        return map;
-    }
-
-    public record DummyResourceAttribute(long getId, String fullName, String abbreviation, PrimaryAttribute getPrimaryAttribute, String description)
-            implements ResourceAttribute {
+        set.add(new SecondaryAttributeImpl(301, NAME_COMBAT_RATING, ABBR_COMBAT_RATING, AttributeGroup.PERSON, DESC_COMBAT_RATING));
+        set.add(new SecondaryAttributeImpl(302, NAME_CHAR, ABBR_CHAR, AttributeGroup.PERSON, DESC_CHAR));
         
-        
-        /**
-         * @see bg.sarakt.attributes.Attribute#group()
-         */
-        @Override
-        public AttributeGroup group() {
-            return getPrimaryAttribute.group();
-        }
-        
-        /**
-         * @see bg.sarakt.attributes.ResourceAttribute#getCoefficientForLevel(bg.sarakt.attributes.levels.Level)
-         */
-        @Override
-        public BigDecimal getCoefficientForLevel(Level level) {
-            return BigDecimal.ONE.multiply(new BigDecimal(level.getLevelNumber()));
-        }
-        
-        /**
-         * @see bg.sarakt.attributes.ResourceAttribute#getEntry(bg.sarakt.attributes.AttributeMapEntry,
-         *      bg.sarakt.attributes.levels.Level)
-         * @deprecated
-         */
-        @Override
-        @Deprecated(forRemoval = true)
-        public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
-            return new ResourceAttributeEntry(this, primaryAttributeEntry, level);
-        }
-        
-        @Override
-        public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
-            return new ResourceAttributeEntry(this, primaryAttributeEntry);
-        }
-        
-        @Override
-        public String toString() {
-            return fullName;
-        }
-        
+        var map = set.stream().map(this::addFormula).collect(Collectors.toMap(SecondaryAttribute::fullName, sa -> sa));
+        return Map.copyOf(map);
     }
     
-    public record DummySecondaryAttribute(long getId, String fullName, String abbreviation, AttributeGroup group, String description)
-            implements SecondaryAttribute {
-        
-            
-        /**
-         * @see bg.sarakt.attributes.SecondaryAttribute#getFormula(int)
-         */
-        @Override
-        public AttributeFormula getFormula(int level) {
-            return getDummyFormula(level);
-        }
-        
-        /**
-         * @see bg.sarakt.attributes.SecondaryAttribute#getEntry(bg.sarakt.attributes.impl.PrimaryAttributeMap,
-         *      bg.sarakt.attributes.levels.Level)
-         */
-        @Override
-        public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes) {
-            return new SecondaryAttributeEntry(this, primaryAttributes);
-        }
-        
-        /**
-         *
-         * @see bg.sarakt.attributes.SecondaryAttribute#getEntry(bg.sarakt.attributes.IterableAttributeMap,
-         *      bg.sarakt.attributes.levels.Level)
-         * @deprecated
-         */
-        @Override
-        @Deprecated(forRemoval = true)
-        public SecondaryAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttributes, Level level) {
-            return new SecondaryAttributeEntry(this, primaryAttributes, level);
-        }
+    private Map<String, ResourceAttribute> createDefaultResourceAttributesMap() {
+        Set<ResourceAttributeImpl> set = new HashSet<>();
+        set.add(new ResourceAttributeImpl(107, NAME_LIFE, ABBR_LIFE, AttributeGroup.PHYSICAL, DESC_LIFE, PrimaryAttribute.CONSTITUTION));
+        set.add(new ResourceAttributeImpl(202, NAME_MANA, ABBR_MANA, AttributeGroup.PSYCHICAL, DESC_MANA, PrimaryAttribute.INTELLIGENCE));
+        set.add(new ResourceAttributeImpl(302, NAME_ENERGY, ABBR_ENERGY, AttributeGroup.PERSON, NAME_ENERGY, PrimaryAttribute.WILL));
+        set.add(new ResourceAttributeImpl(303, NAME_VIGOUR, ABBR_VIGOUR, AttributeGroup.PERSON, NAME_VIGOUR, PrimaryAttribute.SPIRIT));
+        var map = set.stream().map(this::addCoefficient).collect(Collectors.toMap(ResourceAttribute::fullName, ra -> ra));
+        return Map.copyOf(map);
     }
     
+    private SecondaryAttribute addFormula(SecondaryAttributeImpl attr) {
+        attr.putFormulas(formulas);
+        return attr;
+    }
+    
+    private ResourceAttribute addCoefficient(ResourceAttributeImpl attr) {
+        attr.addCoefficients(coefficients);
+        return attr;
+    }
 }

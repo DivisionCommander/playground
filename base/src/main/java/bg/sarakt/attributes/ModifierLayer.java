@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.springframework.lang.Nullable;
+
 public enum ModifierLayer
 {
 
@@ -110,6 +112,14 @@ public enum ModifierLayer
         return this.ordinal() > other.ordinal() ? this : other;
     }
 
+    public static Optional<ModifierLayer> checkLower(@Nullable ModifierLayer first, @Nullable ModifierLayer second) {
+        if (first != null) {
+            return Optional.of(first.checkLower(second));
+        }
+        
+        return Optional.ofNullable(second);
+    }
+    
     public static Iterator<ModifierLayer> getIterator() { return new ModifierLayerIterator(); }
 
     public static Iterator<ModifierLayer> getIterator(ModifierLayer start) {

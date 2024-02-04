@@ -11,17 +11,15 @@ package bg.sarakt.storing.hibernate;
 import java.io.Serializable;
 import java.util.List;
 
+import bg.sarakt.base.utils.HibernateUtils;
+import bg.sarakt.logging.Logger;
+import bg.sarakt.storing.hibernate.interfaces.IHibernateDAO;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-
-import bg.sarakt.base.utils.HibernateUtils;
-import bg.sarakt.logging.Logger;
-import bg.sarakt.storing.hibernate.interfaces.IHibernateDAO;
 
 @Transactional
 public abstract class AbstractHibernateDAO<T extends Serializable> implements IHibernateDAO<T> {
@@ -29,14 +27,8 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements IH
     protected static final Logger LOGGER = Logger.getLogger();
     protected Class<T>            clazz;
 
-    @Autowired
-    protected LocalSessionFactoryBean sessionFactory;
+    protected SessionFactory sessionFactory;
 
-    // @Autowired
-    // protected SessionFactory sf;
-
-    @Autowired
-    protected TransactionManager transactionManager;
     
     /**
      * @see bg.sarakt.storing.hibernate.interfaces.IHibernateDAO#isEntityClassVacant()
@@ -47,25 +39,25 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements IH
     @Override
     public final void setEntityClass(Class<T> entityClass) { this.clazz = entityClass; }
 
-    public void setSessionFactory(LocalSessionFactoryBean sessionFactory) { this.sessionFactory = sessionFactory; }
+    @Autowired
+    public void setSessionFactory(SessionFactory sessionFactory) { this.sessionFactory = sessionFactory; }
 
     protected Session getCurrentSession() {
         if (sessionFactory != null) {
-            SessionFactory sf = sessionFactory.getObject();
-            if (sf != null) {
                 try {
-                    return sf.getCurrentSession();
+                    return sessionFactory.getCurrentSession();
                 } catch (HibernateException e) {
-                    return sf.openSession();
+                    return sessionFactory.openSession();
                 }
-            }
         }
-        System.err.println("sf is null");
+        LOGGER.error("Session factory is null!");
         return HibernateUtils.getSessionFactory().openSession();
     }
 
-    // @Override
+    @Override
     public T findOne(long id) {
+        System.err.println(clazz);
+        System.out.println(this);
         return getCurrentSession().get(clazz, id);
     }
 
@@ -75,4 +67,9 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements IH
         return getCurrentSession().createSelectionQuery("SELECT e FROM " + clazz.getName() + " e ", clazz).getResultList();
     }
 
+    @Override
+    public T save(T entity) {
+        Session s = getCurrentSession();
+        return s.merge(entity);
+    }
 }

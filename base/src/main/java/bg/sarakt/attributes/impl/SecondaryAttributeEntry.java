@@ -26,7 +26,8 @@ public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<Sec
     private final IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttMap;
 
     SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap) {
-        this(attribute, primaryMap, null);
+        super(attribute);
+        this.primaryAttMap = primaryMap;
     }
 
     /**
@@ -40,6 +41,7 @@ public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<Sec
     SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap, Level level) {
         super(attribute, level);
         primaryAttMap = primaryMap;
+        recalculate();
     }
 
     /**

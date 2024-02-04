@@ -10,30 +10,23 @@ package bg.sarakt.z.tools;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import bg.sarakt.attributes.AttributeFormula;
+import bg.sarakt.attributes.AttributeService;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.Attributes;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.base.utils.FormulaSerializer;
-import bg.sarakt.base.utils.HibernateUtils;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.logging.LoggerFactory;
-import bg.sarakt.storing.hibernate.AdditionaAttrValuesDAO;
-import bg.sarakt.storing.hibernate.LevelDAO;
-import bg.sarakt.storing.hibernate.PrimaryAttrValuesDAO;
-import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
@@ -42,68 +35,86 @@ import bg.sarakt.storing.hibernate.entities.ResourceAttributeCoefficientEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.UnitClassEntity;
+import bg.sarakt.storing.hibernate.interfaces.IAdditionalAttrValuesDao;
+import bg.sarakt.storing.hibernate.interfaces.IHibernateDAO;
+import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
+import bg.sarakt.storing.hibernate.interfaces.IPrimaryAttributeValuesDAO;
 
-public final class DBPopulator {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
+
+@Service
+@Profile("tools")
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class DBPopulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger();
-
-    private static final DBPopulator INSTANCE = new DBPopulator();
-
-    private DBPopulator() {}
+    
+    @Deprecated(since = "0.0.11", forRemoval = true)
+    @ForRemoval(since = "0.0.11", expectedRemovalVersion = "0.0.15")
+    private static DBPopulator instance;
 
     @Autowired
-    protected SessionFactory sessionFactory;
-
-    public static DBPopulator getInstance() { return INSTANCE; }
-
-    private synchronized Session beginSeesion() {
-        if (sessionFactory != null) {
-            return sessionFactory.getCurrentSession();
-
-        }
-        return HibernateUtils.getSessionFactory().openSession();
-
+    protected DBPopulator(IPrimaryAttributeValuesDAO primAttrValDao, IAdditionalAttrValuesDao addAttrValDao, ILevelDAO levelDao,
+            AttributeService attrService) {
+        this.primAttrValDao = primAttrValDao;
+        this.addAttrValDao = addAttrValDao;
+        this.levelDAO = levelDao;
+        this.attributeService = attrService;
+        System.out.println("create");
     }
 
+    private IPrimaryAttributeValuesDAO     primAttrValDao;
+    private IAdditionalAttrValuesDao       addAttrValDao;
+    private ILevelDAO                      levelDAO;
+    @Autowired
+    private IHibernateDAO<LevelNodeEntity> levelNodeDao;
+    private AttributeService                        attributeService;
+    @Autowired
+    private IHibernateDAO<UnitClassEntity> classDAO;
+    @Autowired
+    private IHibernateDAO<SecondaryAttributeEntity> secDAO;
+    @Autowired
+    private IHibernateDAO<ResourceAttributeEntity>  resDAO;
+    
+
+    @Deprecated(since = "0.0.11", forRemoval = true)
+    @ForRemoval(since = "0.0.11", expectedRemovalVersion = "0.0.15")
+    public static DBPopulator getInstance() { return instance; }
+
+
     public DBPopulator populateLevels() {
-        Session session = beginSeesion();
-
-        try (session) {
-            LOGGER.debug("Populating levels...");
-
-            session.beginTransaction();
-
-            session.merge(new LevelEntity(Long.MIN_VALUE, 0));
-            session.merge(new LevelEntity(0L, 1));
-            session.merge(new LevelEntity(10L, 2));
-            session.merge(new LevelEntity(20L, 3));
-            session.merge(new LevelEntity(35L, 4));
-            session.merge(new LevelEntity(50L, 5));
-            session.merge(new LevelEntity(74L, 6));
-            session.merge(new LevelEntity(100L, 7));
-            session.merge(new LevelEntity(143L, 8));
-            session.merge(new LevelEntity(180L, 9));
-            session.merge(new LevelEntity(250L, 10));
-            session.merge(new LevelEntity(350L, 11));
-            session.merge(new LevelEntity(500L, 12));
-            session.merge(new LevelEntity(700L, 13));
-            session.merge(new LevelEntity(1000L, 14));
-            session.merge(new LevelEntity(1800L, 15));
-
-            if (session.isDirty()) {
-                session.flush();
-            }
-            LOGGER.debug("Levels populated.");
-        } catch (Exception e) {
-            LOGGER.error("Level population failed! Reason=" + e.getMessage());
-        }
-
+        LOGGER.debug("Populating levels...");
+        
+        levelDAO.save((new LevelEntity(Long.MIN_VALUE, 0)));
+        levelDAO.save((new LevelEntity(0L, 1)));
+        levelDAO.save((new LevelEntity(10L, 2)));
+        levelDAO.save((new LevelEntity(20L, 3)));
+        levelDAO.save((new LevelEntity(35L, 4)));
+        levelDAO.save((new LevelEntity(50L, 5)));
+        levelDAO.save((new LevelEntity(74L, 6)));
+        levelDAO.save((new LevelEntity(100L, 7)));
+        levelDAO.save((new LevelEntity(143L, 8)));
+        levelDAO.save((new LevelEntity(180L, 9)));
+        levelDAO.save((new LevelEntity(250L, 10)));
+        levelDAO.save((new LevelEntity(350L, 11)));
+        levelDAO.save((new LevelEntity(500L, 12)));
+        levelDAO.save((new LevelEntity(700L, 13)));
+        levelDAO.save((new LevelEntity(1000L, 14)));
+        levelDAO.save((new LevelEntity(1800L, 15)));
+        
+        LOGGER.debug("Levels populated.");
         return this;
     }
 
     public DBPopulator populateFormulas(SecondaryAttribute sa, int level) {
-        try (Session session = beginSeesion()) {
-            session.beginTransaction();
+        try  {
             SecondaryAttributeEntity e = new SecondaryAttributeEntity();
             e.setName(sa.fullName());
             e.setAbbr(sa.abbreviation());
@@ -118,39 +129,27 @@ public final class DBPopulator {
             afe.setFormula(fes.seriallize(formula));
             e.setFormulas(List.of(afe));
 
-            session.persist(e);
-            session.persist(afe);
+            secDAO.save(e);
 
-            if (session.isDirty())
-                session.flush();
         } catch (Exception e) {
             LOGGER.error("Level population failed! Reason=" + e.getMessage());
+            e.printStackTrace();
 
         }
         return this;
     }
 
     public DBPopulator populateAttributes() {
-
-        try (Session session = beginSeesion()) {
-            session.beginTransaction();
-            AttributeFactory factory = AttributeFactory.getInstance();
-            for (SecondaryAttribute sa : factory.defaultSecondaryAttributes()) {
-                SecondaryAttributeEntity e = map(sa);
-                session.merge(e);
-                e.getFormulas().forEach(session::merge);
-            }
-
-            factory.defaultResourceAttributes().stream().map(this::map).forEach(r ->
-            {
-                session.merge(r);
-                r.getCoefficients().forEach(session::merge);
-            }
-
-            );
-            if (session.isDirty()) {
-                session.flush();
-            }
+        
+        try {
+            LOGGER.debug("Begin populating secondary attributes");
+            
+            Collection<SecondaryAttribute> defaultSecondaryAttributes = attributeService.defaultSecondaryAttributes();
+            
+            attributeService.defaultSecondaryAttributes().stream().map(this::map).forEach(secDAO::save);
+            LOGGER.debug("Begin populating resource attributes");
+            attributeService.defaultResourceAttributes().stream().map(this::map).forEach(resDAO::save);
+            
         } catch (Exception e) {
             LOGGER.error("Attributes population failed! Reason=" + e.getMessage());
         }
@@ -194,48 +193,40 @@ public final class DBPopulator {
     }
 
     public DBPopulator populateLevelNodes() {
-        try (Session session = beginSeesion()) {
-            PrimaryAttrValuesDAO pavDAO = new PrimaryAttrValuesDAO();
-            AdditionaAttrValuesDAO aavDAO = new AdditionaAttrValuesDAO();
+        try  {
             LOGGER.debug("Populating level nodes.......");
-            session.beginTransaction();
 
             UnitClassEntity uce1 = new UnitClassEntity();
             uce1.setClassName("drum class");
 
-            UnitClassEntity uce = session.get(UnitClassEntity.class, 3L);
+            UnitClassEntity uce = classDAO.findOne(3L);
             if (uce == null) {
                 uce = new UnitClassEntity();
                 uce.setClassName("dummy class 2");
-                uce = session.merge(uce);
-                session.flush();
+                uce = classDAO.save(uce);
             }
 
-            LevelDAO lvlDao = new LevelDAO();
-            Map<Integer, LevelEntity> levels = lvlDao.findAll().stream().collect(Collectors.toMap(LevelEntity::getLevel, l -> l));
+            Map<Integer, LevelEntity> levels = levelDAO.allAsMap();
 
-            var vaae0 = persistAddAttrValue(session, aavDAO, Attributes.NAME_ACCURACY, BigDecimal.TEN);
-            var vaae1 = persistAddAttrValue(session, aavDAO, Attributes.NAME_ENERGY, BigDecimal.ONE);
-            for (int level = 1; level < 16; level++) {
+            var vaae0 = addAttrValDao.getOrSave(Attributes.NAME_ACCURACY, BigDecimal.TEN);
+            var vaae1 = addAttrValDao.getOrSave(Attributes.NAME_ENERGY, BigDecimal.ONE);
+            
+            int maxlevel = levelDAO.getMaxlevel();
+            
+            for (int level = 1; level < maxlevel; level++) {
                 Map<PrimaryAttribute, BigInteger> map = mapPrimaryAttribute(level);
-                PrimaryAttributeValuesEntity primaryEntity = pavDAO.get(map);
-                if (primaryEntity == null) {
-                    primaryEntity = new PrimaryAttributeValuesEntity().fromIntegerMap(map);
-                    primaryEntity = session.merge(primaryEntity);
-                }
-                var vaae2 = persistAddAttrValue(session, aavDAO, Attributes.NAME_HIT_POINTS, BigDecimal.valueOf(level));
-                var vaae3 = persistAddAttrValue(session, aavDAO, Attributes.NAME_COMBAT_RATING, BigDecimal.valueOf(5L * level));
+                PrimaryAttributeValuesEntity primaryEntity = primAttrValDao.getOrSave(map);
+                var vaae2 = addAttrValDao.getOrSave(Attributes.NAME_LIFE, BigDecimal.valueOf(level));
+                var vaae3 = addAttrValDao.getOrSave(Attributes.NAME_COMBAT_RATING, BigDecimal.valueOf(5L * level));
                 var list = List.of(vaae0, vaae1, vaae2, vaae3);
                 LevelNodeEntity node = new LevelNodeEntity(primaryEntity, list);
                 LevelEntity lvl = levels.get(level);
                 node.setLevelEntity(lvl);
                 node.setUnitClass(uce);
-                session.merge(node);
+                levelNodeDao.save(node);
+                
             }
 
-            if (session.isDirty()) {
-                session.flush();
-            }
         } catch (Exception e) {
             LOGGER.error("Attributes population failed! Reason=" + e.getMessage());
             e.printStackTrace();
@@ -243,35 +234,39 @@ public final class DBPopulator {
         return this;
     }
 
-
-    private Map<PrimaryAttribute, BigInteger> mapPrimaryAttribute(int levelArg)
-    {
+    @Dummy
+    private Map<PrimaryAttribute, BigInteger> mapPrimaryAttribute(int levelArg) {
         BigInteger level = BigInteger.valueOf(levelArg);
         Map<PrimaryAttribute, BigInteger> map = new EnumMap<>(PrimaryAttribute.class);
         map.put(PrimaryAttribute.STRENGTH, BigInteger.TWO);
         map.put(PrimaryAttribute.AGILITY, BigInteger.TWO);
         map.put(PrimaryAttribute.CONSTITUTION, BigInteger.TEN.multiply(level));
-
+        
         map.put(PrimaryAttribute.INTELLIGENCE, level.divide(BigInteger.TWO));
         map.put(PrimaryAttribute.WISDOM, level.divide(BigInteger.TWO));
         map.put(PrimaryAttribute.PSIONIC, BigInteger.ONE.add(level.divide(BigInteger.TEN)));
-
+        
         map.put(PrimaryAttribute.PSIONIC, level);
         map.put(PrimaryAttribute.WILL, BigInteger.TWO.add(level.divide(BigInteger.TEN)));
-
-
+        
         return map;
     }
 
-    private AdditionalAttrValueEntity persistAddAttrValue(Session s, AdditionaAttrValuesDAO dao, String attr, BigDecimal value) {
-        AdditionalAttrValueEntity entity = dao.get(attr, value);
-            if(entity == null) {
-                entity =
-        new AdditionalAttrValueEntity(attr, value);
-                entity = s.merge(entity);
-            }
-
-        return entity;
-
+    
+    /**
+     * Helper method to bind this {@link Component} to
+     * {@link DBPopulator#getInstance()}
+     * 
+     * @since 0.0.11
+     * @deprecated would be removed along with other legacy fragments of manual
+     *             singleton implementation
+     */
+    @Deprecated(since = "0.0.11", forRemoval = true)
+    @ForRemoval(since = "0.0.11", expectedRemovalVersion = "0.0.15")
+    @PostConstruct
+    private void bindInstance() {
+        instance = this;// NOSONAR
+        LOGGER.debug("Binding DBPopulator#instance to\t" + this);
     }
+    
 }

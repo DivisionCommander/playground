@@ -10,6 +10,7 @@ package bg.sarakt.attributes.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -24,15 +25,13 @@ import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.base.utils.FormulaSerializer;
 import bg.sarakt.logging.Logger;
-import bg.sarakt.storing.hibernate.LevelDAO;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 import bg.sarakt.storing.hibernate.interfaces.IHibernateDAO;
-import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -41,49 +40,77 @@ import jakarta.annotation.PostConstruct;
 
 @Service
 @Scope(scopeName = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public final class AttributeFactory extends AttributeProvider implements Attributes, AttributeService {
-
-    // @Autowired
-    protected ILevelDAO lvl;
+public final class AttributeFactory implements AttributeService {
     
     private static AttributeFactory instance;
     
-    @PostConstruct
-    private void bindFactory() {
-        instance = this; // NOSONAR
-        LOG.debug("Binding AttributeFactory#factory to" + this);
-    }
+    private AttributeProvider provider;
+    
     
     private static final Logger LOG = Logger.getLogger();
+    
     public static AttributeFactory getInstance() { return instance; }
-
+    
     private final Map<String, SecondaryAttribute> secondaryAttributes;
     private final Map<String, ResourceAttribute>  resourceAttributes;
-
-
+    
     @Autowired
-    private AttributeFactory(IHibernateDAO<SecondaryAttributeEntity> secDao, IHibernateDAO<ResourceAttributeEntity> resDao) {
+    private AttributeFactory(IHibernateDAO<SecondaryAttributeEntity> secDao, IHibernateDAO<ResourceAttributeEntity> resDao,
+            AttributeProvider provider, @Value("${load.default.attributes}") boolean loadDef) {
         Map<String, SecondaryAttribute> secondary = getSecondaryAttributesFromDB(secDao);
-        if (secondary == null || secondary.isEmpty()) {
-            secondary = defaultSecondaryAttributesMap();
-        }
         Map<String, ResourceAttribute> resource = getResourceAttributesFromDB(resDao);
-        if (resource == null || resource.isEmpty()) {
-            resource = defaultResourceAttributesMap();
+        secondaryAttributes = secondary == null ? new HashMap<>() : new HashMap<>(secondary);
+        resourceAttributes = resource == null ? new HashMap<>() : new HashMap<>(resource);
+        this.provider = provider;
+        if (loadDef) {
+            resourceAttributes.putAll(provider.defaultResourceAttributesMap());
+            secondaryAttributes.putAll(provider.defaultSecondaryAttributesMap());
         }
-        
-        secondaryAttributes = Map.copyOf(secondary);
-        resourceAttributes = Map.copyOf(resource);
     }
-
+    
+    
     @Override
-    public  Collection< SecondaryAttribute> defaultSecondaryAttributes() {
-        return defaultSecondaryAttributesMap().values();
+    public Collection<SecondaryAttribute> defaultSecondaryAttributes() {
+        return provider.defaultSecondaryAttributesMap().values();
     }
+    
     @Override
     public Collection<ResourceAttribute> defaultResourceAttributes() {
-        return defaultResourceAttributesMap().values();
+        return provider.defaultResourceAttributesMap().values();
     }
+    
+    @Override
+    public Collection<SecondaryAttribute> getSecondaryAttributes() { return secondaryAttributes.values(); }
+
+
+    @Override
+    public Collection<ResourceAttribute> getResourceAttribute() { return resourceAttributes.values(); }
+
+
+    @Override
+    public Attribute ofName(String attribute) {
+        try {
+            return PrimaryAttribute.ofName(attribute);
+        } catch (Exception e) {
+            // IGNORE seams its not primary attribute
+        }
+        if (secondaryAttributes.containsKey(attribute)) {
+            return secondaryAttributes.get(attribute);
+        }
+        if (resourceAttributes.containsKey(attribute)) {
+            return resourceAttributes.get(attribute);
+        }
+        throw new UnknownValueException("Unknown or unsupported attribute!");
+    }
+
+    @Override
+    public void loadDefaultAttributes() {
+        this.secondaryAttributes.clear();
+        this.secondaryAttributes.putAll(provider.defaultSecondaryAttributesMap());
+        this.resourceAttributes.clear();
+        this.resourceAttributes.putAll(provider.defaultResourceAttributesMap());
+    }
+
     @Autowired
     private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB(IHibernateDAO<SecondaryAttributeEntity> dao) {
         try {
@@ -117,53 +144,15 @@ public final class AttributeFactory extends AttributeProvider implements Attribu
             return Collections.emptyMap();
         }
     }
-
+    
     private SecondaryAttribute mapEntityToAttribute(SecondaryAttributeEntity e) {
         var sa = new SecondaryAttributeImpl(e.getId(), e.getName(), e.getAbbr(), e.getGroup(), e.getDescription());
         sa.putFormulas(convertEntityToFormulas(e.getFormulas()));
         return sa;
     }
-
+    
     private ResourceAttribute mapEntityToAttribute(ResourceAttributeEntity e) {
         return new ResourceAttributeImpl(e.getId(), e.getName(), e.getAbbr(), e.getGroup(), e.getDescrption(), e.getPrimaryAttribute());
-    }
-
-    @Override
-    public Collection<SecondaryAttribute> getSecondaryAttributes() { return secondaryAttributes.values(); }
-
-    @Override
-    public Collection<ResourceAttribute> getResourceAttribute() { return resourceAttributes.values(); }
-
-    @Autowired
-    void setLevelDao(@Qualifier("levelDAO") ILevelDAO jarjarbings) {
-        System.out.println(jarjarbings);
-        this.lvl = jarjarbings;
-    }
-    
-    public int getMaxLevel() {
-        
-        return lvl.getMaxlevel();
-        
-    }
-
-    /**
-     * @param attribute
-     * @return
-     */
-    @Override
-    public Attribute ofName(String attribute) {
-        try {
-            return PrimaryAttribute.ofName(attribute);
-        } catch (Exception e) {
-            // IGNORE seams its not primary attribute
-        }
-        if (secondaryAttributes.containsKey(attribute)) {
-            return secondaryAttributes.get(attribute);
-        }
-        if (resourceAttributes.containsKey(attribute)) {
-            return resourceAttributes.get(attribute);
-        }
-        throw new UnknownValueException("Unknown or unsupported attribute!");
     }
     
     private NavigableMap<Integer, AttributeFormula> convertEntityToFormulas(List<AttributeFormulaEntity> formulas) {
@@ -182,4 +171,14 @@ public final class AttributeFactory extends AttributeProvider implements Attribu
         }
         return results;
     }
+
+
+    @PostConstruct
+    private void bindFactory() {
+        instance = this; // NOSONAR
+        LOG.debug("Binding AttributeFactory#factory to" + this);
+    }
+
+    // @Autowired
+    // void setProvider(AttributeProvider provider) { this.provider = provider; }
 }

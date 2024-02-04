@@ -11,6 +11,10 @@ package bg.sarakt.attributes;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
+
 public interface AttributeMapEntry<T extends Attribute> {
 
     /**
@@ -48,4 +52,8 @@ public interface AttributeMapEntry<T extends Attribute> {
      * @return
      */
     BigDecimal getCurrentValue();
+    
+    @Dummy(since = "0.0.11", to = "UNKNOWN", description = "Workarround until finally get remove Level from the enry")
+    @ForRemoval(expectedRemovalVersion = "UNKNOWN")
+    AttributeMapEntry<T> setLevel(Level level);
 }

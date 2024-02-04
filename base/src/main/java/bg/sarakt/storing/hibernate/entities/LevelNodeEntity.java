@@ -33,16 +33,12 @@ public class LevelNodeEntity implements Serializable {
 
     /** field <code>serialVersionUID</code> */
     @Transient
-    private static final long serialVersionUID = 202401271952L;
+    private static final long serialVersionUID = 202402040237L;
 
     @Id
     @GeneratedValue
     @Column(name = "level_id", unique = true)
     private UUID levelId;
-//    @Column(name = "level", unique = false)
-    @Transient
-    @Deprecated(forRemoval =  true , since = "0.0.7")
-    private int  level;
 
     @ManyToOne
     @JoinColumn(name = "level", referencedColumnName = "level", nullable = false)
@@ -80,34 +76,13 @@ public class LevelNodeEntity implements Serializable {
         this.setAdditional(additional);
         this.primary = primary;
     }
-
-    @Deprecated(forRemoval = true, since = "0.0.7")
-    public LevelNodeEntity(int level) {
-        this();
-        this.level = level;
-    }
-
-    @Deprecated(forRemoval = true, since = "0.0.7")
-    public LevelNodeEntity(int level, List<AdditionalAttrValueEntity> additional) {
-        this(level);
-        this.setAdditional(additional);
-    }
-
-    @Deprecated(forRemoval = true, since = "0.0.7")
-    public LevelNodeEntity(int level, PrimaryAttributeValuesEntity primary, List<AdditionalAttrValueEntity> additional) {
-        this(level, additional);
-        this.primary = primary;
-    }
-
+    
     public UUID getLevelId() { return levelId; }
-
+    
     @Deprecated(forRemoval =  true, since ="0.0.7")
-    public int getLevel() { return level; }
+    public int getLevel() { return levelEntity.getLevel(); }
 
     public void setLevelId(UUID levelId) { this.levelId = levelId; }
-
-    @Deprecated(forRemoval =  true, since ="0.0.7")
-    public void setLevel(int level) { this.level = level; }
 
     public PrimaryAttributeValuesEntity getPrimary() { return primary; }
 

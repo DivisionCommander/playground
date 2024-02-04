@@ -22,18 +22,18 @@ public enum PrimaryAttribute implements Attribute
 {
 
     // Physical
-    STRENGTH(Attributes.NAME_STRENGTH, "STR", AttributeGroup.PHYSICAL, Attributes.DESC_STRENGTH),
-    AGILITY(Attributes.NAME_AGILITY, "FMS", AttributeGroup.PHYSICAL, Attributes.DESC_AGILITY),
-    CONSTITUTION(Attributes.NAME_CONSTITUTION, "STA", AttributeGroup.PHYSICAL, Attributes.DESC_CONSTITUTION),
-
+    STRENGTH(Attributes.NAME_STRENGTH, Attributes.ABBR_STRENGTH, AttributeGroup.PHYSICAL, Attributes.DESC_STRENGTH),
+    AGILITY(Attributes.NAME_AGILITY, Attributes.ABBR_AGILITY, AttributeGroup.PHYSICAL, Attributes.DESC_AGILITY),
+    CONSTITUTION(Attributes.NAME_CONSTITUTION, Attributes.ABBR_CONSTITUTION, AttributeGroup.PHYSICAL, Attributes.DESC_CONSTITUTION),
+    
     // Mental
-    INTELLIGENCE(Attributes.NAME_INTELLIGENCE, "INT", AttributeGroup.PSYCHICAL, Attributes.DESC_INTELLIGENCE),
-    WISDOM(Attributes.NAME_WISDOM, "WIS", AttributeGroup.PSYCHICAL, Attributes.DESC_WISDOM),
-    PSIONIC(Attributes.NAME_PSIONIC, "PSI", AttributeGroup.PSYCHICAL, Attributes.DESC_PSIONIC),
-
+    INTELLIGENCE(Attributes.NAME_INTELLIGENCE, Attributes.ABBR_INTELLIGENCE, AttributeGroup.PSYCHICAL, Attributes.DESC_INTELLIGENCE),
+    WISDOM(Attributes.NAME_WISDOM, Attributes.ABBR_WISDOM, AttributeGroup.PSYCHICAL, Attributes.DESC_WISDOM),
+    PSIONIC(Attributes.NAME_PSIONIC, Attributes.ABBR_PSIONIC, AttributeGroup.PSYCHICAL, Attributes.DESC_PSIONIC),
+    
     // Personality attributes:
-    SPIRIT(Attributes.NAME_SPIRIT, "SPI", AttributeGroup.PERSON, Attributes.DESC_SPIRIT),
-    WILL(Attributes.NAME_WILL, "WIL", AttributeGroup.PERSON, Attributes.DESC_WILL),
+    SPIRIT(Attributes.NAME_SPIRIT, Attributes.ABBR_SPIRIT, AttributeGroup.PERSON, Attributes.DESC_SPIRIT),
+    WILL(Attributes.NAME_WILL, Attributes.ABBR_WILL, AttributeGroup.PERSON, Attributes.DESC_WILL),
 
     ;
 

@@ -2,29 +2,10 @@
 package bg.sarakt.base;
 
 import java.awt.EventQueue;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-
+import bg.sarakt.attributes.AttributeService;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
 import bg.sarakt.attributes.impl.AttributeProvider;
@@ -33,12 +14,18 @@ import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 import bg.sarakt.base.window.AttributeWindow;
 import bg.sarakt.base.window.CharacterAttributeWindow;
-import bg.sarakt.glossary.entitites.TagEntity;
-import bg.sarakt.storing.hibernate.GenericHibernateDAO;
 import bg.sarakt.storing.hibernate.HibernateConf;
-import bg.sarakt.storing.hibernate.LevelDAO;
-import bg.sarakt.storing.hibernate.LevelNodeDAO;
-import bg.sarakt.storing.hibernate.entities.LevelEntity;
+
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
 /** Application runner for encapsulating the application. */
 
@@ -50,7 +37,7 @@ import bg.sarakt.storing.hibernate.entities.LevelEntity;
 @ComponentScan(basePackages = {"bg.sarakt.storing.hibernate", "bg.sarakt.base", "bg.sarakt.attributes.impl"})
 public class AppRunner {
 
-    private static final int CONDITION = 4;
+    private static final int CONDITION = 2;
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -62,6 +49,7 @@ public class AppRunner {
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "false");
         SpringApplication.run(AppRunner.class, args);
+        AppRunner runner = new AppRunner();
         switch (CONDITION)
         {
         case 0:
@@ -77,28 +65,26 @@ public class AppRunner {
             checkBeanAgainstFactory();
             break;
         case 4:
-            maxLevel();
             break;
+        case 5:
+            runner.test1();
         default:
             System.out.println("unsupported");
             break;
         }
     }
     
-    public static void maxLevel() {
-        AttributeFactory bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
-        int maxLevel = bean.getMaxLevel();
-        System.out.println(maxLevel);
-        
-        maxLevel = new AttributeProvider().asd();
-        System.out.println(maxLevel);
-        
+    private void test1() {
+        AttributeService factory = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
+        factory.getResourceAttribute().forEach(System.out::println);
+        System.out.println("Secondary");
     }
+    
 
 
     public static void checkBeanAgainstFactory() {
-        Attributes bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
-        Attributes instance = AttributeFactory.getInstance();
+        AttributeService bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
+        AttributeService instance = AttributeFactory.getInstance();
         System.out.println(instance);// NOSONAR
         System.out.println(bean);// NOSONAR
         System.out.println(bean.equals(instance));// NOSONAR

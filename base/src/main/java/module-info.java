@@ -3,6 +3,7 @@ module sarakt {
     exports bg.sarakt.attributes;
     exports bg.sarakt.attributes.impl to spring.beans;
     exports bg.sarakt.attributes.levels to bg.sarakt.attributes;
+    exports bg.sarakt.storing.hibernate.entities to bg.sarakt.storing.hibernate.interfaces;
     exports bg.sarakt.storing.hibernate.interfaces;
     
     opens bg.sarakt.attributes.impl to spring.core;

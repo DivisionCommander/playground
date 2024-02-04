@@ -23,6 +23,7 @@ import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.CharacterAttributeMap;
+import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.levels.Level;
 
@@ -81,6 +82,7 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
         Map<PrimaryAttribute, Number> values = valuesArg == null ? Collections.emptyMap() : valuesArg;
         for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
             entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, values.getOrDefault(pa, null));
+            entries[pa.ordinal()].recalculate();
         }
     }
 
@@ -168,5 +170,15 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
         }
 
     }
-
+    
+    /**
+     * @see bg.sarakt.attributes.ModifiableAttributeMap#setLevel(bg.sarakt.attributes.levels.Level)
+     */
+    @Override
+    public ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> setLevel(Level level) {
+        for (int index = 0; index < entries.length; index++) {
+            entries[index].setLevel(level);
+        }
+        return this;
+    }
 }

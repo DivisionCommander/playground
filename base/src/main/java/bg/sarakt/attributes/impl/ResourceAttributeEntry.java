@@ -20,10 +20,11 @@ import bg.sarakt.attributes.levels.Level;
 public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<ResourceAttribute> {
 
     private final AttributeMapEntry<PrimaryAttribute> primaryAttribute;
-
+    private Level level;
 
     ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
-        this(attribute,primaryAttributeEntry, null);
+        super(attribute);
+        this.primaryAttribute = primaryAttributeEntry;
     }
     /**
     *
@@ -36,6 +37,7 @@ public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<Reso
     ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
         super(attribute, level);
         primaryAttribute = primaryAttributeEntry;
+        recalculate();
     }
 
 
@@ -44,6 +46,7 @@ public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<Reso
      * Need considering general strategy for calculations.
      * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()
      */
+    // FIXME ASAP
     @Override
     public BigDecimal getBaseValue() {
         BigDecimal primaryAttributeValue = primaryAttribute.getBaseValue();

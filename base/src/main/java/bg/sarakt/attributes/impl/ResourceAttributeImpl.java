@@ -90,4 +90,12 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     @Override
     public PrimaryAttribute getPrimaryAttribute() { return this.primary; }
 
+    /**
+     * @since 0.0.10
+     */
+    void addCoefficients(NavigableMap<Integer, BigDecimal> coefficients) {
+        if (coefficients != null) {
+            coefficients.putAll(coefficients);
+        }
+    }
 }

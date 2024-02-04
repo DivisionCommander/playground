@@ -8,14 +8,20 @@
 
 package bg.sarakt.storing.hibernate;
 
-import org.hibernate.Session;
-import org.hibernate.query.SelectionQuery;
-import org.springframework.stereotype.Repository;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
 
-@Repository("levelDAO")
+import org.hibernate.Session;
+import org.hibernate.query.SelectionQuery;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+@Repository
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class LevelDAO extends AbstractHibernateDAO<LevelEntity> implements ILevelDAO {
     
     public LevelDAO() {
@@ -33,6 +39,15 @@ public class LevelDAO extends AbstractHibernateDAO<LevelEntity> implements ILeve
 
     public LevelEntity get(LevelEntity entity) {
         return get(entity.getLevel());
+    }
+    
+    @Override
+    public NavigableMap<Integer, LevelEntity> allAsMap() {
+        NavigableMap<Integer, LevelEntity> levels = new TreeMap<>();
+        for (LevelEntity level : findAll()) {
+            levels.put(level.getLevel(), level);
+        }
+        return levels;
     }
     
     @Override

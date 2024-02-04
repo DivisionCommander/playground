@@ -20,6 +20,8 @@ public interface AttributeService {
     Collection<ResourceAttribute> getResourceAttribute();
 
     Attribute ofName(String attributeName);
+    
+    void loadDefaultAttributes();
 }
 
 

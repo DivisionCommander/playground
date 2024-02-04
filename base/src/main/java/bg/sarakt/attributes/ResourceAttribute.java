@@ -13,10 +13,9 @@ import java.math.BigDecimal;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.impl.ResourceAttributeEntry;
 import bg.sarakt.attributes.impl.ResourceAttributeImpl;
-import bg.sarakt.attributes.impl.AttributeProvider.DummyResourceAttribute;
 import bg.sarakt.attributes.levels.Level;
 
-public sealed interface ResourceAttribute extends Attribute, Comparable<Attribute> permits ResourceAttributeImpl, DummyResourceAttribute {
+public sealed interface ResourceAttribute extends Attribute, Comparable<Attribute> permits ResourceAttributeImpl {
 
     long getId();
 
