@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.CharacterAttributeMap;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.levels.Level;
@@ -20,8 +21,18 @@ import bg.sarakt.attributes.levels.Level;
 public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<ResourceAttribute> {
 
     private final AttributeMapEntry<PrimaryAttribute> primaryAttribute;
-    private Level level;
+    private PrimaryAttributeEntry                     entry2;
+    private ExperienceEntry                           experienceEntry;
 
+    ResourceAttributeEntry(ResourceAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> attributeMap)
+    {
+        this(attribute, attributeMap.get(attribute.getPrimaryAttribute()));
+        var entry = attributeMap.get(PrimaryAttribute.EXPERIENCE);
+        if (entry instanceof ExperienceEntry ee) {
+            experienceEntry = ee;
+        }
+    }
+    
     ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
         super(attribute);
         this.primaryAttribute = primaryAttributeEntry;
@@ -35,8 +46,8 @@ public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<Reso
     */
     @Deprecated
     ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
-        super(attribute, level);
-        primaryAttribute = primaryAttributeEntry;
+        this(attribute, primaryAttributeEntry);
+        setLevel(level);
         recalculate();
     }
 
@@ -61,7 +72,7 @@ public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<Reso
      */
     @Override
     protected BigDecimal getBaseValueForLayer(ModifierLayer layer) {
-        BigDecimal coefficient = getAttribute().getCoefficientForLevel(getLevel());
+        BigDecimal coefficient = getAttribute().getCoefficientForLevel(experienceEntry.currentLevel());
         BigDecimal primaryAttributeValue = primaryAttribute.getValueForLayer(layer);
         return coefficient.multiply(primaryAttributeValue);
     }

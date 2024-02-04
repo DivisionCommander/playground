@@ -26,6 +26,8 @@ import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
 
 public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> {
 
@@ -127,9 +129,10 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
      * @see bg.sarakt.attributes.ModifiableAttributeMap#setLevel(bg.sarakt.attributes.levels.Level)
      */
     @Override
+    @Dummy(since = "0.0.11", to = "0.0.12", description = "Workarround until finally get remove Level from the enry")
+    @ForRemoval(expectedRemovalVersion = "0.0.12")
     public ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> setLevel(Level level) {
         entries.values().forEach(sae -> sae.setLevel(level));
-        // TODO Auto-generated method stub
         return this;
     }
 }

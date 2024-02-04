@@ -65,6 +65,7 @@ public class AppRunner {
             checkBeanAgainstFactory();
             break;
         case 4:
+            bug4();
             break;
         case 5:
             runner.test1();
@@ -72,6 +73,11 @@ public class AppRunner {
             System.out.println("unsupported");
             break;
         }
+    }
+    
+    private static void bug4() {
+        AttributeMapImpl ami = new AttributeMapImpl();
+        
     }
     
     private void test1() {

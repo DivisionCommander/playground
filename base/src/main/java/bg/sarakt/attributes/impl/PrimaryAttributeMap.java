@@ -81,7 +81,8 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
         entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
         Map<PrimaryAttribute, Number> values = valuesArg == null ? Collections.emptyMap() : valuesArg;
         for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
-            entries[pa.ordinal()] = new PrimaryAttributeEntry(pa, values.getOrDefault(pa, null));
+            Number value = values.getOrDefault(pa, PrimaryAttributeEntry.getDefaultValue());
+            entries[pa.ordinal()] = pa.getEntry(value);
             entries[pa.ordinal()].recalculate();
         }
     }
@@ -180,5 +181,14 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
             entries[index].setLevel(level);
         }
         return this;
+    }
+    
+    public ExperienceEntry getExperienceEntry() {
+        PrimaryAttributeEntry primaryAttributeEntry = get(PrimaryAttribute.EXPERIENCE);
+        if (primaryAttributeEntry instanceof ExperienceEntry ee) {
+            return ee;
+        }
+        return null;
+        
     }
 }

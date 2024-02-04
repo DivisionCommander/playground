@@ -41,7 +41,8 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry>   resourceMap;
     private final ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> secondaryMap;
 
-    private final Level level;
+    private final Level     lvl;
+    private ExperienceEntry experience;
 
     public AttributeMapImpl() {
         this(Level.TEMP);
@@ -71,19 +72,29 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      */
     public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources,
             Collection<SecondaryAttribute> secondary, Level level) {
-        primaryMap = new PrimaryAttributeMap(primary).setLevel(level);
+        PrimaryAttributeMap map = new PrimaryAttributeMap(primary);
+        primaryMap = map.setLevel(level);
+        this.experience = map.getExperienceEntry();
+        this.experience.injectLevel(level);
+        var experience = map.getExperienceEntry();
+        experience.injectLevel(level);
         resourceMap = new ResourceAttributeMap(primaryMap, resources).setLevel(level);
         secondaryMap = new SecondaryAttributeMap(primaryMap, secondary).setLevel(level);
-        this.level = level;
+        this.lvl = level;
+        System.out.println(level);
+        System.out.println(experience);
         recalculate();
     }
     
-    public int getLevel() { return this.level.getLevelNumber(); }
-
+    public int getLevel() { return this.experience().currentLevel(); }
+    
+    private ExperienceEntry experience() {
+        return this.experience;
+    }
 
     @Override
     public void earnExperience(BigInteger amount) {
-        if(level.earnExperience(amount)) {
+        if (experience().earnExperience(amount)) {
             levelUp();
         }
     }
@@ -163,13 +174,13 @@ public class AttributeMapImpl implements CharacterAttributeMap{
             return;
         }
 
-        LevelNode previous = level.viewPreviousLevel();
+        LevelNode previous = lvl.viewPreviousLevel();
         if (previous != null && !previous.getAllModifiers().isEmpty()) {
             applyModifiers(previous.getAllModifiers(), false);
             previous.getAllModifiers().forEach(this::removeModifier);
         }
 
-        LevelNode next = level.viewCurrentLevel();
+        LevelNode next = lvl.viewCurrentLevel();
         if (next != null) {
             next.getPermanentBonuses().entrySet().forEach(e -> primaryMap.get(e.getKey()).addPermanentBonus(e.getValue()));
             if ( !next.getAllModifiers().isEmpty()) {

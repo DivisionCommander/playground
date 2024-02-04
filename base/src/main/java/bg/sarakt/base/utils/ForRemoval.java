@@ -42,4 +42,11 @@ public @interface ForRemoval
      * @since 9
      */
     String expectedRemovalVersion();
+    
+    /**
+     * Reason to be removed at first place. Usually, duplicate the deprecated tag in
+     * javadoc. Since this is personal project and I often skip documenting code,
+     * this is a convenient way to keep notes.
+     */
+    String description() default "";
 }

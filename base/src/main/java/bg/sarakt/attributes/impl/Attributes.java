@@ -33,6 +33,9 @@ public interface Attributes {
     String ABBR_KNOWLEDGE    = "KNW";
     String ABBR_PSIONIC      = "PSI";
     String ABBR_SPIRIT       = "SPI";
+    String NAME_XP = "Experience";
+    String ABBR_XP = "XP";
+    String DESC_XP = "Amount of experience character has";
     
     // Group Resource
     String ABBR_VIGOUR = "VIG";

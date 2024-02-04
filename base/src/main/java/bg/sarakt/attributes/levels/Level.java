@@ -37,6 +37,8 @@ public interface Level {
 
     boolean earnExperience(BigInteger amount);
 
+    BigInteger currentExperience();
+    
     LevelNode viewPreviousLevel();
 
     LevelNode viewCurrentLevel() ;

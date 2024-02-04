@@ -63,6 +63,7 @@ public class AttributeProvider implements Attributes {
             formula.addAttributeFormula(PrimaryAttribute.STRENGTH, level);
             dummyFormulas.put(level, formula);
         }
+        System.err.println("dummyFormulas" + dummyFormulas);
         return dummyFormulas;
     }
     
@@ -74,6 +75,7 @@ public class AttributeProvider implements Attributes {
             BigDecimal coefficient = BigDecimal.ONE.multiply(new BigDecimal(level));
             dummyCoefficients.put(level, coefficient);
         }
+        System.err.println("dummyCoefficients" + dummyCoefficients);
         return dummyCoefficients;
     }
     

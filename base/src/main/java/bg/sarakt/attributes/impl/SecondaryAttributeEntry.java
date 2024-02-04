@@ -20,14 +20,22 @@ import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.ForRemoval;
+
+import org.springframework.lang.NonNull;
 
 public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<SecondaryAttribute> implements AttributeMapEntry<SecondaryAttribute>{
 
     private final IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryAttMap;
+    private ExperienceEntry                                                     experienceEntry;
 
-    SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap) {
+    SecondaryAttributeEntry(@NonNull SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap) {
         super(attribute);
         this.primaryAttMap = primaryMap;
+        PrimaryAttributeEntry experience = primaryMap.get(PrimaryAttribute.EXPERIENCE);
+        if (experience instanceof ExperienceEntry ee) {
+            this.experienceEntry = ee;
+        }
     }
 
     /**
@@ -38,9 +46,10 @@ public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<Sec
     *             {@link Attribute}s and their {@link AttributeMapEntry}
     */
     @Deprecated(forRemoval =  true, since = "0.0.7")
+    @ForRemoval(since = "0.0.7", expectedRemovalVersion = "0.0.15")
     SecondaryAttributeEntry(SecondaryAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>  primaryMap, Level level) {
-        super(attribute, level);
-        primaryAttMap = primaryMap;
+        this(attribute, primaryMap);
+        setLevel(level);
         recalculate();
     }
 
@@ -54,7 +63,7 @@ public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<Sec
             BigDecimal valueForLayer = pa.getValueForLayer(layer);
             values.put(pa.getAttribute(), valueForLayer);
         }
-        AttributeFormula formula = getAttribute().getFormula(getLevel().getLevelNumber());
+        AttributeFormula formula = getAttribute().getFormula(experienceEntry.currentLevel());
         return formula.calculate(values);
     }
 

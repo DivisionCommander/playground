@@ -19,7 +19,8 @@ import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.levels.Level;
 
-public final class PrimaryAttributeEntry extends AbstractAttributeMapEntry<PrimaryAttribute> implements AttributeMapEntry<PrimaryAttribute> {
+public sealed class PrimaryAttributeEntry extends AbstractAttributeMapEntry<PrimaryAttribute> implements AttributeMapEntry<PrimaryAttribute>
+        permits ExperienceEntry {
 
     private static final AtomicInteger DEFAULT_VALUE = new AtomicInteger(10);
 

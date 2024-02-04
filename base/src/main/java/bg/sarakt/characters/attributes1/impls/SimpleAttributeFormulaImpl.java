@@ -78,17 +78,17 @@ public class SimpleAttributeFormulaImpl implements AttributeFormula
     @Override
     public BigDecimal calculate(Map<Attribute, Number> values)
     {
-        Double value = 0.0;
+        Double result = 0.0;
 
         for (Entry<Attribute, Number> entry : values.entrySet())
         {
             Double coefficient = attributes.getOrDefault(entry.getKey(), 0.0);
-            value += coefficient * entry.getValue().doubleValue();
-
+            Number value = entry.getValue();
+            if (value != null) {
+                result += coefficient * value.doubleValue();
+            }
         }
-//        return value;
-        return BigDecimal.valueOf(value);
-
+        return BigDecimal.valueOf(result);
     }
 
 }

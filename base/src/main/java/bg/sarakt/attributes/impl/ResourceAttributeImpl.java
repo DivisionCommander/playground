@@ -13,10 +13,14 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.AttributeMapEntry;
+import bg.sarakt.attributes.CharacterAttributeMap;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 
 public final class ResourceAttributeImpl extends AbstractAttribute implements ResourceAttribute {
@@ -52,24 +56,26 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     @Override
     public long getId() { return super.getId(); }
 
-    /**
-     * @param pa
-     * @param level
-     * @see bg.sarakt.attributes.ResourceAttribute#getEntry()
-     */
-    @Override
-    @Deprecated(forRemoval =  true, since ="0.0.7")
-    public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
-        return new ResourceAttributeEntry(this, primaryAttributeEntry, level);
-    }
 
     /**
      *
      * @see bg.sarakt.attributes.ResourceAttribute#getEntry(bg.sarakt.attributes.AttributeMapEntry)
+     * @deprecated dropping support of {@link Level} and
+     *             {@link bg.sarakt.characters.Level} as now
+     *             {@link CharacterAttributeMap} would manage leveling of
+     *             {@link Attribute}s and their {@link AttributeMapEntry}
+     *             
      */
     @Override
+    @Deprecated(since = "0.0.12", forRemoval = true)
+    @ForRemoval(since = "0.0.12", expectedRemovalVersion = "0.0.15")
     public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
         return new ResourceAttributeEntry(this, primaryAttributeEntry);
+    }
+    
+    @Override
+    public ResourceAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> map) {
+        return new ResourceAttributeEntry(this, map);
     }
 
     /**
@@ -77,7 +83,11 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
      */
     @Override
     public BigDecimal getCoefficientForLevel(Level level) {
-        Entry<Integer, BigDecimal> entry = coefficients.floorEntry(level.getLevelNumber());
+        return getCoefficientForLevel(level.getLevelNumber());
+    }
+    
+    public BigDecimal getCoefficientForLevel(int levelNumber) {
+        Entry<Integer, BigDecimal> entry = coefficients.floorEntry(levelNumber);
         if(entry == null) {
             return BigDecimal.ONE;
         }

@@ -16,6 +16,7 @@ import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.base.exceptions.UnknownValueException;
+import bg.sarakt.base.utils.ForRemoval;
 
 
 public enum PrimaryAttribute implements Attribute
@@ -34,13 +35,37 @@ public enum PrimaryAttribute implements Attribute
     // Personality attributes:
     SPIRIT(Attributes.NAME_SPIRIT, Attributes.ABBR_SPIRIT, AttributeGroup.PERSON, Attributes.DESC_SPIRIT),
     WILL(Attributes.NAME_WILL, Attributes.ABBR_WILL, AttributeGroup.PERSON, Attributes.DESC_WILL),
-
+    EXPERIENCE(Attributes.NAME_XP, Attributes.ABBR_XP, AttributeGroup.PERSON, Attributes.DESC_XP)
+    {
+        
+        /**
+         * @see bg.sarakt.attributes.impl.PrimaryAttribute#getEntry(java.lang.Number)
+         */
+        @Override
+        public ExperienceEntry getEntry(Number initialValue) {
+            return new ExperienceEntry(initialValue);
+        }
+        
+        /**
+         * @see bg.sarakt.attributes.impl.PrimaryAttribute#getEntry(java.lang.Number,
+         *      bg.sarakt.attributes.levels.Level)
+         * @deprecated due to continuous efforts to handle leveling mechanism to
+         *             {@link CharacterAttributeMap} and remove {@link Level} from all
+         *             {@link AttributeMapEntry}
+         */
+        @Deprecated(forRemoval = true, since = "0.0.8")
+        @ForRemoval(expectedRemovalVersion = "0.0.15")
+        @Override
+        public ExperienceEntry getEntry(Number initialValue, Level levelArg) {
+            return new ExperienceEntry(initialValue, levelArg);
+        }
+    },
     ;
 
     private static final Set<PrimaryAttribute> ALL_PRIMARY_ATTRIBUTES = Set.of(
             STRENGTH, AGILITY, CONSTITUTION,
             INTELLIGENCE, WISDOM, PSIONIC,
-            SPIRIT, WILL);
+            SPIRIT, WILL, EXPERIENCE);
 
     private final String         name;
     private final String         abbreviation;

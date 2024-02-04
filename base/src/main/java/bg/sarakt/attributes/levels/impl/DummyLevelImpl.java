@@ -229,4 +229,12 @@ public class DummyLevelImpl implements Level, LevelNode {
     public LevelNode viewCurrentLevel() {
         return this;
     }
+    
+    /**
+     * @see bg.sarakt.attributes.levels.Level#currentExperience()
+     */
+    @Override
+    public BigInteger currentExperience() {
+        return experience;
+    }
 }

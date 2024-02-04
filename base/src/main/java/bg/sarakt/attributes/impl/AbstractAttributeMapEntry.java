@@ -66,20 +66,11 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
      *             {@link Attribute}s and their {@link AttributeMapEntry}
      */
     @Deprecated(forRemoval = true, since = "0.0.7")
+    @ForRemoval(since = "0.0.7", expectedRemovalVersion = "0.0.15")
     protected AbstractAttributeMapEntry(T attribute, Level level) {
-        Objects.requireNonNull(attribute, "Attribute cannot be null!");
-        this.attr = attribute;
-        this.level = level;
-        valuesPerLayer = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
-        modifiers = new ConcurrentSkipListMap<>(new EnumMap<>(ModifierLayer.class));
-
-        Iterator<ModifierLayer> it = ModifierLayer.getIterator();
-        while (it.hasNext()) {
-            ModifierLayer layer = it.next();
-            modifiers.put(layer, new ArrayList<>());
-            valuesPerLayer.put(layer, BigDecimal.ZERO);
-        }
-
+        this(attribute);
+        setLevel(level);
+        
     }
 
     @Override

@@ -16,6 +16,8 @@ import bg.sarakt.base.utils.ForRemoval;
 
 public interface ModifiableAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> extends IterableAttributeMap<A, E>{
 
+    @Override
+    @ForRemoval(expectedRemovalVersion = "0.0.12", description = "already moved in super interface, soon will be removed")
     E get(A attribute);
 
     void addModifier(AttributeModifier<A> modifier);
@@ -26,10 +28,14 @@ public interface ModifiableAttributeMap<A extends Attribute, E extends Attribute
 
     void removeModifiers(Collection<AttributeModifier<A>> modifiers);
 
-    // void recalculate();
-    
-    @Dummy(since = "0.0.11", to = "UNKNOWN", description = "Workarround until finally get remove Level from the enry")
-    @ForRemoval(expectedRemovalVersion = "UNKNOWN")
+    /**
+     * Temporary workaround setter for the level until better fix appears.
+     * 
+     * @deprecated scheduled for removal in next stable version, probably 0.0.12
+     */
+    @Deprecated
+    @Dummy(since = "0.0.11", to = "0.0.13", description = "Workarround until finally get remove Level from the enry")
+    @ForRemoval(expectedRemovalVersion = "0.0.13")
     ModifiableAttributeMap<A, E> setLevel(Level level);
 }
 

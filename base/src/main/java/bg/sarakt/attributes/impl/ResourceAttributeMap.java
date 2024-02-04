@@ -37,8 +37,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
         super();
         this.entries = new HashMap<>();
         for (ResourceAttribute r : resource) {
-            PrimaryAttribute pa = r.getPrimaryAttribute();
-            entries.put(r, r.getEntry(primaryMap.get(pa)));
+            entries.put(r, r.getEntry(primaryMap));
         }
     }
     
@@ -67,7 +66,16 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> pa) {
         this(resource, pa);
     }
-
+    
+    /**
+     *
+     * @deprecated dropping support of {@link Level} and
+     *             {@link bg.sarakt.characters.Level} as now
+     *             {@link CharacterAttributeMap} would manage leveling of
+     *             {@link Attribute}s and their {@link AttributeMapEntry}
+     */
+    @Deprecated(since = "0.0.12", forRemoval = true)
+    @ForRemoval(since = "0.0.12", expectedRemovalVersion = "0.0.15")
     ResourceAttributeMap(Collection<ResourceAttribute> resource, Map<PrimaryAttribute, PrimaryAttributeEntry> primaryMap) {
         super();
         this.entries = new HashMap<>();
@@ -94,6 +102,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
      */
     @Override
     @Deprecated(forRemoval =  true, since = "0.0.6")
+    @ForRemoval(since = "0.0.6", expectedRemovalVersion = "0.0.15")
     public void levelUp() {
         entries.values().stream().forEach(ResourceAttributeEntry::levelUp);
 
