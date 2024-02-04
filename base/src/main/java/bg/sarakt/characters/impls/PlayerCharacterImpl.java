@@ -68,7 +68,7 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
 
     /**
      *
-     * @see bg.sarakt.characters.GameCharacter#getLevel()
+     * @see bg.sarakt.characters.GameCharacter#getLevelNumber()
      */
     @Override
     public int level() {

@@ -86,12 +86,26 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         recalculate();
     }
     
-    public int getLevel() { return this.experience().currentLevel(); }
+    /**
+     * 
+     * @see bg.sarakt.attributes.CharacterAttributeMap#getLevelNumber()
+     */
+    @Override
+    public int getLevelNumber() { return this.experience().currentLevel(); }
     
     private ExperienceEntry experience() {
         return this.experience;
     }
 
+    /**
+     * @see bg.sarakt.attributes.CharacterAttributeMap#addPermanentBonus(bg.sarakt.attributes.impl.PrimaryAttribute,
+     *      java.math.BigInteger)
+     */
+    @Override
+    public void addPermanentBonus(PrimaryAttribute pa, BigInteger value) {
+        primaryMap.get(pa).addPermanentBonus(value);
+        recalculate();
+    }
     @Override
     public void earnExperience(BigInteger amount) {
         if (experience().earnExperience(amount)) {

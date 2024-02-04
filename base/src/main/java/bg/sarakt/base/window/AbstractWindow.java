@@ -9,6 +9,7 @@ package bg.sarakt.base.window;
 
 import java.awt.GridLayout;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -16,17 +17,18 @@ import javax.swing.WindowConstants;
 public abstract class AbstractWindow {
 
     protected final JFrame window;
+    protected JPanel       contentPane;
     protected JPanel       panel;
 
     protected AbstractWindow() {
-        window = new JFrame("Attributes");
+        window = new JFrame();
+        contentPane = new JPanel();
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+        window.setContentPane(contentPane);
         window.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         panel = new JPanel();
         panel.setLayout(new GridLayout(0, 2));
 
-//        window.setLocationRelativeTo(null);
-//        validate();
-//        window.setVisible(true);
     }
 
 protected void init() {
