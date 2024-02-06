@@ -33,7 +33,7 @@ import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.logging.Logger;
 
 public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> implements AttributeMapEntry<T>
-        permits PrimaryAttributeEntry, ResourceAttributeEntry, SecondaryAttributeEntry {
+        permits PrimaryAttributeEntry, ResourceAttributeEntryImpl, SecondaryAttributeEntry {
 
     private static final boolean  USE_OLD = false;
     protected static final Logger LOG     = Logger.getLogger();
@@ -140,10 +140,14 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
     public BigDecimal getValueForLayer(ModifierLayer layer) {
         return valuesPerLayer.get(layer);
     }
-
+    
+    protected final BigDecimal currentValue() {
+        return valuesPerLayer.get(ModifierLayer.getHighestLayer());
+    }
+    
     @Override
     public BigDecimal getCurrentValue() { return valuesPerLayer.get(ModifierLayer.getHighestLayer()); }
-
+    
     protected void addModifier(AttributeModifier<T> modifier, boolean recalculate) {
         modifiers.get(modifier.getLayer()).add(new Modifier(modifier));
         if (recalculate) {
@@ -166,10 +170,10 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
 
     @Override
     public void recalculate() {
-        BigDecimal old = getCurrentValue();
+        BigDecimal old = currentValue();
         recalculate(ModifierLayer.getLowestLayer(), getBaseValue());
-        BigDecimal newV= getCurrentValue();
-        LOG.debug("[" + getAttribute().fullName() + "] changes from {" + old + "} to {" + newV + "}");
+        BigDecimal newV= currentValue();
+        LOG.debug("[" + getClass().getSimpleName() + "\t" + getAttribute().fullName() + "] changes from {" + old + "} to {" + newV + "}");
     }
 
     protected void recalculate(ModifierLayer layer) {

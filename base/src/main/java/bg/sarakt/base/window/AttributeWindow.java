@@ -10,9 +10,12 @@ package bg.sarakt.base.window;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,14 +29,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
 import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.impl.ResourceAttributeEntry;
 import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.logging.Logger;
@@ -47,18 +51,28 @@ public class AttributeWindow extends AbstractWindow{
     private final JTextField fldFreePoints;
 
     private final Map<Attribute, JTextField> map;
+    private final Map<ResourceAttribute, ResourceInfo> nfo;
+    private final Set<JButton>                         buttonsPA;
+    private JLabel                                     lbl1;
+    private JLabel                                     lbl2;
+    private JLabel                                     lbl3;
+    
     private final DummyLevelImpl level;
 
-
-    private final CharacterAttributeMap attributes;
+    private final AttributeMapImpl attributes;
     private JTextField fldXP = new JTextField(8);
 
     public AttributeWindow(AttributeMapImpl attrMap, DummyLevelImpl lvl) {
         super();
         map  = new TreeMap<>(Attribute.getComparator());
+        nfo = new HashMap<>();
+        this.buttonsPA = new HashSet<>();
+        this.freePoints = new AtomicInteger(lvl.getUnallocatedPonts());
+        this.lbl1 = new JLabel("Free points: " + freePoints.get());
+        this.lbl2 = new JLabel();
+        this.lbl3 = new JLabel();
         this.level = lvl;
         attributes= attrMap;
-        freePoints = new AtomicInteger(lvl.getUnallocatedPonts());
         fldFreePoints  = new JTextField(4);
         fldFreePoints.setText(String.valueOf(freePoints));
         init();
@@ -80,10 +94,10 @@ public class AttributeWindow extends AbstractWindow{
         map.clear();
         JPanel panelLeft = new JPanel();
         panelLeft.setLayout(new BoxLayout(panelLeft, BoxLayout.Y_AXIS));
-        panelLeft.add(iterate("Primary Attributes: ", PrimaryAttribute.getAllPrimaryAttributes()));
-        panelLeft.add(iterate("Resource Attributes", AttributeFactory.getInstance().getResourceAttribute()));
+        panelLeft.add(iterate(lbl1, "Primary Attributes: ", PrimaryAttribute.getAllPrimaryAttributes()));
+        panelLeft.add(iterate(lbl2, "Resource Attributes", AttributeFactory.getInstance().getResourceAttribute()));
         panel.add(panelLeft);
-        panel.add(iterate("Secondary Attributes", AttributeFactory.getInstance().getSecondaryAttributes()));
+        panel.add(iterate(lbl3, "Secondary Attributes", AttributeFactory.getInstance().getSecondaryAttributes()));
         
         JPanel p1 = new JPanel();
         p1.add(new JLabel("FP: "));
@@ -110,12 +124,12 @@ public class AttributeWindow extends AbstractWindow{
         }
     }
 
-    private <A extends Attribute> JPanel iterate(String category, Iterable<A> iterable) {
+    private <A extends Attribute> JPanel iterate(JLabel lbl, String category, Iterable<A> iterable) {
         Set<A> set = new TreeSet<>();
         iterable.forEach(set::add);
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.add(new JLabel(category));
-        panel.add(new JLabel(level.getLevelNumber().toString()+" // "+level.getExperience().toString()));
+        panel.add(lbl);
         panel.add(new JSeparator());
         panel.add(new JSeparator());
         set.forEach(a -> this.show(a, panel));
@@ -142,24 +156,33 @@ public class AttributeWindow extends AbstractWindow{
          }
      }
     private void show(ResourceAttribute ra, JPanel panel) {
-        JPanel panelLeft = new JPanel();
+        JPanel panelLeft = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         JPanel panelRight = new JPanel();
-        JLabel lbl = new JLabel("RA:" + ra.fullName());
+        JLabel lbl = new JLabel(ra.fullName() + ":");
         lbl.setToolTipText(ra.description());
         panelLeft.add(lbl);
-        JTextField fld = new JTextField(8);
-        fld.setText(attributes.getCurrentAttributeValue(ra).toString());
-        fld.setEditable(false);
-        panelLeft.add(fld);
+        ResourceAttributeEntry e = attributes.get(ra);
+        JTextField fieldCurrent = new JTextField(4);
+        fieldCurrent.setText(e.getCurrentValue().toString());
+        fieldCurrent.setEditable(false);
+        JTextField fieldMax = new JTextField(4);
+        fieldMax.setText(e.getMaxValue().toString());
+        panelLeft.add(fieldCurrent);
+        panelLeft.add(new JLabel("/"));
+        panelLeft.add(fieldMax);
+        fieldMax.setEnabled(false);
+        fieldMax.setEditable(false);
+        fieldMax.setBackground(Color.blue);
         panelRight.add(add(ra));
         panelRight.add(remove(ra));
         panel.add(panelLeft);
         panel.add(panelRight);
-        map.put(ra, fld);
+        map.put(ra, fieldCurrent);
+        nfo.put(ra, new ResourceInfo(ra, fieldCurrent, fieldMax));
     }
     
     private void show(SecondaryAttribute sa, JPanel panel) {
-        JPanel panelLeft = new JPanel();
+        JPanel panelLeft = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JPanel panelRight = new JPanel();
         JLabel lbl = new JLabel("SA:" + sa.fullName());
         lbl.setToolTipText(sa.description());
@@ -178,17 +201,23 @@ public class AttributeWindow extends AbstractWindow{
     
     private void show(PrimaryAttribute pa, JPanel panel) {
 
-        JPanel panelLeft = new JPanel();
+        JPanel panelLeft = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JPanel panelRight = new JPanel();
         JLabel lbl = new JLabel("PA:" + pa.fullName());
         lbl.setToolTipText(pa.description());
         panelLeft.add(lbl);
-        JTextField fld = new JTextField(3);
-        fld.setText(attributes.getCurrentAttributeValue(pa).toString());
+        JTextField fld = new JTextField(attributes.getCurrentAttributeValue(pa).toString(), 4);
         fld.setEditable(false);
-        panelLeft.add(fld);
-        panelRight.add(add(pa));
-        panelRight.add(remove(pa));
+        if (pa != PrimaryAttribute.EXPERIENCE) {
+            panelLeft.add(fld);
+            panelRight.add(add(pa));
+            panelRight.add(remove(pa));
+        }
+        else {
+            fld.setColumns(7);
+            fld.setHorizontalAlignment(SwingConstants.RIGHT);
+            panelRight.add(fld);
+        }
         panel.add(panelLeft);
         panel.add(panelRight);
         map.put(pa, fld);
@@ -210,6 +239,7 @@ public class AttributeWindow extends AbstractWindow{
     
     private JButton add(PrimaryAttribute pa) {
         JButton btn = new JButton("+");
+        buttonsPA.add(btn);
 
         btn.addActionListener(l -> addListener(pa, btn));
         return btn;
@@ -241,6 +271,17 @@ public class AttributeWindow extends AbstractWindow{
             BigDecimal currentAttributeValue = attributes.getCurrentAttributeValue(e.getKey());
             e.getValue().setText(currentAttributeValue.toString());
         }
+        for (var e : nfo.entrySet()) {
+            ResourceAttributeEntry rae = attributes.get(e.getKey());
+            e.getValue().fldCurrent.setText(rae.getCurrentValue().toString());
+            e.getValue().fldmax.setText(rae.getMaxValue().toString());
+        }
+        Integer points = freePoints.get();
+        fldFreePoints.setText(points.toString());
+        lbl1.setText("Free points: " + freePoints.get());
+        buttonsPA.forEach(b -> b.setEnabled(freePoints.get() > 0));
+        window.setTitle("Attributes for level# " + attributes.getLevelNumber());
+        
     }
 
     private JButton createBtnXP() {
@@ -262,8 +303,8 @@ public class AttributeWindow extends AbstractWindow{
         attributes.earnExperience(experience);
         int unallocatedPonts = level.getUnallocatedPonts();
         freePoints.addAndGet(unallocatedPonts);
-           populate();
-           // refreshValues();
+           // populate();
+           refreshValues();
        });
        return xp;
     }
@@ -276,6 +317,16 @@ public class AttributeWindow extends AbstractWindow{
         // NO-OP for now
 
     }
-
+    
+    private class ResourceInfo {
+        
+        private JTextField fldmax;
+        private JTextField fldCurrent;
+        
+        private ResourceInfo(ResourceAttribute ra, JTextField current, JTextField max) {
+            this.fldCurrent = current;
+            this.fldmax = max;
+        }
+    }
 
 }

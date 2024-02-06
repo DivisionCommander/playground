@@ -1,8 +1,8 @@
 /*
  * ResourceAttributeEntry.java
  *
- * created at 2024-01-20 by Roman Tsonev <roman.tsonev@yandex.ru>
- *
+ * created at 2024-02-05 by Roman Tsonev <roman.tsonev@yandex.ru>
+ * 
  * Copyright (c) Roman Tsonev
  */
 
@@ -10,71 +10,80 @@ package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
 
-import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
-import bg.sarakt.attributes.CharacterAttributeMap;
-import bg.sarakt.attributes.IterableAttributeMap;
+import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.attributes.levels.Level;
 
-public final class ResourceAttributeEntry extends AbstractAttributeMapEntry<ResourceAttribute> {
-
-    private final AttributeMapEntry<PrimaryAttribute> primaryAttribute;
-    private PrimaryAttributeEntry                     entry2;
-    private ExperienceEntry                           experienceEntry;
-
-    ResourceAttributeEntry(ResourceAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> attributeMap)
-    {
-        this(attribute, attributeMap.get(attribute.getPrimaryAttribute()));
-        var entry = attributeMap.get(PrimaryAttribute.EXPERIENCE);
-        if (entry instanceof ExperienceEntry ee) {
-            experienceEntry = ee;
-        }
-    }
+/**
+ * An interface to back-up already existing {@link ResourceAttributeEntryImpl}
+ * 
+ * @since 0.0.13
+ */
+public interface ResourceAttributeEntry extends AttributeMapEntry<ResourceAttribute> {
     
-    ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
-        super(attribute);
-        this.primaryAttribute = primaryAttributeEntry;
-    }
     /**
-    *
-    * @deprecated dropping support of {@link Level} and
-    *             {@link bg.sarakt.characters.Level} as now
-    *             {@link CharacterAttributeMap} would manage leveling of
-    *             {@link Attribute}s and their {@link AttributeMapEntry}
-    */
-    @Deprecated
-    ResourceAttributeEntry(ResourceAttribute attribute, AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry, Level level) {
-        this(attribute, primaryAttributeEntry);
-        setLevel(level);
-        recalculate();
-    }
-
-
-    /**
-     * {@link PrimaryAttributeEntry#getBaseValue()} multiplied by {@link ResourceAttribute#getCoefficientForLevel(Level)}
-     * Need considering general strategy for calculations.
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()
+     * Consume provided amount of the resource
+     * 
+     * @param amount
      */
-    // FIXME ASAP
-    @Override
-    public BigDecimal getBaseValue() {
-        BigDecimal primaryAttributeValue = primaryAttribute.getBaseValue();
-        BigDecimal coefficient = getAttribute().getCoefficientForLevel(getLevel());
-        BigDecimal baseValue = coefficient.multiply(primaryAttributeValue);
-        return baseValue;
-    }
-
-
+    void consume(BigDecimal amount);
+    
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValueForLayer(bg.sarakt.attributes.ModifierLayer)
+     * Consume all of this resource effectively turns
+     * {@link ResourceAttributeEntry#getCurrentValue()} to <code>0</code>.
+     */
+    void deplete();
+    
+    /**
+     * Restore some amount of this {@link ResourceAttribute}.
+     * 
+     * @param amount
+     */
+    void restore(BigDecimal amount);
+    
+    /**
+     * Completely restore this {@link ResourceAttribute} to its
+     * {@link ResourceAttributeEntry#getMaxValue()}
+     */
+    void restore();
+    
+    /**
+     * Get the current value of the Resource such it is after consuming or restoring
+     * some of it. Usually cannot exceed the
+     * {@link ResourceAttributeEntry#getMaxValue()}
+     * 
+     * @see bg.sarakt.attributes.AttributeMapEntry#getCurrentValue()
      */
     @Override
-    protected BigDecimal getBaseValueForLayer(ModifierLayer layer) {
-        BigDecimal coefficient = getAttribute().getCoefficientForLevel(experienceEntry.currentLevel());
-        BigDecimal primaryAttributeValue = primaryAttribute.getValueForLayer(layer);
-        return coefficient.multiply(primaryAttributeValue);
-    }
-
+    BigDecimal getCurrentValue();
+    
+    /**
+     * Get the current value of the Resource for the specified {@link ModifierLayer}
+     * such it is after consuming or restoring some of it. Usually cannot exceed the
+     * {@link ResourceAttributeEntry#getMaxValueForLayer(ModifierLayer)}.
+     * 
+     * @see bg.sarakt.attributes.AttributeMapEntry#getCurrentValue()
+     */
+    
+    @Override
+    BigDecimal getValueForLayer(ModifierLayer layer);
+    
+    /**
+     * Get the maximal value of the resource as it is formed by
+     * {@link ResourceAttribute}'s base value and all applied
+     * {@link AttributeModifier}s.
+     * 
+     * @return
+     */
+    BigDecimal getMaxValue();
+    
+    /**
+     * Get the maximal value of the resource specified {@link ModifierLayer} as it
+     * is formed by {@link ResourceAttribute}'s base value and all applied
+     * {@link AttributeModifier}s.
+     * 
+     * @return
+     */
+    BigDecimal getMaxValueForLayer(ModifierLayer layer);
 }

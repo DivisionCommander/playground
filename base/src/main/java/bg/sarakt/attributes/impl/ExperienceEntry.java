@@ -5,122 +5,108 @@
  * 
  * Copyright (c) Roman Tsonev
  */
+
 package bg.sarakt.attributes.impl;
+
+import static bg.sarakt.attributes.impl.PrimaryAttribute.EXPERIENCE;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Objects;
 
-import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeMap;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
-import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
 
+/**
+ * Later, it may implement {@link Level} and serves as a proxy to the
+ * {@link AttributeMap}s and their {@link AttributeMapEntry}
+ * 
+ * @since 0.0.13
+ */
 public final class ExperienceEntry extends PrimaryAttributeEntry {
     
     private Level level;
     
+    /**
+     * Construct new {@link AttributeMapEntry} for the
+     * {@link PrimaryAttribute#EXPERIENCE} with the default level implementation.
+     * 
+     * @param initialValue
+     */
     ExperienceEntry(Number initialValue) {
-        super(PrimaryAttribute.EXPERIENCE, initialValue);
+        this(initialValue, Level.TEMP);
     }
     
-    /**
-     *
-     * @deprecated dropping support of {@link Level} and
-     *             {@link bg.sarakt.characters.Level} as now
-     *             {@link CharacterAttributeMap} would manage leveling of
-     *             {@link Attribute}s and their {@link AttributeMapEntry}
-     */
-    @Deprecated(forRemoval = true, since = "0.0.7")
     ExperienceEntry(Number initialValue, Level level) {
-        super(PrimaryAttribute.EXPERIENCE, initialValue, level);
+        super(PrimaryAttribute.EXPERIENCE, initialValue);
         this.level = level;
     }
     
-    boolean earnExperience(BigInteger amount) {
+    /**
+     * @see bg.sarakt.attributes.levels.Level#earnExperience(BigInteger)
+     */
+    public boolean earnExperience(BigInteger amount) {
         addPermanentBonus(amount);
         return level.earnExperience(amount);
     }
-
-    BigDecimal getValue() { return new BigDecimal(level.currentExperience()); }
     
-    public int currentLevel() {
-        return level.getLevelNumber();
-    }
     /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#addModifier(bg.sarakt.attributes.AttributeModifier)
+     * 
+     * @see bg.sarakt.attributes.levels.Level#currentExperience()
      */
-    @Override
-    public void addModifier(AttributeModifier<PrimaryAttribute> modifier) { /** No-Op **/
+    public BigDecimal currentExperience() {
+        return new BigDecimal(level.currentExperience());
     }
     
     /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#addModifiers(java.util.Collection)
+     * @see bg.sarakt.attributes.levels.Level#getLevelNumber()
      */
-    @Override
-    public void addModifiers(Collection<AttributeModifier<PrimaryAttribute>> modifiers) { /** No-Op **/
-    }
+    public int getLevelNumber() { return level.getLevelNumber(); }
     
     /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#removeModifier(bg.sarakt.attributes.AttributeModifier)
-     */
-    @Override
-    public void removeModifier(AttributeModifier<PrimaryAttribute> modifier) { /** No-Op **/
-    }
-    
-    /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#removeModifiers(java.util.Collection)
-     */
-    @Override
-    public void removeModifiers(Collection<AttributeModifier<PrimaryAttribute>> modifiers) { /** No-Op **/
-    }
-    
-    /**
-     * @see bg.sarakt.attributes.AttributeMapEntry#replaceModifier(bg.sarakt.attributes.AttributeModifier,
-     *      bg.sarakt.attributes.AttributeModifier)
-     */
-    @Override
-    public void replaceModifier(AttributeModifier<PrimaryAttribute> old, AttributeModifier<PrimaryAttribute> newM) { /** No-Op **/
-    }
-    
-    /**
+     * No-Op for now. Later will be implemented with logic according to
+     * {@link Level}
+     * 
      * @see bg.sarakt.attributes.AttributeMapEntry#levelUp()
      */
     @Override
-    public void levelUp() { /** No-Op **/
+    public void levelUp() { /** No-Op for now. NOSONAR **/
     }
-    
     
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#getBaseValue()
      */
     @Override
-    public BigDecimal getBaseValue() { return getValue(); }
+    public BigDecimal getBaseValue() { return currentExperience(); }
     
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#getValueForLayer(bg.sarakt.attributes.ModifierLayer)
      */
     @Override
     public BigDecimal getValueForLayer(ModifierLayer layer) {
-        return getValue();
+        return currentExperience();
     }
     
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#getCurrentValue()
      */
-    // @Override
     @Override
-    public BigDecimal getCurrentValue() { return getValue(); }
+    public BigDecimal getCurrentValue() { return currentExperience(); }
     
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#setLevel(bg.sarakt.attributes.levels.Level)
      */
     @Override
+    @Dummy(since = "0.0.11", to = "UNKNOWN", description = "Workarround until finally get remove Level from the enry")
+    @ForRemoval(expectedRemovalVersion = "UNKNOWN")
     public AttributeMapEntry<PrimaryAttribute> setLevel(Level level) {
-        this.level = level;
-        return this;
+        return updateLevelHierarchy(level);
     }
     
     /**
@@ -128,10 +114,120 @@ public final class ExperienceEntry extends PrimaryAttributeEntry {
      */
     @Override
     public void recalculate() { /** No-Op **/
-        
+    
     }
     
-    public void injectLevel(Level level) {
+    /**
+     * Currently only set the level and serves as duplicate of {@link Deprecated}
+     * {@link AttributeMapEntry#setLevel(Level)} that will be removed. Later may -
+     * or rather will - be repurposed.
+     * 
+     * @param level
+     *            - new level that current {@link ExperienceEntry} would represent.
+     * @return this entry or a new one if necessary.
+     *            
+     * @since 0.0.13
+     */
+    public ExperienceEntry updateLevelHierarchy(Level level) {
         this.level = level;
+        return this;
     }
+    
+    /**
+     * 
+     * @see Level#getUnallocatedPonts()
+     */
+    public int getUnallocatedPonts() { return level.getUnallocatedPonts(); }
+    
+    /**
+     * For now there is no plan to apply any modifiers over the
+     * {@link PrimaryAttribute#EXPERIENCE}. However, in later revision some kind of
+     * a Rested/Tired system which increase or reduce earn experience may be
+     * introduced.
+     * 
+     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#addModifier(bg.sarakt.attributes.AttributeModifier)
+     */
+    @Override
+    public void addModifier(AttributeModifier<PrimaryAttribute> modifier) { /** No-Op **/
+    }
+    
+    /**
+     * For now there is no plan to apply any modifiers over the
+     * {@link PrimaryAttribute#EXPERIENCE}. However, in later revision some kind of
+     * a Rested/Tired system which increase or reduce earn experience may be
+     * introduced.
+     * 
+     * @see bg.sarakt.attributes.AttributeMapEntry#addModifiers(java.util.Collection)
+     */
+    @Override
+    public void addModifiers(Collection<AttributeModifier<PrimaryAttribute>> modifiers) { /** No-Op **/
+    }
+    
+    /**
+     * For now there is no plan to apply any modifiers over the
+     * {@link PrimaryAttribute#EXPERIENCE}. However, in later revision some kind of
+     * a Rested/Tired system which increase or reduce earn experience may be
+     * introduced.
+     * 
+     * @see bg.sarakt.attributes.AttributeMapEntry#removeModifier(bg.sarakt.attributes.AttributeModifier)
+     */
+    @Override
+    public void removeModifier(AttributeModifier<PrimaryAttribute> modifier) { /** No-Op **/
+    }
+    
+    /**
+     * For now there is no plan to apply any modifiers over the
+     * {@link PrimaryAttribute#EXPERIENCE}. However, in later revision some kind of
+     * a Rested/Tired system which increase or reduce earn experience may be
+     * introduced.
+     * 
+     * @see bg.sarakt.attributes.AttributeMapEntry#removeModifiers(java.util.Collection)
+     */
+    @Override
+    public void removeModifiers(Collection<AttributeModifier<PrimaryAttribute>> modifiers) { /** No-Op **/
+    }
+    
+    /**
+     * For now there is no plan to apply any modifiers over the
+     * {@link PrimaryAttribute#EXPERIENCE}. However, in later revision some kind of
+     * a Rested/Tired system which increase or reduce earn experience may be
+     * introduced.
+     * 
+     * @see bg.sarakt.attributes.AttributeMapEntry#replaceModifier(bg.sarakt.attributes.AttributeModifier,
+     *      bg.sarakt.attributes.AttributeModifier)
+     */
+    @Override
+    public void replaceModifier(AttributeModifier<PrimaryAttribute> old, AttributeModifier<PrimaryAttribute> newM) { /** No-Op **/
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + EXPERIENCE.hashCode();
+        result = prime * result + Objects.hash(level);
+        return result;
+    }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if ( !super.equals(obj)) {
+            return false;
+        }
+        if ( !(obj instanceof ExperienceEntry other)) {
+            return false;
+        }
+        return Objects.equals(this.level, other.level);
+    }
+    
 }
+

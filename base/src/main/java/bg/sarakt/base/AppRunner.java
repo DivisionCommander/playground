@@ -8,12 +8,8 @@ import java.util.Arrays;
 import bg.sarakt.attributes.AttributeService;
 import bg.sarakt.attributes.impl.AttributeFactory;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
-import bg.sarakt.attributes.impl.AttributeProvider;
-import bg.sarakt.attributes.impl.Attributes;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
 import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
 import bg.sarakt.base.window.AttributeWindow;
-import bg.sarakt.base.window.CharacterAttributeWindow;
 import bg.sarakt.storing.hibernate.HibernateConf;
 
 import org.hibernate.SessionFactory;
@@ -23,13 +19,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /** Application runner for encapsulating the application. */
 
-@SuppressWarnings("deprecation")
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties(HibernateConf.class)
 @Configuration(proxyBeanMethods =  false)
@@ -49,44 +43,26 @@ public class AppRunner {
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "false");
         SpringApplication.run(AppRunner.class, args);
-        AppRunner runner = new AppRunner();
+        new AppRunner().run();
+        
+    }
+    
+    private void run() throws InvocationTargetException, InterruptedException {
         switch (CONDITION)
         {
-        case 0:
-            attributeFactoryTest(args);
-            break;
-        case 1:
-            main_1(args);
-            break;
         case 2:
             showAttributeWindow();
             break;
         case 3:
             checkBeanAgainstFactory();
             break;
-        case 4:
-            bug4();
-            break;
-        case 5:
-            runner.test1();
+        case 6:
         default:
             System.out.println("unsupported");
             break;
         }
     }
     
-    private static void bug4() {
-        AttributeMapImpl ami = new AttributeMapImpl();
-        
-    }
-    
-    private void test1() {
-        AttributeService factory = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
-        factory.getResourceAttribute().forEach(System.out::println);
-        System.out.println("Secondary");
-    }
-    
-
 
     public static void checkBeanAgainstFactory() {
         AttributeService bean = ApplicationContextProvider.getApplicationContext().getBean(AttributeFactory.class);
@@ -105,24 +81,6 @@ public class AppRunner {
     }
 
 
-    @Deprecated(forRemoval =  true, since ="0.0.7")
-    public static void main_1(String[] args) throws Exception {
-        EventQueue.invokeAndWait(CharacterAttributeWindow::new);
-    }
-
-    @Deprecated(forRemoval = true, since="0.0.7")
-    public static void attributeFactoryTest(String[] args) {
-        System.out.println("HYA DAO");
-        System.out.println(PrimaryAttribute.values());
-        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(HibernateConf.class);
-        // TagsDAO td = new TagsDAO();
-        System.out.println(ctx);
-        // List<TagEntity> findAll = td.findAll();
-        // findAll.forEach(System.out::println);
-
-        AttributeFactory.getInstance().getResourceAttribute().stream().forEach(System.out::println);
-        AttributeFactory.getInstance().getSecondaryAttributes().stream().forEach(System.err::println);
-    }
     @Override
     public String toString() {
         return "AppRunner [sessionFactory="

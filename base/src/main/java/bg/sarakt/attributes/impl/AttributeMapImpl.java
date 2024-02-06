@@ -15,8 +15,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
@@ -27,12 +29,15 @@ import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.base.exceptions.UnsupportedSubtypeException;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.logging.Logger;
 
 import org.springframework.lang.Nullable;
 
 public class AttributeMapImpl implements CharacterAttributeMap{
 
+    private static final Logger LOG = Logger.getLogger();
+    
     /** field <code>UNKNOWN_ATTRIBUTE_SUBTYPE</code> */
     private static final String UNKNOWN_ATTRIBUTE_SUBTYPE = "Unknown attribute subtype";
     private static final boolean USE_OLD_LEVELING          = false;
@@ -40,7 +45,10 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     private final ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>     primaryMap;
     private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry>   resourceMap;
     private final ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> secondaryMap;
-
+    private final AtomicInteger                                                       unallocatedPoints;
+    
+    @Deprecated(since = "0.0.13", forRemoval = true)
+    @ForRemoval(since = "0.0.13", expectedRemovalVersion = ForRemoval.UNKNOWN_VERSION, description = "Will be succeeded by ExperienceEntry in role of level")
     private final Level     lvl;
     private ExperienceEntry experience;
 
@@ -72,17 +80,14 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      */
     public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources,
             Collection<SecondaryAttribute> secondary, Level level) {
-        PrimaryAttributeMap map = new PrimaryAttributeMap(primary);
-        primaryMap = map.setLevel(level);
+        PrimaryAttributeMap map = new PrimaryAttributeMap(level, primary);
+        this.primaryMap = map;
         this.experience = map.getExperienceEntry();
-        this.experience.injectLevel(level);
-        var experience = map.getExperienceEntry();
-        experience.injectLevel(level);
-        resourceMap = new ResourceAttributeMap(primaryMap, resources).setLevel(level);
-        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary).setLevel(level);
+        this.unallocatedPoints = new AtomicInteger(0);
+        resourceMap = new ResourceAttributeMap(primaryMap, resources);
+        secondaryMap = new SecondaryAttributeMap(primaryMap, secondary);
         this.lvl = level;
-        System.out.println(level);
-        System.out.println(experience);
+        setPoints();
         recalculate();
     }
     
@@ -91,7 +96,24 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      * @see bg.sarakt.attributes.CharacterAttributeMap#getLevelNumber()
      */
     @Override
-    public int getLevelNumber() { return this.experience().currentLevel(); }
+    public int getLevelNumber() { return this.experience().getLevelNumber(); }
+    
+    @SuppressWarnings("unchecked")
+    public <A extends Attribute, E extends AttributeMapEntry<A>> E get(A attribute)
+    {
+        switch (attribute)
+        {
+        case PrimaryAttribute pa:
+            return (E) primaryMap.get(pa);
+        case ResourceAttribute ra:
+            return (E) resourceMap.get(ra);
+        case SecondaryAttribute sa:
+            return (E) secondaryMap.get(sa);
+        default:
+            break;
+        }
+        return null;
+    }
     
     private ExperienceEntry experience() {
         return this.experience;
@@ -106,13 +128,35 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         primaryMap.get(pa).addPermanentBonus(value);
         recalculate();
     }
+    
+    /**
+     * @see bg.sarakt.attributes.CharacterAttributeMap#unallocatedPoints()
+     */
+    @Override
+    public int unallocatedPoints() {
+        return unallocatedPoints.get();
+    }
+    
+    /**
+     * @see bg.sarakt.attributes.CharacterAttributeMap#spendUnallocatedPoints(bg.sarakt.attributes.impl.PrimaryAttribute,
+     *      java.math.BigInteger)
+     */
+    @Override
+    public void spendUnallocatedPoints(PrimaryAttribute pa, BigInteger value) {
+        if (unallocatedPoints() < value.intValue()) {
+            throw new IllegalArgumentException("Not enought points to spend!");
+        }
+        addPermanentBonus(pa, value);
+        unallocatedPoints.addAndGet(value.negate().intValue());
+    }
+    
     @Override
     public void earnExperience(BigInteger amount) {
         if (experience().earnExperience(amount)) {
             levelUp();
         }
     }
-
+    
     @Override
     public BigDecimal getBaseValue(Attribute attribute) {
         switch (attribute)
@@ -181,9 +225,10 @@ public class AttributeMapImpl implements CharacterAttributeMap{
 
     @Override
     public void levelUp() {
-        System.out.println("Level Up");
+        LOG.debug("Level Up");
         if (USE_OLD_LEVELING) {
             levelUp_old();
+            LOG.error("Use old leveling system, which is deprecated and undergoing removal.");
             System.out.println(USE_OLD_LEVELING);
             return;
         }
@@ -207,6 +252,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     }
 
     @Deprecated(forRemoval = true, since = "0.0.6")
+    @ForRemoval(since = "0.0.6", expectedRemovalVersion = "0.0.15")
     public void levelUp_old() {
         primaryMap.levelUp();
         resourceMap.levelUp();
@@ -269,6 +315,11 @@ public class AttributeMapImpl implements CharacterAttributeMap{
             Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE + "\t" + am.getAttribute().getClass());
             break;
         }
+    }
+    
+    private void setPoints() {
+        int points = experience().getUnallocatedPonts();
+        unallocatedPoints.addAndGet(points);
     }
 
     private class AttributeMoDWrapper<A extends Attribute> implements AttributeModifier<A> {

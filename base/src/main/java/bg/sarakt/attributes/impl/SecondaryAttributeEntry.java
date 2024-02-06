@@ -63,7 +63,7 @@ public final class SecondaryAttributeEntry extends AbstractAttributeMapEntry<Sec
             BigDecimal valueForLayer = pa.getValueForLayer(layer);
             values.put(pa.getAttribute(), valueForLayer);
         }
-        AttributeFormula formula = getAttribute().getFormula(experienceEntry.currentLevel());
+        AttributeFormula formula = getAttribute().getFormula(experienceEntry.getLevelNumber());
         return formula.calculate(values);
     }
 

@@ -70,12 +70,12 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     @Deprecated(since = "0.0.12", forRemoval = true)
     @ForRemoval(since = "0.0.12", expectedRemovalVersion = "0.0.15")
     public ResourceAttributeEntry getEntry(AttributeMapEntry<PrimaryAttribute> primaryAttributeEntry) {
-        return new ResourceAttributeEntry(this, primaryAttributeEntry);
+        return new ResourceAttributeEntryImpl(this, primaryAttributeEntry);
     }
     
     @Override
     public ResourceAttributeEntry getEntry(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> map) {
-        return new ResourceAttributeEntry(this, map);
+        return new ResourceAttributeEntryImpl(this, map);
     }
 
     /**
@@ -86,6 +86,7 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
         return getCoefficientForLevel(level.getLevelNumber());
     }
     
+    @Override
     public BigDecimal getCoefficientForLevel(int levelNumber) {
         Entry<Integer, BigDecimal> entry = coefficients.floorEntry(levelNumber);
         if(entry == null) {

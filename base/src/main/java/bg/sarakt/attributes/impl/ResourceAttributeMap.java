@@ -11,11 +11,11 @@ package bg.sarakt.attributes.impl;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.Attribute;
@@ -25,12 +25,12 @@ import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ResourceAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.base.utils.ForRemoval;
 
 public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute, ResourceAttributeEntry> {
 
     private final Map<ResourceAttribute, ResourceAttributeEntry> entries;
-
 
 
     ResourceAttributeMap(ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap, Collection<ResourceAttribute> resource) {
@@ -63,6 +63,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
      *             {@link Attribute}s and their {@link AttributeMapEntry}
      */
     @Deprecated(forRemoval =  true, since ="0.0.7")
+    @ForRemoval(since = "0.0.7", expectedRemovalVersion = "0.0.15")
     ResourceAttributeMap(Level level, Collection<ResourceAttribute> resource, ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> pa) {
         this(resource, pa);
     }
@@ -122,18 +123,32 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
      */
     @Override
     protected void changeModifiers(Collection<AttributeModifier<ResourceAttribute>> modifiers, boolean add) {
-        Set<ResourceAttributeEntry> modified = new HashSet<>();
+        Map<ResourceAttribute, List<AttributeModifier<ResourceAttribute>>> toAdd = new HashMap<>();
+        Map<ResourceAttribute, List<AttributeModifier<ResourceAttribute>>> toRemove = new HashMap<>();
         for (AttributeModifier<ResourceAttribute> m : modifiers) {
-            ResourceAttributeEntry entry = entries.get(m.getAttribute());
             if (add) {
-                entry.addModifier(m, false);
-                modified.add(entry);
+                List<AttributeModifier<ResourceAttribute>> list = toAdd.get(m.getAttribute());
+                if (list == null) {
+                    list = new LinkedList<>();
+                    toAdd.put(m.getAttribute(), list);
+                }
+                list.add(m);
             } else {
-                entry.removeModifier(m, false);
-                modified.add(entry);
+                List<AttributeModifier<ResourceAttribute>> list = toRemove.get(m.getAttribute());
+                if (list == null) {
+                    list = new LinkedList<>();
+                    toAdd.put(m.getAttribute(), list);
+                }
+                list.add(m);
             }
         }
-        modified.stream().forEach(ResourceAttributeEntry::recalculate);
+        for (var e : toRemove.entrySet()) {
+            entries.get(e.getKey()).removeModifiers(e.getValue());
+        }
+        
+        for (var e : toAdd.entrySet()) {
+            entries.get(e.getKey()).addModifiers(e.getValue());
+        }
     }
 
     /**
@@ -154,8 +169,13 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     
     /**
      * @see bg.sarakt.attributes.ModifiableAttributeMap#setLevel(bg.sarakt.attributes.levels.Level)
+     * 
+     * @deprecated for removal
      */
     @Override
+    @Deprecated(forRemoval = true)
+    @Dummy(since = "0.0.11", to = "0.0.13", description = "Workarround until finally get remove Level from the enry")
+    @ForRemoval(expectedRemovalVersion = "0.0.15")
     public ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry> setLevel(Level level) {
         entries.values().forEach(rae -> rae.setLevel(level));
         return this;

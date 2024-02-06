@@ -49,6 +49,7 @@ public enum PrimaryAttribute implements Attribute
         /**
          * @see bg.sarakt.attributes.impl.PrimaryAttribute#getEntry(java.lang.Number,
          *      bg.sarakt.attributes.levels.Level)
+         * 
          * @deprecated due to continuous efforts to handle leveling mechanism to
          *             {@link CharacterAttributeMap} and remove {@link Level} from all
          *             {@link AttributeMapEntry}

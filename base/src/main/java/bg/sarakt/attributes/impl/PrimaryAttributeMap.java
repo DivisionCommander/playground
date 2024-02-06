@@ -9,8 +9,8 @@
 package bg.sarakt.attributes.impl;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,6 +26,7 @@ import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.base.utils.ForRemoval;
 
 public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> implements Iterable<PrimaryAttributeEntry> {
 
@@ -54,37 +55,62 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
 
     /**
      * Construct new {@link PrimaryAttributeMap}
+     * 
+     * Introducing the {@link PrimaryAttribute#EXPERIENCE} once more made this
+     * constructor actual. However, due to its deprecation and as it is marked for
+     * removal, please use
+     * {@link PrimaryAttributeMap#PrimaryAttributeMap(Level, Map)}
      *
      *
      * @param valuesArg
      *            if is null, map will be populated with default values;
      * @param level
+     *            
      * @deprecated dropping support of {@link Level} and
      *             {@link bg.sarakt.characters.Level} as now
      *             {@link CharacterAttributeMap} would manage leveling of
      *             {@link Attribute}s and their {@link AttributeMapEntry}
      */
     @Deprecated(forRemoval = true, since = "0.0.7")
+    @ForRemoval(since = "0.0.7", expectedRemovalVersion = "0.0.15")
     public PrimaryAttributeMap(@Nullable Map<PrimaryAttribute, Number> valuesArg, Level level) {
-        this(valuesArg);
+        this(level, valuesArg);
     }
 
     /**
      * Construct new {@link PrimaryAttributeMap}
-     *
+     * 
+     * Introducing of the {@link PrimaryAttribute#EXPERIENCE} requires the actual
+     * level structure. However, if it is not provided
+     * 
+     * @param levelArg
+     *            if not provided will use default
+     * @param attrValues
+     */
+    public PrimaryAttributeMap(@Nullable Level levelArg, @Nullable Map<PrimaryAttribute, Number> attrValues) {
+        super();
+        Level level = levelArg == null ? Level.TEMP : levelArg;
+        entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
+        var values = attrValues == null ? defaultValues() : attrValues;
+        for (var e : values.entrySet()) {
+            PrimaryAttribute pa = e.getKey();
+            var pae = pa == PrimaryAttribute.EXPERIENCE ? new ExperienceEntry(e.getValue(), level) : pa.getEntry(e.getValue());
+            pae.recalculate();
+            entries[pa.ordinal()] = pae;
+        }
+    }
+    
+    /**
+     * Construct new {@link PrimaryAttributeMap}
+     * 
      *
      * @param valuesArg
      *            if is null, map will be populated with default values;
      */
+    @Deprecated(since = "0.0.13", forRemoval = true)
+    @ForRemoval(since = "0.0.13", expectedRemovalVersion = "0.0.15", description = "The experience primary attribute may needs level")
     public PrimaryAttributeMap(@Nullable Map<PrimaryAttribute, Number> valuesArg) {
-        super();
-        entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
-        Map<PrimaryAttribute, Number> values = valuesArg == null ? Collections.emptyMap() : valuesArg;
-        for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
-            Number value = values.getOrDefault(pa, PrimaryAttributeEntry.getDefaultValue());
-            entries[pa.ordinal()] = pa.getEntry(value);
-            entries[pa.ordinal()].recalculate();
-        }
+        this(null, valuesArg);
     }
 
     @Override
@@ -190,5 +216,14 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
         }
         return null;
         
+    }
+    
+    public static Map<PrimaryAttribute, Number> defaultValues() {
+        Map<PrimaryAttribute, Number> map = new EnumMap<>(PrimaryAttribute.class);
+        for (PrimaryAttribute pa : PrimaryAttribute.getAllPrimaryAttributes()) {
+            map.put(pa, PrimaryAttributeEntry.getDefaultValue());
+        }
+        map.put(PrimaryAttribute.EXPERIENCE, BigInteger.ZERO);
+        return map;
     }
 }

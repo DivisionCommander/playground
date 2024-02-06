@@ -26,6 +26,8 @@ import java.lang.annotation.Target;
 public @interface ForRemoval
 {
     
+    String UNKNOWN_VERSION = "UNKNOWN";
+    
     /**
      * Returns the version in which the annotated element became deprecated.
      *
@@ -33,7 +35,7 @@ public @interface ForRemoval
      * 
      * @see Deprecated#since()
      */
-    String since() default "";
+    String since() default UNKNOWN_VERSION;
     
     /**
      * Returns the version in which the annotated element is expected to be removed;
