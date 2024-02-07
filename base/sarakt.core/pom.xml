@@ -9,7 +9,7 @@
     </parent>
     <packaging>jar</packaging>
     <artifactId>sarakt.core</artifactId>
-    <version>0.0.15</version>
+    <version>0.0.16</version>
     <name>Core elements</name>
     <description>Core elements of the project</description>
 
@@ -35,9 +35,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.2.2</version>
                 <configuration>
                     <mainClass>${mainclass}</mainClass>
+                    <outputDirectory>${project.parent.basedir}/target/executable</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
