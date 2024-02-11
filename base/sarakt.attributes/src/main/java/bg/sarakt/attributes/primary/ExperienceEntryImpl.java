@@ -6,24 +6,29 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.primary;
 
-import static bg.sarakt.attributes.impl.PrimaryAttribute.EXPERIENCE;
+import static bg.sarakt.attributes.primary.PrimaryAttribute.EXPERIENCE;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMap;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
+import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
-import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.attributes.levels.LevelUp;
 import bg.sarakt.base.utils.ForRemoval;
+
+import org.springframework.lang.Nullable;
 
 /**
  * Later, it may implement {@link Level} and serves as a proxy to the
@@ -31,7 +36,7 @@ import bg.sarakt.base.utils.ForRemoval;
  * 
  * @since 0.0.13
  */
-public final class ExperienceEntry extends PrimaryAttributeEntry
+public final class ExperienceEntryImpl extends PrimaryAttributeEntry implements ExperienceEntry
 {
     private Level level;
     
@@ -41,35 +46,50 @@ public final class ExperienceEntry extends PrimaryAttributeEntry
      * 
      * @param initialValue
      */
-    ExperienceEntry(Number initialValue) {
-        this(initialValue, Level.TEMP);
+    ExperienceEntryImpl(Number initialValue) {
+        this(initialValue, Level.DEFAULT_LEVEL);
     }
     
-    ExperienceEntry(Number initialValue, Level level) {
-        super(PrimaryAttribute.EXPERIENCE, initialValue);
+    public ExperienceEntryImpl(Number initialValue, Level level) {
+        super(EXPERIENCE, initialValue);
         this.level = level;
     }
     
     /**
-     * @see bg.sarakt.attributes.levels.Level#earnExperience(BigInteger)
+     * @see bg.sarakt.attributes.levels.Level#gainExperience(java.math.BigInteger)
      */
+    @Override
+    public LevelUp gainExperience(BigInteger amount) {
+        return level.gainExperience(amount);
+    }
+    
+    /**
+     * @see bg.sarakt.attributes.levels.Level#earnExperience(BigInteger)
+     * 
+     * @deprecated use {@link Level#gainExperience(BigInteger)} instead
+     */
+    @Override
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.10")
     public boolean earnExperience(BigInteger amount) {
         addPermanentBonus(amount);
-        return level.earnExperience(amount);
+        return level.gainExperience(amount).levelUp();
     }
     
     /**
      * 
      * @see bg.sarakt.attributes.levels.Level#currentExperience()
      */
-    public BigDecimal currentExperience() {
-        return new BigDecimal(level.currentExperience());
+    @Override
+    public BigInteger currentExperience() {
+        return level.currentExperience();
     }
     
     /**
      * @see bg.sarakt.attributes.levels.Level#getLevelNumber()
      */
-    public int getLevelNumber() { return level.getLevelNumber(); }
+    @Override
+    public Integer getLevelNumber() { return level.getLevelNumber(); }
     
     /**
      * No-Op for now. Later will be implemented with logic according to
@@ -84,21 +104,21 @@ public final class ExperienceEntry extends PrimaryAttributeEntry
      * @see bg.sarakt.attributes.AttributeMapEntry#getBaseValue()
      */
     @Override
-    public BigDecimal getBaseValue() { return currentExperience(); }
+    public BigDecimal getBaseValue() { return getCurrentValue(); }
     
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#getValueForLayer(bg.sarakt.attributes.ModifierLayer)
      */
     @Override
     public BigDecimal getValueForLayer(ModifierLayer layer) {
-        return currentExperience();
+        return getCurrentValue();
     }
     
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#getCurrentValue()
      */
     @Override
-    public BigDecimal getCurrentValue() { return currentExperience(); }
+    public BigDecimal getCurrentValue() { return new BigDecimal(level.currentExperience()); }
     /**
      * @see bg.sarakt.attributes.AttributeMapEntry#recalculate()
      */
@@ -113,29 +133,37 @@ public final class ExperienceEntry extends PrimaryAttributeEntry
      * or rather will - be repurposed.
      * 
      * @param level
-     *            - new level that current {@link ExperienceEntry} would represent.
+     *            - new level that current {@link ExperienceEntryImpl} would represent.
      * @return this entry or a new one if necessary.
      *            
      * @since 0.0.13
      */
-    public ExperienceEntry updateLevelHierarchy(Level level) {
+    public ExperienceEntryImpl updateLevelHierarchy(Level level) {
         this.level = level;
         return this;
     }
     
     /**
      * 
-     * @see Level#getUnallocatedPonts()
+     * @see Level#getUnallocatedPoints()
      */
-    public int getUnallocatedPonts() { return level.getUnallocatedPonts(); }
+    @Override
+    public int getUnallocatedPoints() { return level.getUnallocatedPoints(); }
     
+    /**
+     * @see bg.sarakt.attributes.levels.LevelNode#experienceThreshold()
+     */
+    @Override
+    public BigInteger experienceThreshold() {
+        return level.experienceThreshold();
+    }
     /**
      * For now there is no plan to apply any modifiers over the
      * {@link PrimaryAttribute#EXPERIENCE}. However, in later revision some kind of
      * a Rested/Tired system which increase or reduce earn experience may be
      * introduced.
      * 
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#addModifier(bg.sarakt.attributes.AttributeModifier)
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMapEntry#addModifier(bg.sarakt.attributes.AttributeModifier)
      */
     @Override
     public void addModifier(AttributeModifier<PrimaryAttribute> modifier) { /** No-Op **/
@@ -213,7 +241,7 @@ public final class ExperienceEntry extends PrimaryAttributeEntry
         if ( !super.equals(obj)) {
             return false;
         }
-        if ( !(obj instanceof ExperienceEntry other)) {
+        if ( !(obj instanceof ExperienceEntryImpl other)) {
             return false;
         }
         return Objects.equals(this.level, other.level);
@@ -221,23 +249,48 @@ public final class ExperienceEntry extends PrimaryAttributeEntry
 
     /**
      * @see bg.sarakt.attributes.levels.Level#getPermanentBonuses()
+     * 
+     * @deprecated use {@link LevelNode#getAllModifiers()} filtered by
+     *             {@link ModifierType#PRIMARY_PERMANENT}
      */
-    public Map<PrimaryAttribute, BigInteger> getPermanentBonuses() { return level.getPermanentBonuses();}
-
+    @Override
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.10")
+    public Map<PrimaryAttribute, BigInteger> getPermanentBonuses() { return level.getPermanentBonuses(); }
+    
     /**
      * @see bg.sarakt.attributes.levels.Level#viewPreviousLevel()
+     * 
+     * @deprecated Use {@link LevelNode#getPreviousNode()}
      */
-    public LevelNode viewPreviousLevel() { return level.viewPreviousLevel();}
-
+    @Override
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.10")
+    public LevelNode viewPreviousLevel() {
+        return level.viewPreviousLevel();
+    }
+    
     /**
      * @see bg.sarakt.attributes.levels.Level#viewCurrentLevel()
+     * 
      */
+    @Override
     public LevelNode viewCurrentLevel() {return level.viewCurrentLevel();    }
 
     /**
-     * @see bg.sarakt.attributes.levels.Level#viewNextLevel()
+     * @deprecated Use {@link LevelNode#getNextNode()} instead.
      */
-    public LevelNode viewNextLevel() { return level.viewNextLevel();} 
-    
+    @Override
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
+    @Nullable
+    public LevelNode viewNextLevel() {
+        return level.viewNextLevel();
+    }
+    /**
+     * @see bg.sarakt.attributes.levels.Level#getAllModifiers()
+     */
+    @Override
+    public List<AttributeModifier<Attribute>> getAllModifiers() { return level.getAllModifiers(); }
 }
 

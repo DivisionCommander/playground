@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.resources;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -20,14 +20,16 @@ import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifiableAttributeMap;
-import bg.sarakt.attributes.ResourceAttribute;
+import bg.sarakt.attributes.internal.AbstractAttributeMap;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
 
 public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAttribute, ResourceAttributeEntry> {
 
     private final Map<ResourceAttribute, ResourceAttributeEntry> entries;
 
 
-    ResourceAttributeMap(ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap, Collection<ResourceAttribute> resource) {
+    public ResourceAttributeMap(ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primaryMap, Collection<ResourceAttribute> resource) {
         super();
         this.entries = new HashMap<>();
         for (ResourceAttribute r : resource) {
@@ -37,7 +39,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#get(bg.sarakt.attributes.Attribute)
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#get(bg.sarakt.attributes.Attribute)
      */
     @Override
     public ResourceAttributeEntry get(ResourceAttribute attr) {
@@ -45,7 +47,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#changeModifiers(java.util.Collection,
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#changeModifiers(java.util.Collection,
      *      boolean)
      */
     @Override
@@ -79,7 +81,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#getAllValues()
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#getAllValues()
      */
     @Override
     public Map<ResourceAttribute, BigDecimal> getAllValues() {
@@ -87,7 +89,7 @@ public final class ResourceAttributeMap extends AbstractAttributeMap<ResourceAtt
     }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#iterator()
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#iterator()
      */
     @Override
     public Iterator<ResourceAttributeEntry> iterator() {

@@ -6,12 +6,14 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.internal;
 
 import java.io.Serializable;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeGroup;
+import bg.sarakt.attributes.resources.impl.ResourceAttributeImpl;
+import bg.sarakt.attributes.secondary.impl.SecondaryAttributeImpl;
 
 public abstract sealed class AbstractAttribute implements Attribute, Serializable permits ResourceAttributeImpl, SecondaryAttributeImpl {
 
@@ -82,4 +84,32 @@ public abstract sealed class AbstractAttribute implements Attribute, Serializabl
         return sb.toString();
     }
 
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        int prime = 37;
+        Long result = 0L;
+        result += fullName.hashCode();
+        result = prime * result + id;
+        result = prime * result + group.hashCode();
+        
+        return result.intValue();
+    }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Attribute att) {
+            return this.fullName.equalsIgnoreCase(att.fullName());
+        }
+        return false;
+    }
+    
 }

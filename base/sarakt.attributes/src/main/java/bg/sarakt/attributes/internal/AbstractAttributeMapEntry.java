@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.internal;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,12 +24,19 @@ import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
+import bg.sarakt.attributes.resources.impl.ResourceAttributeEntryImpl;
+import bg.sarakt.attributes.secondary.impl.SecondaryAttributeEntryImpl;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.exceptions.SaraktRuntimeException;
+import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.logging.Logger;
 
 public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> implements AttributeMapEntry<T>
-        permits PrimaryAttributeEntry, ResourceAttributeEntryImpl, SecondaryAttributeEntry {
+        permits PrimaryAttributeEntry, ResourceAttributeEntryImpl, SecondaryAttributeEntryImpl {
+
+    /** field <code>NO_MODIFIERS_TO_APPLY</code> */
+    private static final String NO_MODIFIERS_TO_APPLY = "No modifiers to apply";
 
     protected static final Logger LOG     = Logger.getLogger();
 
@@ -63,13 +70,15 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
     @Override
     public void addModifiers(Collection<AttributeModifier<T>> modifiers) {
         if (modifiers == null || modifiers.isEmpty()) {
-            // TODO: some better handling;
+            LOG.debug(NO_MODIFIERS_TO_APPLY);
             return;
         }
         ModifierLayer layer = ModifierLayer.getHighestLayer();
         for (AttributeModifier<T> mod : modifiers) {
+            if (AttributeModifier.isValid(mod)) {
             addModifier(mod, false);
-            layer = layer.checkLower(mod.getLayer());
+                layer = layer.checkLower(mod.getLayer());
+            }
         }
         recalculate(layer);
     }
@@ -77,13 +86,15 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
     @Override
     public void removeModifiers(Collection<AttributeModifier<T>> modifiers) {
         if (modifiers == null || modifiers.isEmpty()) {
-            // TODO: some better handling;
+            LOG.debug(NO_MODIFIERS_TO_APPLY);
             return;
         }
         ModifierLayer layer = ModifierLayer.getHighestLayer();
         for (AttributeModifier<T> mod : modifiers) {
-            removeModifier(mod, false);
-            layer = layer.checkLower(mod.getLayer());
+            if (AttributeModifier.isValid(mod)) {
+                removeModifier(mod, false);
+                layer = layer.checkLower(mod.getLayer());
+            }
         }
         recalculate(layer);
     }
@@ -95,19 +106,22 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
 
     @Override
     public void replaceModifier(AttributeModifier<T> old, AttributeModifier<T> newM) {
-        boolean recalculate = false;
+        if (old == null && newM == null) {
+            LOG.debug(NO_MODIFIERS_TO_APPLY);
+            return;
+        }
+        ModifierLayer oldLayer = null;
+        ModifierLayer newLayer = null;
         if (old != null) {
             removeModifier(old, false);
-            recalculate = true;
+            oldLayer = old.getLayer();
         }
         if (newM != null) {
             addModifier(newM, false);
-            recalculate = true;
+            newLayer = newM.getLayer();
         }
-        if (recalculate) {
-            ModifierLayer layer = ModifierLayer.checkLower(old.getLayer(), newM.getLayer()).get();
-            recalculate(layer);
-        }
+        Optional<ModifierLayer> layer = ModifierLayer.checkLower(oldLayer, newLayer);
+        recalculate(layer.orElse(ModifierLayer.getLowestLayer()));
     }
 
     @Override
@@ -138,7 +152,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
         List<Modifier> modifiersPerLayer = modifiers.get(modifier.getLayer());
         Modifier pair = new Modifier(modifier);
         if ( !modifiersPerLayer.contains(pair)) {
-            // FIXME: better handling
+            LOG.error("No such modifier appied!");
             throw new SaraktRuntimeException();
         }
         modifiersPerLayer.remove(pair);
@@ -199,7 +213,7 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
 
     private BigDecimal applyModifiers0(BigDecimal baseValue, BigDecimal flat, BigDecimal coefficient) {
 
-        // result = (base * coefficient) + flat + base;
+        // result = (base * coefficient) + flat + base
         BigDecimal result = baseValue.multiply(coefficient);
         result = result.add(flat);
         result = result.add(baseValue);
@@ -249,4 +263,10 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
                + "]";
     }
     
+    protected void doValidate(AttributeModifier<T> modifier) {
+        if ( !AttributeModifier.isValid(modifier)) {
+            // TODO: Introduce new exception in sarakt.base module
+            throw new UnknownValueException(NO_MODIFIERS_TO_APPLY);
+        }
+    }
 }

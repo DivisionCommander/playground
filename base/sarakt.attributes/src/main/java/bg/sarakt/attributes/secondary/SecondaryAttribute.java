@@ -6,13 +6,15 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes;
+package bg.sarakt.attributes.secondary;
 
-import bg.sarakt.attributes.impl.PrimaryAttribute;
-import bg.sarakt.attributes.impl.PrimaryAttributeEntry;
-import bg.sarakt.attributes.impl.SecondaryAttributeEntry;
-import bg.sarakt.attributes.impl.SecondaryAttributeImpl;
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeFormula;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
+import bg.sarakt.attributes.secondary.impl.SecondaryAttributeImpl;
 
 public sealed interface SecondaryAttribute extends Attribute, Comparable<Attribute> permits SecondaryAttributeImpl {
 

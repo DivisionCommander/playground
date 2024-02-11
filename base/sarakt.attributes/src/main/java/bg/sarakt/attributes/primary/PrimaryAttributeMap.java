@@ -6,27 +6,24 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.primary;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.lang.Nullable;
-
-import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
-import bg.sarakt.attributes.CharacterAttributeMap;
-import bg.sarakt.attributes.ModifiableAttributeMap;
-import bg.sarakt.attributes.ModifierLayer;
+import bg.sarakt.attributes.ModifierType;
+import bg.sarakt.attributes.internal.AbstractAttributeMap;
 import bg.sarakt.attributes.levels.Level;
-import bg.sarakt.base.utils.ForRemoval;
+
+import org.springframework.lang.Nullable;
 
 public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> implements Iterable<PrimaryAttributeEntry> {
 
@@ -55,39 +52,51 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
      */
     public PrimaryAttributeMap(@Nullable Level levelArg, @Nullable Map<PrimaryAttribute, Number> attrValues) {
         super();
-        Level level = levelArg == null ? Level.TEMP : levelArg;
+        Level level = levelArg == null ? Level.DEFAULT_LEVEL : levelArg;
         entries = new PrimaryAttributeEntry[PrimaryAttribute.count()];
         var values = attrValues == null ? defaultValues() : attrValues;
         for (var e : values.entrySet()) {
             PrimaryAttribute pa = e.getKey();
-            var pae = pa == PrimaryAttribute.EXPERIENCE ? new ExperienceEntry(e.getValue(), level) : pa.getEntry(e.getValue());
+            var pae = pa == PrimaryAttribute.EXPERIENCE ? new ExperienceEntryImpl(e.getValue(), level) : pa.getEntry(e.getValue());
             pae.recalculate();
             entries[pa.ordinal()] = pae;
         }
     }
-
+    
+    /**
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#addModifier(bg.sarakt.attributes.AttributeModifier)
+     */
+    @Override
+    public void addModifier(AttributeModifier<PrimaryAttribute> modifier) {
+        if (modifier.getBonusType() == ModifierType.PRIMARY_PERMANENT) {
+            entries[modifier.getAttribute().ordinal()].addPermanentBonus(modifier.getValue());
+            return;
+        }
+        super.addModifier(modifier);
+    }
+    
     @Override
     protected void changeModifiers(Collection<AttributeModifier<PrimaryAttribute>> modifiers, boolean add) {
-        ModifierLayer[] layerFlag = new ModifierLayer[entries.length];
-
-        for (AttributeModifier<PrimaryAttribute> mod : modifiers) {
+        ModifierWrapper[] mods = new ModifierWrapper[entries.length];
+        for (var mod : modifiers) {
             int index = mod.getAttribute().ordinal();
-            if (add) {
-
-                entries[index].addModifier(mod, false);
-            } else {
-                entries[index].removeModifier(mod, false);
+            if (mods[index] == null) {
+                mods[index] = new ModifierWrapper();
             }
-            layerFlag[index] = mod.getLayer().checkLower(layerFlag[index]);
+            mods[index].add(mod);
         }
-
-        for (int index = 0; index < layerFlag.length; index++) {
-            if (layerFlag[index] != null) {
-                entries[index].recalculate(layerFlag[index]);
+        for (int index = 0; index < entries.length; index++) {
+            var mod = mods[index];
+            if (mod != null && !mod.isEmpty()) {
+                if (add) {
+                    entries[index].addModifiers(mod.mods);
+                } else {
+                    entries[index].removeModifiers(mod.mods);
+                }
             }
         }
     }
-
+    
     /**
      * @see bg.sarakt.attributes.impl.AttributeMapImpl#get(bg.sarakt.attributes.Attribute)
      */
@@ -143,9 +152,9 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
     }
     
     
-    public ExperienceEntry getExperienceEntry() {
+    public ExperienceEntryImpl getExperienceEntry() {
         PrimaryAttributeEntry primaryAttributeEntry = get(PrimaryAttribute.EXPERIENCE);
-        if (primaryAttributeEntry instanceof ExperienceEntry ee) {
+        if (primaryAttributeEntry instanceof ExperienceEntryImpl ee) {
             return ee;
         }
         return null;
@@ -159,5 +168,16 @@ public final class PrimaryAttributeMap extends AbstractAttributeMap<PrimaryAttri
         }
         map.put(PrimaryAttribute.EXPERIENCE, BigInteger.ZERO);
         return map;
+    }
+    
+    private class ModifierWrapper {
+        
+        private Collection<AttributeModifier<PrimaryAttribute>> mods = new LinkedList<>();
+        
+        private boolean add(AttributeModifier<PrimaryAttribute> mod) {
+            return this.mods.add(mod);
+        }
+        
+        public boolean isEmpty() { return mods.isEmpty(); }
     }
 }

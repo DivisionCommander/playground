@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.base.utils.Dummy;
 
 @Dummy

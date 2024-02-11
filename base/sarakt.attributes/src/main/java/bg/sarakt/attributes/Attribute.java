@@ -11,8 +11,10 @@ package bg.sarakt.attributes;
 import java.util.Comparator;
 
 import bg.sarakt.attributes.AttributeGroup.BaseAttribute;
-import bg.sarakt.attributes.impl.AbstractAttribute;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.internal.AbstractAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.secondary.SecondaryAttribute;
 
 public sealed interface Attribute permits PrimaryAttribute, ResourceAttribute, SecondaryAttribute, AbstractAttribute, BaseAttribute {
 

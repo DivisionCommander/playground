@@ -1,13 +1,27 @@
 module sarakt.attributes {
     
+    opens bg.sarakt to spring.core;
+    opens bg.sarakt.attributes to spring.core;
     opens bg.sarakt.attributes.impl to spring.core, com.fasterxml.jackson.databind;
+    
+    exports bg.sarakt to spring.beans, spring.context;
+    
+    opens bg.sarakt.attributes.levels.simple;
+    opens bg.sarakt.attributes.resources.impl;
+    opens bg.sarakt.attributes.secondary.impl;
+    opens bg.sarakt.attributes.utils;
     
     exports bg.sarakt.attributes;
     exports bg.sarakt.attributes.impl;
     exports bg.sarakt.attributes.levels;
     exports bg.sarakt.attributes.levels.impl;
+    exports bg.sarakt.attributes.primary;
+    exports bg.sarakt.attributes.secondary;
+    exports bg.sarakt.attributes.resources;
     exports bg.sarakt.attributes.services;
     exports bg.sarakt.attributes.utils;
+    
+    requires org.hibernate.orm.core;
     
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
@@ -15,6 +29,9 @@ module sarakt.attributes {
     requires sarakt.base;
     requires sarakt.logging;
     requires spring.beans;
-    requires spring.context;
     requires spring.core;
+    requires spring.boot;
+    requires spring.boot.autoconfigure;
+    requires java.instrument;
+    requires spring.context;
 }

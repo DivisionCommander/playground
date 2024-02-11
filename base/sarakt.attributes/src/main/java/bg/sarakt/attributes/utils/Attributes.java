@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.utils;
 
 /**
  * Manually sort members and split them into groups... somehow
@@ -109,4 +109,17 @@ public interface Attributes {
     String NAME_RESISTANCE       = "Resistance";
     String NAME_SPIRIT           = "Spirit";
     String NAME_VIGOUR           = "Vigour";
+    
+    // Attribute Group
+    String NAME_PHYSICAL  = "Physique";
+    String NAME_PSYCHICAL = "Psyche";
+    String NAME_PERSON    = "Personality";
+    
+    String ABBR_PHYSICAL  = "PH";
+    String ABBR_PSYCHICAL = "PS";
+    String ABBR_PERSON    = "PN";
+    
+    String DESC_PHYSICAL  = "";
+    String DESC_PSYCHICAL = "Ability to continue works under stress.";
+    String DESC_PERSON    = "Sliders that hold information about person";
 }

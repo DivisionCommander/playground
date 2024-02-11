@@ -10,13 +10,7 @@ package bg.sarakt.attributes;
 
 import java.util.Collection;
 
-import bg.sarakt.base.utils.ForRemoval;
-
 public interface ModifiableAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> extends IterableAttributeMap<A, E>{
-
-    @Override
-    @ForRemoval(expectedRemovalVersion = "0.0.12", description = "already moved in super interface, soon will be removed")
-    E get(A attribute);
 
     void addModifier(AttributeModifier<A> modifier);
 

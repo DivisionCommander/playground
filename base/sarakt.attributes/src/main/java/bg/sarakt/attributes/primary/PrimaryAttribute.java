@@ -6,17 +6,14 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.primary;
 
 import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeGroup;
-import bg.sarakt.attributes.AttributeMapEntry;
-import bg.sarakt.attributes.CharacterAttributeMap;
-import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.utils.Attributes;
 import bg.sarakt.base.exceptions.UnknownValueException;
-import bg.sarakt.base.utils.ForRemoval;
 
 
 public enum PrimaryAttribute implements Attribute
@@ -39,11 +36,11 @@ public enum PrimaryAttribute implements Attribute
     {
         
         /**
-         * @see bg.sarakt.attributes.impl.PrimaryAttribute#getEntry(java.lang.Number)
+         * @see bg.sarakt.attributes.primary.PrimaryAttribute#getEntry(java.lang.Number)
          */
         @Override
-        public ExperienceEntry getEntry(Number initialValue) {
-            return new ExperienceEntry(initialValue);
+        public ExperienceEntryImpl getEntry(Number initialValue) {
+            return new ExperienceEntryImpl(initialValue);
         }
     },
     ;

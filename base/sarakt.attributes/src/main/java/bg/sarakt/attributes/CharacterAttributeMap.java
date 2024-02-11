@@ -9,7 +9,7 @@ package bg.sarakt.attributes;
 
 import java.math.BigInteger;
 
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
 
 public interface CharacterAttributeMap extends AttributeMap<Attribute> {
     

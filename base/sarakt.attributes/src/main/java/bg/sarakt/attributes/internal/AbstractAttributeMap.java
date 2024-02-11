@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.internal;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -19,32 +19,17 @@ import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
+import bg.sarakt.attributes.primary.PrimaryAttributeMap;
+import bg.sarakt.attributes.resources.ResourceAttributeMap;
+import bg.sarakt.attributes.secondary.SecondaryAttributeMap;
 
 public abstract sealed class AbstractAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> implements ModifiableAttributeMap<A, E>
         permits PrimaryAttributeMap, ResourceAttributeMap, SecondaryAttributeMap {
 
-    AbstractAttributeMap() {}
+    protected AbstractAttributeMap() {}
 
     @Override
     public abstract E get(A attr);
-
-
-    /**
-     * considering @{link AttributeMap} extends {@link Map} with lock immediately after populating the map.
-    * @formatter:off
-    public boolean isEmpty() {return false;}
-    public abstract size();
-    public abstract containsKey(Object key);
-    public boolean containsValue(Object value) {throw new UnsupportedOperationException();}
-    public E put(A key, E value) {throw new UnsupportedOperationException();}
-    public E remove (Object key) {throw new UnsupportedOperationException();}
-    public void putAll(Map<? extends A, ? extends E> map) {throw new UnsupportedOperationException();}
-    public void clear() {throw new UnsupportedOperationException();}
-    public abstract Set<A> keySet();
-    public abstract Collection<E> values();
-    public Abstract Set<Entry<A, E>> entrySet();
-      @formatter:on
-    */
 
     protected abstract void changeModifiers(Collection<AttributeModifier<A>> modifiers, boolean add);
 

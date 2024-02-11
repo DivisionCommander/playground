@@ -6,35 +6,30 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.secondary;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
-import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.IterableAttributeMap;
-import bg.sarakt.attributes.ModifiableAttributeMap;
-import bg.sarakt.attributes.ModifierLayer;
-import bg.sarakt.attributes.SecondaryAttribute;
-import bg.sarakt.attributes.levels.Level;
-import bg.sarakt.base.utils.Dummy;
-import bg.sarakt.base.utils.ForRemoval;
+import bg.sarakt.attributes.internal.AbstractAttributeMap;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
 
 public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> {
 
     private final Set<SecondaryAttribute>                          knownAttributes;
     private final Map<SecondaryAttribute, SecondaryAttributeEntry> entries;
 
-    SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Collection<SecondaryAttribute> secondary) {
+    public SecondaryAttributeMap(IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> primary, Collection<SecondaryAttribute> secondary) {
         super();
         knownAttributes = Set.copyOf(secondary);
         entries = new HashMap<>();
@@ -43,7 +38,7 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
 
     /**
      *
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#get(bg.sarakt.attributes.Attribute)
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#get(bg.sarakt.attributes.Attribute)
      */
     @Override
     public SecondaryAttributeEntry get(SecondaryAttribute attr) {
@@ -58,37 +53,27 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
     }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#changeModifiers(java.util.Collection,
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#changeModifiers(java.util.Collection,
      *      boolean)
      */
     @Override
     protected void changeModifiers(Collection<AttributeModifier<SecondaryAttribute>> modifiers, boolean add) {
-        Map<SecondaryAttribute, ModifierLayer> layers = new HashMap<>();
+        
+        Map<SecondaryAttribute, Queue<AttributeModifier<SecondaryAttribute>>> queue = new HashMap<>();
         for (AttributeModifier<SecondaryAttribute> m : modifiers) {
-            if (add) {
-                get(m.getAttribute()).addModifier(m, false);
-            } else {
-                get(m.getAttribute()).removeModifier(m, false);
-            }
-            ModifierLayer lower = m.getLayer().checkLower(layers.get(m.getAttribute()));
-            layers.put(m.getAttribute(), lower);
+            SecondaryAttribute attribute = m.getAttribute();
+            var qu = queue.computeIfAbsent(attribute, e -> new LinkedList<>());
+            qu.add(m);
         }
-        layers.entrySet().parallelStream().filter(this::filterEmpty).forEach(this::doRecalculate);
+        
+        for (var entry : queue.entrySet()) {
+            get(entry.getKey()).addModifiers(entry.getValue());
+        }
     }
 
-    private boolean filterEmpty(Entry<?, ?> entry) {
-        if (entry == null) {
-            return false;
-        }
-        return (entry.getKey() == null || entry.getValue() == null);
-    }
-
-    private void doRecalculate(Entry<SecondaryAttribute, ModifierLayer> entry) {
-        get(entry.getKey()).recalculate(entry.getValue());
-    }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMap#getAllValues()
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMap#getAllValues()
      */
     @Override
     public Map<SecondaryAttribute, BigDecimal> getAllValues() {

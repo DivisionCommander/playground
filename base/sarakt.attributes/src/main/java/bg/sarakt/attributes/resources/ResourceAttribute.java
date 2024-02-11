@@ -6,15 +6,16 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes;
+package bg.sarakt.attributes.resources;
 
 import java.math.BigDecimal;
 
-import bg.sarakt.attributes.impl.PrimaryAttribute;
-import bg.sarakt.attributes.impl.PrimaryAttributeEntry;
-import bg.sarakt.attributes.impl.ResourceAttributeEntry;
-import bg.sarakt.attributes.impl.ResourceAttributeImpl;
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
+import bg.sarakt.attributes.resources.impl.ResourceAttributeImpl;
 
 public sealed interface ResourceAttribute extends Attribute, Comparable<Attribute> permits ResourceAttributeImpl {
     

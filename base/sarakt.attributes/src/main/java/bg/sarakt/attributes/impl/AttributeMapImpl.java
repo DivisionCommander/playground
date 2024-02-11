@@ -18,55 +18,74 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeFactory;
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.CharacterAttributeMap;
 import bg.sarakt.attributes.ModifiableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
-import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
+import bg.sarakt.attributes.levels.LevelUp;
+import bg.sarakt.attributes.primary.ExperienceEntryImpl;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
+import bg.sarakt.attributes.primary.PrimaryAttributeMap;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.resources.ResourceAttributeEntry;
+import bg.sarakt.attributes.resources.ResourceAttributeMap;
+import bg.sarakt.attributes.secondary.SecondaryAttribute;
+import bg.sarakt.attributes.secondary.SecondaryAttributeEntry;
+import bg.sarakt.attributes.secondary.SecondaryAttributeMap;
 import bg.sarakt.base.exceptions.UnsupportedSubtypeException;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 
 public class AttributeMapImpl implements CharacterAttributeMap{
-
+    
+    /** field <code>ADD_MODIFIERS</code> */
+    private static final boolean ADD_MODIFIERS = true;
+    /** field <code>REMOVE_MODIFIERS</code> */
+    private static final boolean REMOVE_MODIFIERS = false;
+    
+    @Value("${use.old.levelling.system:false}")
+    private boolean useOldLevelling = false;
+    
     private static final Logger LOG = Logger.getLogger();
     
     /** field <code>UNKNOWN_ATTRIBUTE_SUBTYPE</code> */
-    private static final String UNKNOWN_ATTRIBUTE_SUBTYPE = "Unknown attribute subtype";
-    private static final boolean USE_OLD_LEVELING          = false;
+    private static final String UNKNOWN_ATTRIBUTE_SUBTYPE_MESSAGE = "Unknown attribute subtype";
     
     private final ModifiableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry>     primaryMap;
     private final ModifiableAttributeMap<ResourceAttribute, ResourceAttributeEntry>   resourceMap;
     private final ModifiableAttributeMap<SecondaryAttribute, SecondaryAttributeEntry> secondaryMap;
     private final AtomicInteger                                                       unallocatedPoints;
     
-    private ExperienceEntry experience;
+    private ExperienceEntryImpl experience;
 
-    public AttributeMapImpl() {
-        this(Level.TEMP);
-    }
+    // public AttributeMapImpl() {
+    // this(Level.DEFAULT_LEVEL);
+    // }
 
-    public AttributeMapImpl(Level level) {
-        this(null, AttributeFactory.getInstance().getSecondaryAttributes(), level);
-    }
-
-    /**
-    *
-    * @param primary if it is null, a default values Will be used.
-    * @param resources
-    * @param secondary
-    * @param level
-    */
-    public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> values, Collection<SecondaryAttribute> secondary, Level level) {
-        this(values, AttributeFactory.getInstance().getResourceAttribute(), secondary, level);
-    }
+    // public AttributeMapImpl(Level level) {
+    // this(null, AttributeFactory.getInstance().getSecondaryAttributes(), level);
+    // }
+    //
+    // /**
+    // *
+    // * @param primary if it is null, a default values Will be used.
+    // * @param resources
+    // * @param secondary
+    // * @param level
+    // */
+    // public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> values,
+    // Collection<SecondaryAttribute> secondary, Level level) {
+    // this(values, AttributeFactory.getInstance().getResourceAttributes(),
+    // secondary, level);
+    // }
 
     /**
      *
@@ -111,12 +130,12 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         return null;
     }
     
-    private ExperienceEntry experience() {
+    private ExperienceEntryImpl experience() {
         return this.experience;
     }
 
     /**
-     * @see bg.sarakt.attributes.CharacterAttributeMap#addPermanentBonus(bg.sarakt.attributes.impl.PrimaryAttribute,
+     * @see bg.sarakt.attributes.CharacterAttributeMap#addPermanentBonus(bg.sarakt.attributes.primary.PrimaryAttribute,
      *      java.math.BigInteger)
      */
     @Override
@@ -134,7 +153,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     }
     
     /**
-     * @see bg.sarakt.attributes.CharacterAttributeMap#spendUnallocatedPoints(bg.sarakt.attributes.impl.PrimaryAttribute,
+     * @see bg.sarakt.attributes.CharacterAttributeMap#spendUnallocatedPoints(bg.sarakt.attributes.primary.PrimaryAttribute,
      *      java.math.BigInteger)
      */
     @Override
@@ -148,9 +167,25 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     
     @Override
     public void earnExperience(BigInteger amount) {
-        if (experience().earnExperience(amount)) {
-            levelUp();
+        if (useOldLevelling) {
+            if (experience().gainExperience(amount).levelUp()) {
+                doLevelUp();
+            }
+            return;
         }
+        
+        LevelUp lvl = experience().gainExperience(amount);
+        levelUp(lvl);
+    }
+    
+    private void levelUp(LevelUp lvl) {
+        if ( !lvl.levelUp()) {
+            return;
+        }
+        BigInteger points = lvl.unallocatedPoints();
+        unallocatedPoints.addAndGet(points.intValue());
+        applyModifiers(lvl.toRemove(), REMOVE_MODIFIERS);
+        applyModifiers(lvl.toAdd(), ADD_MODIFIERS);;
     }
     
     @Override
@@ -164,7 +199,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         case SecondaryAttribute sa:
             return secondaryMap.getBaseValue(sa);
         default:
-            throw new IllegalArgumentException(UNKNOWN_ATTRIBUTE_SUBTYPE);
+            throw new IllegalArgumentException(UNKNOWN_ATTRIBUTE_SUBTYPE_MESSAGE);
         }
     }
 
@@ -183,7 +218,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         case SecondaryAttribute sa:
             return secondaryMap.getAttributeValueForLayer(sa, layer);
         default:
-            throw new UnsupportedSubtypeException(attribute.getClass(), UNKNOWN_ATTRIBUTE_SUBTYPE);
+            throw new UnsupportedSubtypeException(attribute.getClass(), UNKNOWN_ATTRIBUTE_SUBTYPE_MESSAGE);
         }
     }
 
@@ -201,7 +236,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         case SecondaryAttribute sa:
             return secondaryMap.getCurrentAttributeValue(sa);
         default:
-            throw new UnsupportedSubtypeException(attribute.getClass(), UNKNOWN_ATTRIBUTE_SUBTYPE);
+            throw new UnsupportedSubtypeException(attribute.getClass(), UNKNOWN_ATTRIBUTE_SUBTYPE_MESSAGE);
         }
     }
 
@@ -220,19 +255,29 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     }
 
     public void levelUp() {
-        LOG.debug("Level Up");
+        doLevelUp();
+    }
+    
+    /**
+     * @deprecated This way uses the old leveling system that become deprecated in
+     *             version 0.1.x and will be perish.
+     *             
+     */
+    @Deprecated(since = "0.1.0-ALPHA")
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
+    private void doLevelUp() {
+        LOG.debug("Levelling using the old levelling system with is now obsolete.");
 
         LevelNode previous = experience().viewPreviousLevel();
         if (previous != null && !previous.getAllModifiers().isEmpty()) {
-            applyModifiers(previous.getAllModifiers(), false);
+            applyModifiers(previous.getAllModifiers(), REMOVE_MODIFIERS);
             previous.getAllModifiers().forEach(this::removeModifier);
         }
 
         LevelNode next = experience().viewCurrentLevel();
         if (next != null) {
-            next.getPermanentBonuses().entrySet().forEach(e -> primaryMap.get(e.getKey()).addPermanentBonus(e.getValue()));
             if ( !next.getAllModifiers().isEmpty()) {
-                applyModifiers(next.getAllModifiers(), true);
+                applyModifiers(next.getAllModifiers(), ADD_MODIFIERS);
             }
             else {
                 recalculate();
@@ -263,7 +308,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
                 sec.add(new AttributeMoDWrapper<>(modifier, sa));
                 break;
             default:
-                Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE + "\t" + modifier.getAttribute().getClass());
+                Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE_MESSAGE + "\t" + modifier.getAttribute().getClass());
                 break;
             }
         }
@@ -293,13 +338,13 @@ public class AttributeMapImpl implements CharacterAttributeMap{
             break;
         
         default:
-            Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE + "\t" + am.getAttribute().getClass());
+            Logger.getLogger().error(UNKNOWN_ATTRIBUTE_SUBTYPE_MESSAGE + "\t" + am.getAttribute().getClass());
             break;
         }
     }
     
     private void setPoints() {
-        int points = experience().getUnallocatedPonts();
+        int points = experience().getUnallocatedPoints();
         unallocatedPoints.addAndGet(points);
     }
 

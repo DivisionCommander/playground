@@ -6,36 +6,47 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.resources.impl;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeMapEntry;
-import bg.sarakt.attributes.CharacterAttributeMap;
-import bg.sarakt.attributes.IterableAttributeMap;
 import bg.sarakt.attributes.ModifierLayer;
-import bg.sarakt.attributes.ResourceAttribute;
+import bg.sarakt.attributes.internal.AbstractAttributeMapEntry;
 import bg.sarakt.attributes.levels.Level;
-import bg.sarakt.base.utils.ForRemoval;
+import bg.sarakt.attributes.primary.ExperienceEntryImpl;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.resources.ResourceAttributeEntry;
 
 
 public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<ResourceAttribute> implements ResourceAttributeEntry {
 
     private final AttributeMapEntry<PrimaryAttribute> primaryAttribute;
-    private ExperienceEntry                           experienceEntry;
+    private ExperienceEntryImpl                           experienceEntry;
     private BigDecimal                                currentValue = null;
     private BigDecimal                                maxValue     = null;
     
-    ResourceAttributeEntryImpl(ResourceAttribute attribute, IterableAttributeMap<PrimaryAttribute, PrimaryAttributeEntry> attributeMap)
-    {
+    ResourceAttributeEntryImpl(ResourceAttribute attribute, Iterable<PrimaryAttributeEntry> attributeMap) {
         super(attribute);
-        this.primaryAttribute = attributeMap.get(attribute.getPrimaryAttribute());
-        var entry = attributeMap.get(PrimaryAttribute.EXPERIENCE);
-        if (entry instanceof ExperienceEntry ee) {
-            experienceEntry = ee;
+        PrimaryAttribute pa = attribute.getPrimaryAttribute();
+        AttributeMapEntry<PrimaryAttribute> pae = null;
+        ExperienceEntryImpl exp = null;
+        for (var entry : attributeMap) {
+            if (pae == null && entry.getAttribute() == pa) {
+                pae = entry;
+            }
+            if (exp == null && entry.getAttribute() == PrimaryAttribute.EXPERIENCE && entry instanceof ExperienceEntryImpl ee) {
+                exp = ee;
+            }
+            if (pae != null && exp != null) {
+                break;
+            }
         }
+        this.primaryAttribute = pae;
+        this.experienceEntry = exp;
         recalculate();
     }
     
@@ -44,7 +55,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     /**
      * {@link PrimaryAttributeEntry#getBaseValue()} multiplied by {@link ResourceAttribute#getCoefficientForLevel(Level)}
      * Need considering general strategy for calculations.
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValue()
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMapEntry#getBaseValue()
      */
     @Override
     public BigDecimal getBaseValue() {
@@ -55,7 +66,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
 
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getBaseValueForLayer(bg.sarakt.attributes.ModifierLayer)
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMapEntry#getBaseValueForLayer(bg.sarakt.attributes.ModifierLayer)
      */
     @Override
     protected BigDecimal getBaseValueForLayer(ModifierLayer layer) {
@@ -76,7 +87,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.ResourceAttributeEntry#getMaxValue()
+     * @see bg.sarakt.attributes.resources.ResourceAttributeEntry#getMaxValue()
      */
     @Override
     public BigDecimal getMaxValue() {
@@ -87,7 +98,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.ResourceAttributeEntry#getMaxValueForLayer(bg.sarakt.attributes.ModifierLayer)
+     * @see bg.sarakt.attributes.resources.ResourceAttributeEntry#getMaxValueForLayer(bg.sarakt.attributes.ModifierLayer)
      */
     @Override
     public BigDecimal getMaxValueForLayer(ModifierLayer layer) {
@@ -95,7 +106,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#getValueForLayer(bg.sarakt.attributes.ModifierLayer)
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMapEntry#getValueForLayer(bg.sarakt.attributes.ModifierLayer)
      */
     @Override
     public BigDecimal getValueForLayer(ModifierLayer layer) {
@@ -113,7 +124,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.ResourceAttributeEntry#consume(java.math.BigDecimal)
+     * @see bg.sarakt.attributes.resources.ResourceAttributeEntry#consume(java.math.BigDecimal)
      */
     @Override
     public void consume(BigDecimal amount) {
@@ -122,7 +133,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.ResourceAttributeEntry#deplete()
+     * @see bg.sarakt.attributes.resources.ResourceAttributeEntry#deplete()
      */
     @Override
     public void deplete() {
@@ -130,7 +141,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.ResourceAttributeEntry#restore(java.math.BigDecimal)
+     * @see bg.sarakt.attributes.resources.ResourceAttributeEntry#restore(java.math.BigDecimal)
      */
     @Override
     public void restore(BigDecimal amount) {
@@ -139,7 +150,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.ResourceAttributeEntry#restore()
+     * @see bg.sarakt.attributes.resources.ResourceAttributeEntry#restore()
      */
     @Override
     public void restore() {
@@ -162,7 +173,7 @@ public final class ResourceAttributeEntryImpl extends AbstractAttributeMapEntry<
     }
     
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttributeMapEntry#recalculate()
+     * @see bg.sarakt.attributes.internal.AbstractAttributeMapEntry#recalculate()
      */
     @Override
     public void recalculate() {

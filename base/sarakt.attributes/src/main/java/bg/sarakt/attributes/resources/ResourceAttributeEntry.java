@@ -6,14 +6,14 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.resources;
 
 import java.math.BigDecimal;
 
 import bg.sarakt.attributes.AttributeMapEntry;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
-import bg.sarakt.attributes.ResourceAttribute;
+import bg.sarakt.attributes.resources.impl.ResourceAttributeEntryImpl;
 
 /**
  * An interface to back-up already existing {@link ResourceAttributeEntryImpl}

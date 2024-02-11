@@ -6,7 +6,7 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.impl;
+package bg.sarakt.attributes.resources.impl;
 
 import java.math.BigDecimal;
 import java.util.Map.Entry;
@@ -15,8 +15,12 @@ import java.util.TreeMap;
 
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.IterableAttributeMap;
-import bg.sarakt.attributes.ResourceAttribute;
+import bg.sarakt.attributes.internal.AbstractAttribute;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeEntry;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.resources.ResourceAttributeEntry;
 
 public final class ResourceAttributeImpl extends AbstractAttribute implements ResourceAttribute {
 
@@ -31,14 +35,14 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
         this(System.currentTimeMillis(), fullName, abbreviation, group, description, pa);
     }
 
-    public ResourceAttributeImpl(long id, String fullName, String abbreviation, AttributeGroup group, String description, PrimaryAttribute pa) {
+    ResourceAttributeImpl(long id, String fullName, String abbreviation, AttributeGroup group, String description, PrimaryAttribute pa) {
         super(id, fullName, abbreviation, group, description);
         this.primary = pa;
         this.coefficients = new TreeMap<>();
     }
 
     /**
-     * @see bg.sarakt.attributes.impl.AbstractAttribute#getId()
+     * @see bg.sarakt.attributes.internal.AbstractAttribute#getId()
      */
     @Override
     public long getId() { return super.getId(); }
@@ -50,7 +54,7 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     }
 
     /**
-     * @see bg.sarakt.attributes.ResourceAttribute#getCoefficientForLevel(bg.sarakt.attributes.levels.Level)
+     * @see bg.sarakt.attributes.resources.ResourceAttribute#getCoefficientForLevel(bg.sarakt.attributes.levels.Level)
      */
     @Override
     public BigDecimal getCoefficientForLevel(Level level) {
@@ -67,7 +71,7 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
     }
 
     /**
-     * @see bg.sarakt.attributes.ResourceAttribute#getPrimaryAttribute()
+     * @see bg.sarakt.attributes.resources.ResourceAttribute#getPrimaryAttribute()
      */
     @Override
     public PrimaryAttribute getPrimaryAttribute() { return this.primary; }
@@ -79,5 +83,32 @@ public final class ResourceAttributeImpl extends AbstractAttribute implements Re
         if (coefficients != null) {
             coefficients.putAll(coefficients);
         }
+    }
+    
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        int prime = 41;
+        Long result = 0L;
+        result += super.hashCode();
+        result = prime * result + primary.hashCode();
+        
+        return result.intValue();
+    }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof ResourceAttribute ra) {
+            return this.fullName().equalsIgnoreCase(ra.fullName()) && this.primary == ra.getPrimaryAttribute() && this.getId() == ra.getId();
+        }
+        return false;
     }
 }

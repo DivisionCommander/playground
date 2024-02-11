@@ -5,9 +5,13 @@
  *
  * Copyright (c) Roman Tsonev
  */
-package bg.sarakt.attributes;
+package bg.sarakt.attributes.services;
 
 import java.util.Collection;
+
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.secondary.SecondaryAttribute;
 
 public interface AttributeService {
 
@@ -17,12 +21,12 @@ public interface AttributeService {
 
     Collection<SecondaryAttribute> getSecondaryAttributes();
 
-    Collection<ResourceAttribute> getResourceAttribute();
+    Collection<ResourceAttribute> getResourceAttributes();
 
     Attribute ofName(String attributeName);
     
     void loadDefaultAttributes();
+    
 }
-
 
 

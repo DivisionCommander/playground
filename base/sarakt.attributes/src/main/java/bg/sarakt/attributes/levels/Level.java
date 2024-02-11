@@ -9,35 +9,46 @@
 package bg.sarakt.attributes.levels;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
-import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeModifier;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
-import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
+import bg.sarakt.base.ApplicationContextProvider;
+import bg.sarakt.base.utils.ForRemoval;
 
-public interface Level {
+import org.springframework.lang.Nullable;
 
-    Map<PrimaryAttribute, BigInteger> getPermanentBonuses();
-
-    default List<AttributeModifier<Attribute>> getAllModifiers(){return Collections.emptyList();}
-
-    Integer getLevelNumber();
-
-    int getUnallocatedPonts();
-
+public interface Level extends LevelNode {
+    
+    /**
+     * 
+     * @deprecated use {@link Level#gainExperience(BigInteger)} instead
+     */
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
     boolean earnExperience(BigInteger amount);
-
+    
+    LevelUp gainExperience(BigInteger amount);
+    
     BigInteger currentExperience();
     
+    /**
+     * @deprecated Use {@link LevelNode#getPreviousNode()} instead.
+     */
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
+    @Nullable
     LevelNode viewPreviousLevel();
-
-    LevelNode viewCurrentLevel() ;
-
+    
+    LevelNode viewCurrentLevel();
+    
+    /**
+     * @deprecated Use {@link LevelNode#getNextNode()} instead.
+     */
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
+    @Nullable
     LevelNode viewNextLevel();
-
-    public static final Level TEMP = new DummyLevelImpl();
-
+    
+    public static final Level DEFAULT_LEVEL = ApplicationContextProvider.getApplicationContext().getBean(Level.class);
+            
+    // null;// new SimpleLevel();
+    
 }
