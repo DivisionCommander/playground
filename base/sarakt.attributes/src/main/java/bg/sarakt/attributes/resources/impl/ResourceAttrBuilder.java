@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.StringJoiner;
+import java.util.TreeMap;
 
 import bg.sarakt.attributes.internal.AbstractAttributeBuilder;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
@@ -21,7 +22,7 @@ import bg.sarakt.attributes.resources.ResourceAttributeBuilder;
 public abstract sealed class ResourceAttrBuilder extends AbstractAttributeBuilder permits ResourceAttributeBuilder {
     
     private PrimaryAttribute                  primary;
-    private NavigableMap<Integer, BigDecimal> coefficients;
+    private NavigableMap<Integer, BigDecimal> coefficients = new TreeMap<>();
     
     protected ResourceAttrBuilder setPrimaryAttribute(PrimaryAttribute primaryAttribute) {
         this.primary = primaryAttribute;
