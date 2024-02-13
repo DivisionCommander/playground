@@ -10,7 +10,6 @@ package bg.sarakt.storing.hibernate;
 
 import java.math.BigDecimal;
 
-import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 import bg.sarakt.storing.hibernate.interfaces.IAdditionalAttrValuesDao;
 
@@ -18,10 +17,11 @@ import org.hibernate.Session;
 import org.hibernate.query.SelectionQuery;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
 public class AdditionaAttrValuesDAO extends AbstractHibernateDAO<AdditionalAttrValueEntity> implements IAdditionalAttrValuesDao {
     
     public AdditionaAttrValuesDAO() {

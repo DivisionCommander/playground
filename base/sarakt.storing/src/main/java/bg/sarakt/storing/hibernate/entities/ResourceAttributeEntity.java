@@ -11,10 +11,9 @@ package bg.sarakt.storing.hibernate.entities;
 import java.io.Serializable;
 import java.util.List;
 
-
 import bg.sarakt.attributes.AttributeGroup;
-import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.resources.ResourceAttribute;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

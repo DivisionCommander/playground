@@ -15,13 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Repository("genericDao")
 @Primary
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(scopeName = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.INTERFACES)
 public class GenericHibernateDAO<T extends Serializable> extends AbstractHibernateDAO<T> implements IHibernateDAO<T>{
 
     @Autowired

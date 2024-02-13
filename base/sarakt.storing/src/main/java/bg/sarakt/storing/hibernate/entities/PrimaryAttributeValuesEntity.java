@@ -14,7 +14,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

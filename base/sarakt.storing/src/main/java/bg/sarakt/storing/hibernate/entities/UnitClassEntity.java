@@ -44,4 +44,12 @@ public class UnitClassEntity implements Serializable
 
 
     public void setClassName(String className) { this.className = className; }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "UnitClassEntity [classId=" + this.classId + ", className=" + this.className + "]";
+    }
 }

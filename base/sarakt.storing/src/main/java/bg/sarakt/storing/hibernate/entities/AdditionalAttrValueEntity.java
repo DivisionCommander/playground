@@ -61,4 +61,12 @@ public class AdditionalAttrValueEntity implements Serializable {
     public void setAttribute(String attribute) { this.attribute = attribute; }
 
     public void setValue(BigDecimal value) { this.value = value; }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "AdditionalAttrValueEntity [id=" + this.id + ", attribute=" + this.attribute + ", value=" + this.value + "]";
+    }
 }

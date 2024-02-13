@@ -56,8 +56,6 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements IH
 
     @Override
     public T findOne(long id) {
-        System.err.println(clazz);
-        System.out.println(this);
         return getCurrentSession().get(clazz, id);
     }
 

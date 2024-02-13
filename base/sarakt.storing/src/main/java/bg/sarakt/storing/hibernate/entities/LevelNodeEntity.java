@@ -104,4 +104,22 @@ public class LevelNodeEntity implements Serializable {
         this.levelEntity = levelEntity;
     }
 
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "LevelNodeEntity [levelId="
+               + this.levelId
+               + ", levelEntity="
+               + this.levelEntity
+               + ", unitClass="
+               + this.unitClass
+               + ", primary="
+               + this.primary
+               + ", additional="
+               + this.additional
+               + "]";
+    }
+    
 }

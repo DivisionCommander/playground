@@ -19,26 +19,25 @@ import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeFormula;
-import bg.sarakt.attributes.AttributeService;
-import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.impl.AttributeProvider;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
-import bg.sarakt.attributes.impl.ResourceAttributeImpl;
-import bg.sarakt.attributes.impl.SecondaryAttributeImpl;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.resources.ResourceAttributeBuilder;
+import bg.sarakt.attributes.secondary.SecondaryAttribute;
+import bg.sarakt.attributes.secondary.SecondaryAttributeBuilder;
+import bg.sarakt.attributes.services.AttributeService;
 import bg.sarakt.attributes.utils.FormulaSerializer;
 import bg.sarakt.base.IHibernateDAO;
 import bg.sarakt.base.exceptions.UnknownValueException;
 import bg.sarakt.logging.Logger;
 import bg.sarakt.storing.hibernate.entities.AttributeFormulaEntity;
+import bg.sarakt.storing.hibernate.entities.ResourceAttributeCoefficientEntity;
 import bg.sarakt.storing.hibernate.entities.ResourceAttributeEntity;
 import bg.sarakt.storing.hibernate.entities.SecondaryAttributeEntity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -62,25 +61,29 @@ public final class AttributeFactory implements AttributeService {
     
     @Autowired
     private AttributeFactory(IHibernateDAO<SecondaryAttributeEntity> secDao, IHibernateDAO<ResourceAttributeEntity> resDao,
-            AttributeProvider provider, @Value("${load.default.attributes}") boolean loadDef) {
+            // @Qualifier("defaultAttributeProvider") ComplexAttributeProviderService
+            // attributeProvider,
+            AttributeProvider attributeProvider,
+            @Value("${load.default.attributes:false}") boolean loadDef) {
         Map<String, SecondaryAttribute> secondary = getSecondaryAttributesFromDB(secDao);
         Map<String, ResourceAttribute> resource = getResourceAttributesFromDB(resDao);
         secondaryAttributes = secondary == null ? new HashMap<>() : new HashMap<>(secondary);
         resourceAttributes = resource == null ? new HashMap<>() : new HashMap<>(resource);
-        this.provider = provider;
+        System.err.println(attributeProvider);
+        this.provider = attributeProvider;
         if (loadDef) {
-            resourceAttributes.putAll(provider.defaultResourceAttributesMap());
-            secondaryAttributes.putAll(provider.defaultSecondaryAttributesMap());
+            resourceAttributes.putAll(provider.defaultResourceAttributes());
+            secondaryAttributes.putAll(provider.defaultSecondaryAttributes());
         }
     }
     @Override
     public Collection<SecondaryAttribute> defaultSecondaryAttributes() {
-        return provider.defaultSecondaryAttributesMap().values();
+        return provider.defaultSecondaryAttributes().values();
     }
     
     @Override
     public Collection<ResourceAttribute> defaultResourceAttributes() {
-        return provider.defaultResourceAttributesMap().values();
+        return provider.defaultResourceAttributes().values();
     }
     
     @Override
@@ -88,7 +91,7 @@ public final class AttributeFactory implements AttributeService {
 
 
     @Override
-    public Collection<ResourceAttribute> getResourceAttribute() { return resourceAttributes.values(); }
+    public Collection<ResourceAttribute> getResourceAttributes() { return resourceAttributes.values(); }
 
 
     @Override
@@ -110,17 +113,17 @@ public final class AttributeFactory implements AttributeService {
     @Override
     public void loadDefaultAttributes() {
         this.secondaryAttributes.clear();
-        this.secondaryAttributes.putAll(provider.defaultSecondaryAttributesMap());
+        this.secondaryAttributes.putAll(provider.defaultSecondaryAttributes());
         this.resourceAttributes.clear();
-        this.resourceAttributes.putAll(provider.defaultResourceAttributesMap());
+        this.resourceAttributes.putAll(provider.defaultResourceAttributes());
     }
 
-    @Autowired
     private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB(IHibernateDAO<SecondaryAttributeEntity> dao) {
         try {
-            if (dao.isEntityClassVacant()) {
-                dao.setEntityClass(SecondaryAttributeEntity.class);
-            }
+            // if (dao.isEntityClassVacant()) {
+            // System.out.println("force set entity");
+            // dao.setEntityClass(SecondaryAttributeEntity.class);
+            // }
             List<SecondaryAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
@@ -132,10 +135,10 @@ public final class AttributeFactory implements AttributeService {
         }
     }
     
-    @Autowired
     private Map<String, ResourceAttribute> getResourceAttributesFromDB(IHibernateDAO<ResourceAttributeEntity> dao) {
         try {
             if (dao.isEntityClassVacant()) {
+                System.out.println("force set entity");
                 dao.setEntityClass(ResourceAttributeEntity.class);
             }
             List<ResourceAttributeEntity> results = dao.findAll();
@@ -150,13 +153,20 @@ public final class AttributeFactory implements AttributeService {
     }
     
     private SecondaryAttribute mapEntityToAttribute(SecondaryAttributeEntity e) {
-        var sa = new SecondaryAttributeImpl(e.getId(), e.getName(), e.getAbbr(), e.getGroup(), e.getDescription());
-        sa.putFormulas(convertEntityToFormulas(e.getFormulas()));
-        return sa;
+        SecondaryAttributeBuilder sab = new SecondaryAttributeBuilder();
+        sab.setId(e.getId()).setAbbreviation(e.getAbbr()).setDescription(e.getDescription()).setGroup(e.getGroup());
+        sab.addFormulas(convertEntityToFormulas(e.getFormulas()));
+        return sab.build();
     }
     
     private ResourceAttribute mapEntityToAttribute(ResourceAttributeEntity e) {
-        return new ResourceAttributeImpl(e.getId(), e.getName(), e.getAbbr(), e.getGroup(), e.getDescrption(), e.getPrimaryAttribute());
+        ResourceAttributeBuilder rab = new ResourceAttributeBuilder();
+        rab.setId(e.getId()).setName(e.getName()).setAbbreviation(e.getAbbr()).setGroup(e.getGroup()).setDescription(e.getDescrption())
+                .setPrimaryAttribute(e.getPrimaryAttribute());
+        List<ResourceAttributeCoefficientEntity> coefficients = e.getCoefficients();
+        coefficients.stream().forEach(c -> rab.addCoefficient(c.getLevel(), c.getCoefficient()));
+        return rab.build();
+        
     }
     
     private NavigableMap<Integer, AttributeFormula> convertEntityToFormulas(List<AttributeFormulaEntity> formulas) {

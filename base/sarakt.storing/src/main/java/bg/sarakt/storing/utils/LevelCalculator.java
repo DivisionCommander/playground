@@ -8,89 +8,179 @@
 
 package bg.sarakt.storing.utils;
 
+import java.math.BigInteger;
 import java.util.NavigableMap;
+import java.util.SequencedCollection;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.levels.LevelNode;
+import bg.sarakt.attributes.services.LevelService;
+import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
+import bg.sarakt.logging.Logger;
+import bg.sarakt.storing.hibernate.entities.LevelEntity;
+import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
-import bg.sarakt.attributes.services.LevelService;
-import bg.sarakt.base.utils.Dummy;
-import bg.sarakt.logging.Logger;
-import bg.sarakt.storing.hibernate.LevelDAO;
-import bg.sarakt.storing.hibernate.entities.LevelEntity;
-import bg.sarakt.storing.hibernate.interfaces.ILevelDAO;
-
+/**
+ * @deprecated use {@link LevelService} instead
+ */
 @Dummy
 @Component
-public final class LevelCalculator implements LevelService {
-
-    private static LevelService               INSTANCE;
-    private final NavigableMap<Long, Integer> LEVEL_MAP      = getAllLevels();
-    private ILevelDAO                         levelDao;
+@Deprecated(forRemoval = true)
+@ForRemoval(expectedRemovalVersion = "0.1.1")
+@Scope(scopeName = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.NO)
+public class LevelCalculator implements LevelService {
     
-    public static LevelService getInstance() { return INSTANCE; }
-
-
+    private static LevelCalculator            instance;
+    private final NavigableMap<Long, Integer> levelMap;
+    protected ILevelDAO                       levelDAO;
+    private LevelService                      service;
+    
+    public static LevelCalculator getInstance() { return instance; }
+    
     @Autowired
-    private LevelCalculator(SessionFactory sessionFactory, ILevelDAO lvl) {
-        this.sessionFactory = sessionFactory;
-        this.levelDao = lvl;
+    protected LevelCalculator(ILevelDAO lvl, LevelService service) {
+        this.levelDAO = lvl;
+        this.levelMap = getAllLevels();
+        this.service = service;
     }
     
-    protected SessionFactory sessionFactory;
-
     private NavigableMap<Long, Integer> getAllLevels() {
-        Session session = (sessionFactory != null) ? sessionFactory.getCurrentSession() : HibernateUtils.getSessionFactory().openSession();
-
+        
         NavigableMap<Long, Integer> levels = new TreeMap<>();
-        session.createQuery("SELECT l FROM Level l", LevelEntity.class).getResultList().forEach(l -> levels.put(l.getXp(), l.getLevel()));
-        System.out.println(levels);
+        levelDAO.findAll().forEach(l -> levels.put(l.getXp(), l.getLevel()));
         return levels;
     }
     
+    /**
+     * 
+     * @deprecated
+     */
     @Override
-    public NavigableMap<Long, Integer> getLevels(){
-
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
+    public NavigableMap<Long, Integer> getLevels() {
         NavigableMap<Long, Integer> levels = new TreeMap<>();
-        levelDao.findAll().stream().forEach(l -> levels.put(l.getXp(), l.getLevel()));
+        
+        levelDAO.findAll().stream().forEach(l -> levels.put(l.getXp(), l.getLevel()));
         return levels;
     }
-
-    @Override
+    
     public int calculateLevel(long experience) {
-        if (EXPERIENCE_CAP <= experience) {
-            return LEVEL_MAP.lastEntry().getValue();
+        if (maximalThresholdAsLong() <= experience) {
+            return levelMap.lastEntry().getValue();
         }
-        return LEVEL_MAP.get(LEVEL_MAP.floorKey(experience));
+        return levelMap.get(levelMap.floorKey(experience));
     }
-
-    @Override
+    
     public Long getThreshold(Long experience) {
-        if(experience >=EXPERIENCE_CAP)
-        {
-            return EXPERIENCE_CAP;
+        long maximalThresholdLong = maximalThresholdAsLong();
+        if (experience >= maximalThresholdAsLong()) {
+            return maximalThresholdLong;
         }
-        return LEVEL_MAP.ceilingKey(experience);
+        return levelMap.ceilingKey(experience);
     }
-
+    
     @Override
+    public NavigableMap<Integer, Long> getLevelThresholders() {
+        var map = levelDAO.findAll().stream().collect(Collectors.toMap(LevelEntity::getLevel, LevelEntity::getXp));
+        return new TreeMap<>(map);
+    }
+    /**
+     * 
+     * @deprecated
+     */
+    @Override
+    @Deprecated(since = "0.1.0-ALPHA", forRemoval = true)
+    @ForRemoval(since = "0.1.0-ALPHA", expectedRemovalVersion = "0.1.5")
     public long getNextThreshold(Long experience) {
-        if(experience>=EXPERIENCE_CAP)
-        {
-            return EXPERIENCE_CAP;
+        long maximalThresholdLong = maximalThresholdAsLong();
+        if (experience >= maximalThresholdAsLong()) {
+            return maximalThresholdLong;
         }
-        Long threshold = LEVEL_MAP.higherKey(experience);
-        return threshold ==null? EXPERIENCE_CAP : threshold;
+        Long threshold = levelMap.higherKey(experience);
+        return threshold == null ? maximalThresholdLong : threshold;
+    }
+    
+    public long maximalThresholdAsLong() {
+        return levelDAO.maximalThreshold().longValue();
+    }
+    
+    @Override
+    public BigInteger getNextThreshold(BigInteger current) {
+        Integer value = getLevels().ceilingEntry(current.longValue()).getValue();
+        return BigInteger.valueOf(value);
+    }
+    
+    @Override
+    public BigInteger maximalThreshold() {
+        return levelDAO.maximalThreshold();
+    }
+    
+    @Override
+    public BigInteger thresholdForLevel(int level) {
+        long xp = levelDAO.findOne(level).getXp();
+        return BigInteger.valueOf(xp);
+    }
+    
+    @Override
+    public int maxLevelNumber() {
+        return levelDAO.getMaxlevel();
     }
     
     @PostConstruct
     private void bindFactory() {
-        INSTANCE = this; // NOSONAR
-        Logger.getLogger().debug("Binding AttributeFactory#factory to" + this);
+        instance = this; // NOSONAR
+        Logger.getLogger().debug("Binding LevelCalculator#factory to" + this);
+    }
+
+    /**
+     * @see bg.sarakt.attributes.services.LevelService#getLevel(long)
+     */
+    @Override
+    public Level getLevel(long classId) {
+        return service.getLevel(classId);
+    }
+
+    /**
+     * @see bg.sarakt.attributes.services.LevelService#lookupLevel(long, long)
+     */
+    @Override
+    public Level lookupLevel(long experience, long classId) {
+        return service.lookupLevel(experience, classId);
+    }
+
+    /**
+     * @see bg.sarakt.attributes.services.LevelService#getLevel(long, int)
+     */
+    @Override
+    public Level getLevel(long classId, int levelNumber) {
+        return service.getLevel(classId, levelNumber);
+    }
+
+    /**
+     * @see bg.sarakt.attributes.services.LevelService#getLevelNode(long, int)
+     */
+    @Override
+    public LevelNode getLevelNode(long classId, int levelNumber) {
+        return service.getLevelNode(classId, levelNumber);
+    }
+    
+    /**
+     * @see bg.sarakt.attributes.services.LevelService#getAllLevelNodes(long)
+     */
+    @Override
+    public SequencedCollection<LevelNode> getAllLevelNodes(long classId) {
+        return service.getAllLevelNodes(classId);
     }
 }

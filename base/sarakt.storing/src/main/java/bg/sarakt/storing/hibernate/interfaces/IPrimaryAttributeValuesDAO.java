@@ -11,7 +11,7 @@ package bg.sarakt.storing.hibernate.interfaces;
 import java.math.BigInteger;
 import java.util.Map;
 
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.base.IHibernateDAO;
 import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 

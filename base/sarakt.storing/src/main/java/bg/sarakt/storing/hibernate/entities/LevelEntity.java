@@ -69,8 +69,17 @@ public class LevelEntity implements Serializable
     }
 
     public void setFreePoints(Integer freePoints) {
-        if(freePoints != null)
-        this.freePoints = freePoints;
+        if (freePoints != null) {
+            this.freePoints = freePoints;
+        }
     }
 
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "LevelEntity [level=" + this.level + ", xp=" + this.xp + ", freePoints=" + this.freePoints + "]";
+    }
+    
 }

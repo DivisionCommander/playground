@@ -8,12 +8,12 @@
 
 package bg.sarakt.storing.hibernate;
 
-import static bg.sarakt.attributes.impl.PrimaryAttribute.*;
+import static bg.sarakt.attributes.primary.PrimaryAttribute.*;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 import bg.sarakt.storing.hibernate.interfaces.IPrimaryAttributeValuesDAO;
 

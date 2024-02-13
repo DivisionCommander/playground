@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import bg.sarakt.attributes.AttributeGroup;
-import bg.sarakt.attributes.SecondaryAttribute;
+import bg.sarakt.attributes.secondary.SecondaryAttribute;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

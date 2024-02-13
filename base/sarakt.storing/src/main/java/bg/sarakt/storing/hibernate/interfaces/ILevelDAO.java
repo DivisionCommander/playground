@@ -5,9 +5,10 @@
  * 
  * Copyright (c) Roman Tsonev
  */
+
 package bg.sarakt.storing.hibernate.interfaces;
 
-import java.util.Map;
+import java.math.BigInteger;
 import java.util.NavigableMap;
 
 import bg.sarakt.base.IHibernateDAO;
@@ -18,7 +19,11 @@ public interface ILevelDAO extends IHibernateDAO<LevelEntity> {
     int getMaxlevel();
     
     NavigableMap<Integer, LevelEntity> allAsMap();
+    
+    BigInteger thresholdForLevel(int level);
+    
+    BigInteger nextThreshold(BigInteger current);
+    
+    BigInteger maximalThreshold();
+    
 }
-
-
-
