@@ -16,7 +16,6 @@ import java.util.Set;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
-import bg.sarakt.attributes.primary.PrimaryAttributeProvider;
 import bg.sarakt.attributes.resources.ResourceAttribute;
 import bg.sarakt.attributes.secondary.SecondaryAttribute;
 import bg.sarakt.attributes.services.AttributeProviderService;
@@ -24,14 +23,16 @@ import bg.sarakt.base.exceptions.UnsupportedSubtypeException;
 import bg.sarakt.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 @Component("defaultAttributeProvider")
-@Scope(BeanDefinition.SCOPE_SINGLETON)
+@Scope(value = BeanDefinition.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.NO)
 @Primary
 public class AttributeProvider implements AttributeProviderService<Attribute> {
     
@@ -46,9 +47,10 @@ public class AttributeProvider implements AttributeProviderService<Attribute> {
     private AttributeProviderService<SecondaryAttribute> secondaryProvider;
     
     @Autowired
-    public AttributeProvider(@Value("${max.level.default.attributes:9}") int defaultMaxLevel, PrimaryAttributeProvider defaultPrimary,
-            AttributeProviderService<ResourceAttribute> defaultResourceProvider,
-            AttributeProviderService<SecondaryAttribute> defaultSecondaryProvider) {
+    public AttributeProvider(@Value("${max.level.default.attributes:9}") int defaultMaxLevel,
+            @Qualifier("defaultPrimaryProvider") AttributeProviderService<PrimaryAttribute> defaultPrimary,
+            @Qualifier("defaultResourceProvider") AttributeProviderService<ResourceAttribute> defaultResourceProvider,
+            @Qualifier("defaultSecondaryProvider") AttributeProviderService<SecondaryAttribute> defaultSecondaryProvider) {
         this.maxLevel = defaultMaxLevel;
         this.primaryProvider = defaultPrimary;
         this.resourceProvider = defaultResourceProvider;

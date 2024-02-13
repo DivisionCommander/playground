@@ -7,8 +7,8 @@ module sarakt.attributes {
     exports bg.sarakt to spring.beans, spring.context;
     
     opens bg.sarakt.attributes.levels.simple;
-    opens bg.sarakt.attributes.resources.impl;
-    opens bg.sarakt.attributes.secondary.impl;
+    opens bg.sarakt.attributes.resources;
+    opens bg.sarakt.attributes.secondary;
     opens bg.sarakt.attributes.utils;
     
     exports bg.sarakt.attributes;

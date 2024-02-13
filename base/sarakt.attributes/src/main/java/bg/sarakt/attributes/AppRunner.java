@@ -17,7 +17,7 @@ import bg.sarakt.attributes.impl.AttributeProvider;
 import bg.sarakt.attributes.impl.SimpleAttributeFormulaImpl;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
-import bg.sarakt.attributes.resources.impl.DefaultResourceAttributesProvider;
+import bg.sarakt.attributes.resources.DefaultResourceAttributesProvider;
 import bg.sarakt.attributes.secondary.SecondaryAttribute;
 import bg.sarakt.attributes.secondary.SecondaryAttributeBuilder;
 import bg.sarakt.attributes.services.AttributeProviderService;
@@ -29,9 +29,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ScopedProxyMode;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-@ComponentScan(basePackages =
+@ComponentScan(scopedProxy = ScopedProxyMode.INTERFACES, basePackages =
     {
             "bg.sarakt"
 })

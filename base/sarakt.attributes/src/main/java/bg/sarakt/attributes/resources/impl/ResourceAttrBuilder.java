@@ -9,6 +9,7 @@
 package bg.sarakt.attributes.resources.impl;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.StringJoiner;
 
@@ -29,6 +30,11 @@ public abstract sealed class ResourceAttrBuilder extends AbstractAttributeBuilde
     
     protected ResourceAttrBuilder addCoefficient(int level, BigDecimal coeffcient) {
         this.coefficients.put(level, coeffcient);
+        return this;
+    }
+    
+    protected ResourceAttrBuilder addCoefficients(Map<Integer, BigDecimal> coefficients) {
+        this.coefficients.putAll(coefficients);
         return this;
     }
     

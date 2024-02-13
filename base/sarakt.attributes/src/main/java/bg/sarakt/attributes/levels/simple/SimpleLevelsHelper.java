@@ -20,8 +20,8 @@ import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.impl.AttributeModifierRecord;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.attributes.primary.PrimaryAttributeProvider;
-import bg.sarakt.attributes.resources.impl.DefaultResourceAttributesProvider;
-import bg.sarakt.attributes.secondary.impl.DefaultSecondaryAttributesProvider;
+import bg.sarakt.attributes.resources.DefaultResourceAttributesProvider;
+import bg.sarakt.attributes.secondary.DefaultSecondaryAttributesProvider;
 import bg.sarakt.attributes.utils.Attributes;
 import bg.sarakt.base.ApplicationContextProvider;
 

@@ -48,7 +48,4 @@ public interface Level extends LevelNode {
     LevelNode viewNextLevel();
     
     public static final Level DEFAULT_LEVEL = ApplicationContextProvider.getApplicationContext().getBean(Level.class);
-            
-    // null;// new SimpleLevel();
-    
 }

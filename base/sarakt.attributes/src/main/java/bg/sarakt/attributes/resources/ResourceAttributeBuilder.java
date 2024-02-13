@@ -9,6 +9,7 @@
 package bg.sarakt.attributes.resources;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
@@ -89,4 +90,12 @@ public final class ResourceAttributeBuilder extends ResourceAttrBuilder {
         return this;
     }
     
+    /**
+     * @see bg.sarakt.attributes.resources.impl.ResourceAttrBuilder#addCoefficients(java.util.Map)
+     */
+    @Override
+    public ResourceAttributeBuilder addCoefficients(Map<Integer, BigDecimal> coefficients) {
+        super.addCoefficients(coefficients);
+        return this;
+    }
 }

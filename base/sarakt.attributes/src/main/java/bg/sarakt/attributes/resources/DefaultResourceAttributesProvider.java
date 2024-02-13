@@ -6,22 +6,19 @@
  * Copyright (c) Roman Tsonev
  */
 
-package bg.sarakt.attributes.resources.impl;
+package bg.sarakt.attributes.resources;
 
 import static bg.sarakt.attributes.utils.Attributes.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.internal.AbstractProvider;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
-import bg.sarakt.attributes.resources.ResourceAttribute;
 import bg.sarakt.base.utils.Dummy;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -56,17 +53,25 @@ public class DefaultResourceAttributesProvider extends AbstractProvider<Resource
     
     @Override
     protected Map<String, ResourceAttribute> generateDefault() {
-        Set<ResourceAttributeImpl> set = new HashSet<>();
-        set.add(new ResourceAttributeImpl(107, NAME_LIFE, ABBR_LIFE, AttributeGroup.PHYSICAL, DESC_LIFE, PrimaryAttribute.CONSTITUTION));
-        set.add(new ResourceAttributeImpl(202, NAME_MANA, ABBR_MANA, AttributeGroup.PSYCHICAL, DESC_MANA, PrimaryAttribute.INTELLIGENCE));
-        set.add(new ResourceAttributeImpl(302, NAME_ENERGY, ABBR_ENERGY, AttributeGroup.PERSON, NAME_ENERGY, PrimaryAttribute.WILL));
-        set.add(new ResourceAttributeImpl(303, NAME_VIGOUR, ABBR_VIGOUR, AttributeGroup.PERSON, NAME_VIGOUR, PrimaryAttribute.SPIRIT));
-        var map = set.stream().map(this::map).collect(Collectors.toMap(ResourceAttribute::fullName, ra -> ra));
+        Map<String, ResourceAttribute> map = new HashMap<>();
+        ResourceAttributeBuilder rab = new ResourceAttributeBuilder();
+        
+        rab.setId(107).setName(NAME_LIFE).setAbbreviation(ABBR_LIFE).setGroup(AttributeGroup.PHYSICAL).setDescription(DESC_LIFE);
+        rab.setPrimaryAttribute(PrimaryAttribute.CONSTITUTION).addCoefficients(coefficients);
+        map.put(NAME_LIFE, rab.build());
+        
+        rab.setId(202).setName(NAME_MANA).setAbbreviation(ABBR_MANA).setGroup(AttributeGroup.PSYCHICAL).setDescription(DESC_MANA);
+        rab.setPrimaryAttribute(PrimaryAttribute.INTELLIGENCE).addCoefficients(coefficients);
+        map.put(NAME_MANA, rab.build());
+        
+        rab.setId(302).setName(NAME_ENERGY).setAbbreviation(ABBR_ENERGY).setGroup(AttributeGroup.PERSON).setDescription(NAME_ENERGY);
+        rab.setPrimaryAttribute(PrimaryAttribute.WILL).addCoefficients(coefficients);
+        map.put(NAME_ENERGY, rab.build());
+        
+        rab.setId(303).setName(NAME_VIGOUR).setAbbreviation(ABBR_VIGOUR).setGroup(AttributeGroup.PERSON).setDescription(NAME_VIGOUR);
+        rab.setPrimaryAttribute(PrimaryAttribute.SPIRIT).addCoefficients(coefficients);
+        map.put(NAME_VIGOUR, rab.build());
+        
         return Map.copyOf(map);
-    }
-    
-    protected ResourceAttribute map(ResourceAttributeImpl attr) {
-        attr.addCoefficients(coefficients);
-        return attr;
     }
 }
