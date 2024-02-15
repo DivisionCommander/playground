@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>sarakt.attributes</artifactId>
-    <version>0.1.0-ALPHA-2</version>
+    <version>0.1.0-ALPHA-4</version>
     <name>Attributes</name>
     <packaging>jar</packaging>
 

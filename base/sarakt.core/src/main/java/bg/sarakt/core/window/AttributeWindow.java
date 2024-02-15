@@ -21,7 +21,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -32,54 +31,49 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.AttributeFactory;
-import bg.sarakt.attributes.AttributeService;
-import bg.sarakt.attributes.CharacterAttributeMap;
-import bg.sarakt.attributes.ResourceAttribute;
-import bg.sarakt.attributes.SecondaryAttribute;
 import bg.sarakt.attributes.impl.AttributeMapImpl;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
-import bg.sarakt.attributes.impl.ResourceAttributeEntry;
-import bg.sarakt.attributes.levels.impl.DummyLevelImpl;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.resources.ResourceAttribute;
+import bg.sarakt.attributes.resources.ResourceAttributeEntry;
+import bg.sarakt.attributes.secondary.SecondaryAttribute;
+import bg.sarakt.attributes.services.AttributeService;
 import bg.sarakt.base.utils.Dummy;
 import bg.sarakt.base.windows.AbstractWindow;
 import bg.sarakt.logging.Logger;
+import bg.sarakt.storing.AttributeFactory;
 
 @Dummy(description = "GUI for AttributeMap testing")
 public class AttributeWindow extends AbstractWindow{
 
     private static final Logger LOGGER  = Logger.getLogger();
     private static final BigInteger DEFAULT = BigInteger.TEN;
-    private final AtomicInteger freePoints;
     private final JTextField fldFreePoints;
 
     private final Map<Attribute, JTextField> map;
     private final Map<ResourceAttribute, ResourceInfo> nfo;
     private final Set<JButton>                         buttonsPA;
-    private JLabel                                     lbl1;
+    private JLabel                                     labelFP;
     private JLabel                                     lbl2;
     private JLabel                                     lbl3;
     
-    private final DummyLevelImpl level;
 
     private final AttributeMapImpl attributes;
     private JTextField fldXP = new JTextField(8);
     
     private AttributeService attributeService = AttributeFactory.getInstance();
 
-    public AttributeWindow(AttributeMapImpl attrMap, DummyLevelImpl lvl) {
+    public AttributeWindow(AttributeMapImpl attrMap) {
         super();
         map  = new TreeMap<>(Attribute.getComparator());
         nfo = new HashMap<>();
         this.buttonsPA = new HashSet<>();
-        this.freePoints = new AtomicInteger(lvl.getUnallocatedPonts());
-        this.lbl1 = new JLabel("Free points: " + freePoints.get());
+        // this.freePoints = new AtomicInteger(attrMap.unallocatedPoints());
+        this.labelFP = new JLabel("Free points: " + attrMap.unallocatedPoints());
         this.lbl2 = new JLabel();
         this.lbl3 = new JLabel();
-        this.level = lvl;
         attributes= attrMap;
         fldFreePoints  = new JTextField(4);
-        fldFreePoints.setText(String.valueOf(freePoints));
+        fldFreePoints.setText(String.valueOf(attrMap.unallocatedPoints()));
         init();
         fldFreePoints.setEditable(false);
         fldFreePoints.setDisabledTextColor(Color.BLUE);
@@ -99,8 +93,8 @@ public class AttributeWindow extends AbstractWindow{
         map.clear();
         JPanel panelLeft = new JPanel();
         panelLeft.setLayout(new BoxLayout(panelLeft, BoxLayout.Y_AXIS));
-        panelLeft.add(iterate(lbl1, "Primary Attributes: ", PrimaryAttribute.getAllPrimaryAttributes()));
-        panelLeft.add(iterate(lbl2, "Resource Attributes", attributeService.getResourceAttribute()));
+        panelLeft.add(iterate(labelFP, "Primary Attributes: ", PrimaryAttribute.getAllPrimaryAttributes()));
+        panelLeft.add(iterate(lbl2, "Resource Attributes", attributeService.getResourceAttributes()));
         panel.add(panelLeft);
         panel.add(iterate(lbl3, "Secondary Attributes", attributeService.getSecondaryAttributes()));
         
@@ -263,10 +257,9 @@ public class AttributeWindow extends AbstractWindow{
                 var intV = Double.parseDouble(text);
                 field.setText(String.valueOf(++intV));
             }
-            freePoints.decrementAndGet();
-            fldFreePoints.setText(freePoints.toString());
-            attributes.addPermanentBonus(primaryAttribute, BigInteger.ONE);
-            button.setEnabled(freePoints.get() > 0);
+            attributes.spendUnallocatedPoints(primaryAttribute, BigInteger.ONE);
+            fldFreePoints.setText(String.valueOf(attributes.unallocatedPoints()));
+            button.setEnabled(attributes.unallocatedPoints() > 0);
             refreshValues();
         }
     }
@@ -281,10 +274,9 @@ public class AttributeWindow extends AbstractWindow{
             e.getValue().fldCurrent.setText(rae.getCurrentValue().toString());
             e.getValue().fldmax.setText(rae.getMaxValue().toString());
         }
-        Integer points = freePoints.get();
-        fldFreePoints.setText(points.toString());
-        lbl1.setText("Free points: " + freePoints.get());
-        buttonsPA.forEach(b -> b.setEnabled(freePoints.get() > 0));
+        fldFreePoints.setText(String.valueOf(attributes.unallocatedPoints()));
+        labelFP.setText("Free points: " + attributes.unallocatedPoints());
+        buttonsPA.forEach(b -> b.setEnabled(attributes.unallocatedPoints() > 0));
         window.setTitle("Attributes for level# " + attributes.getLevelNumber());
         
     }
@@ -306,8 +298,8 @@ public class AttributeWindow extends AbstractWindow{
             experience = DEFAULT;
         }
         attributes.earnExperience(experience);
-        int unallocatedPonts = level.getUnallocatedPonts();
-        freePoints.addAndGet(unallocatedPonts);
+           // int unallocatedPonts = level.getUnallocatedPoints();
+           // freePoints.set(attributes.unallocatedPoints());
            // populate();
            refreshValues();
        });

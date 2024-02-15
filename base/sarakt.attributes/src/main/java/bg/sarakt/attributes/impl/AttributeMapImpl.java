@@ -66,27 +66,11 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     
     private ExperienceEntryImpl experience;
 
-    // public AttributeMapImpl() {
-    // this(Level.DEFAULT_LEVEL);
-    // }
-
-    // public AttributeMapImpl(Level level) {
-    // this(null, AttributeFactory.getInstance().getSecondaryAttributes(), level);
-    // }
-    //
-    // /**
-    // *
-    // * @param primary if it is null, a default values Will be used.
-    // * @param resources
-    // * @param secondary
-    // * @param level
-    // */
-    // public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> values,
-    // Collection<SecondaryAttribute> secondary, Level level) {
-    // this(values, AttributeFactory.getInstance().getResourceAttributes(),
-    // secondary, level);
-    // }
-
+    public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources,
+            Collection<SecondaryAttribute> secondary, Level level) {
+        this(new PrimaryAttributeMap(level, primary), resources, secondary, level);
+    }
+    
     /**
      *
      * @param primary if it is null, a default values Will be used.
@@ -94,9 +78,9 @@ public class AttributeMapImpl implements CharacterAttributeMap{
      * @param secondary
      * @param level
      */
-    public AttributeMapImpl(@Nullable Map<PrimaryAttribute, Number> primary, Collection<ResourceAttribute> resources,
+    public AttributeMapImpl(PrimaryAttributeMap map, Collection<ResourceAttribute> resources,
             Collection<SecondaryAttribute> secondary, Level level) {
-        PrimaryAttributeMap map = new PrimaryAttributeMap(level, primary);
+        // PrimaryAttributeMap map = new PrimaryAttributeMap(level, primary);
         this.primaryMap = map;
         this.experience = map.getExperienceEntry();
         this.unallocatedPoints = new AtomicInteger(0);
@@ -185,7 +169,8 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         BigInteger points = lvl.unallocatedPoints();
         unallocatedPoints.addAndGet(points.intValue());
         applyModifiers(lvl.toRemove(), REMOVE_MODIFIERS);
-        applyModifiers(lvl.toAdd(), ADD_MODIFIERS);;
+        applyModifiers(lvl.toAdd(), ADD_MODIFIERS);
+        recalculate();
     }
     
     @Override
@@ -254,6 +239,8 @@ public class AttributeMapImpl implements CharacterAttributeMap{
         return values;
     }
 
+    @Deprecated(forRemoval = true)
+    @ForRemoval(expectedRemovalVersion = "0.1.1")
     public void levelUp() {
         doLevelUp();
     }
@@ -345,6 +332,7 @@ public class AttributeMapImpl implements CharacterAttributeMap{
     
     private void setPoints() {
         int points = experience().getUnallocatedPoints();
+        applyModifiers(experience.getAllModifiers(), ADD_MODIFIERS);
         unallocatedPoints.addAndGet(points);
     }
 
@@ -381,5 +369,13 @@ public class AttributeMapImpl implements CharacterAttributeMap{
          */
         @Override
         public ModifierLayer getLayer() { return mod.getLayer(); }
+        
+        /**
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "AttributeMoDWrapper [mod=" + this.mod.getValue() + ", attribute=" + this.attribute + "]";
+        }
     }
 }

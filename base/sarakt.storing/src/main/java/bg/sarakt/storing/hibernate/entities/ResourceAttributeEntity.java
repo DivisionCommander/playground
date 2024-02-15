@@ -15,6 +15,7 @@ import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.attributes.resources.ResourceAttribute;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,7 +34,7 @@ public class ResourceAttributeEntity implements Serializable {
     public static final Class<?> ENTRY = ResourceAttribute.class;
 
     /** field <code>serialVersionUID</code> */
-    private static final long serialVersionUID = 20240121156L;
+    private static final long serialVersionUID = 202402150156L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -52,7 +53,7 @@ public class ResourceAttributeEntity implements Serializable {
     @Column(name = "description")
     private String           descrption;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "attributeId")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "attributeId", cascade = CascadeType.MERGE)
     private List<ResourceAttributeCoefficientEntity> coefficients;
 
     public ResourceAttributeEntity() {}

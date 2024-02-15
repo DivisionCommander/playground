@@ -8,8 +8,10 @@
 
 package bg.sarakt.z.tools;
 
+import bg.sarakt.attributes.conf.AttributeConfiguration;
 import bg.sarakt.base.ApplicationContextProvider;
 import bg.sarakt.base.utils.HibernateConf;
+import bg.sarakt.storing.conf.StoringConfiguration;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,15 +19,17 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties(value = HibernateConf.class)
 @EntityScan(basePackages = "bg.sarakt.storing.hibernate.entities")
-@ComponentScan(basePackages =
+@Configuration(proxyBeanMethods = false)
+@ComponentScan(basePackages = "bg.sarakt.z.tools",
+        basePackageClasses =
     {
-            "bg.sarakt.storing",
-            "bg.sarakt.storing.hibernate", "bg.sarakt.base", "bg.sarakt.attributes.impl", "bg.sarakt.z.tools"
+            AttributeConfiguration.class, StoringConfiguration.class
 })
 public class ToolsRunner {
     
@@ -44,6 +48,14 @@ public class ToolsRunner {
         }
         DBPopulator bean = ApplicationContextProvider.getApplicationContext().getBean(DBPopulator.class);
         System.out.println(bean);
-        bean.populateLevels().populateAttributes().populateLevelNodes();
+        bean
+                //
+                .populateLevels()
+                //
+                .populateAttributes()
+                //
+                .populateLevelNodes()
+                //
+                .toString();
     }
 }

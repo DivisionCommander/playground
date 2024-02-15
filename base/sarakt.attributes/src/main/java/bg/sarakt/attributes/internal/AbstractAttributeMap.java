@@ -26,6 +26,9 @@ import bg.sarakt.attributes.secondary.SecondaryAttributeMap;
 public abstract sealed class AbstractAttributeMap<A extends Attribute, E extends AttributeMapEntry<A>> implements ModifiableAttributeMap<A, E>
         permits PrimaryAttributeMap, ResourceAttributeMap, SecondaryAttributeMap {
 
+    protected static final boolean REMOVE = false;
+    protected static final boolean ADD    = true;
+
     protected AbstractAttributeMap() {}
 
     @Override
@@ -55,7 +58,7 @@ public abstract sealed class AbstractAttributeMap<A extends Attribute, E extends
      */
     @Override
     public void addModifiers(Collection<AttributeModifier<A>> modifiers) {
-        changeModifiers(modifiers, false);
+        changeModifiers(modifiers, ADD);
     }
 
     /**
@@ -73,7 +76,7 @@ public abstract sealed class AbstractAttributeMap<A extends Attribute, E extends
      */
     @Override
     public void removeModifiers(Collection<AttributeModifier<A>> modifiers) {
-        changeModifiers(modifiers, false);
+        changeModifiers(modifiers, REMOVE);
     }
 
     /**

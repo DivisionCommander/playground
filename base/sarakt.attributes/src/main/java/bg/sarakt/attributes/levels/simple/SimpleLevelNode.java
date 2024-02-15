@@ -19,8 +19,6 @@ import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
-import bg.sarakt.attributes.services.LevelService;
-import bg.sarakt.base.ApplicationContextProvider;
 
 import org.springframework.lang.Nullable;
 
@@ -35,7 +33,7 @@ class SimpleLevelNode implements LevelNode {
     private List<AttributeModifier<Attribute>> modifiers;
     
     protected SimpleLevelNode(SimpleLevelNode previous, BigInteger nextThreshold) {
-        this(previous.level, nextThreshold);
+        this(previous.level + 1, nextThreshold);
         this.previous = previous;
     }
     
@@ -64,9 +62,7 @@ class SimpleLevelNode implements LevelNode {
         return null;
     }
     
-    protected void generateNext() {
-        LevelService service = ApplicationContextProvider.getApplicationContext().getBean(LevelService.class);
-        BigInteger nextThreshold = service.getNextThreshold(threshold);
+    protected void generateNext(BigInteger nextThreshold) {
         if (nextThreshold != null) {
             SimpleLevelNode node = new SimpleLevelNode(this, nextThreshold);
             new SimpleLevelsHelper().injectModifiers(node);

@@ -14,7 +14,7 @@
     <description>Core elements of the project</description>
 
     <properties>
-        <mainclass>bg.sarakt.core.AppRunner</mainclass>
+        <mainclass>bg.sarakt.core.CoreRunner</mainclass>
     </properties>
 
     <build>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>bg.sarakt</groupId>
             <artifactId>sarakt.attributes</artifactId>
-            <version>${sarakt.attribute.version}</version>
+            <version>0.1.0-ALPHA-4</version>
         </dependency>
         <dependency>
             <groupId>bg.sarakt</groupId>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>bg.sarakt</groupId>
             <artifactId>sarakt.storing</artifactId>
-            <version>${sarakt.storing.version}</version>
+            <version>0.0.16</version>
         </dependency>
     </dependencies>
 </project>

@@ -10,9 +10,10 @@ package bg.sarakt.storing.hibernate.interfaces;
 
 import java.util.List;
 
+import bg.sarakt.base.IHibernateDAO;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
 
-public interface ILevelNodeDAO {
+public interface ILevelNodeDAO extends IHibernateDAO<LevelNodeEntity> {
     
     LevelNodeEntity lookUpNode(long experience, long classID);
     

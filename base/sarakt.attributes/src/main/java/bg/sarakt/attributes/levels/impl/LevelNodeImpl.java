@@ -28,6 +28,8 @@ import bg.sarakt.base.Pair;
 import bg.sarakt.base.Pair.PairImpl;
 import bg.sarakt.base.utils.ForRemoval;
 
+@Deprecated(since = "0.1.0-ALPHA-4", forRemoval = true)
+@ForRemoval(since = "0.1.0-ALPHA-4", expectedRemovalVersion = "0.1.1")
 public class LevelNodeImpl implements LevelNode {
     
     private final long                               classId;

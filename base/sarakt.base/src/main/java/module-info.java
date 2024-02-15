@@ -13,8 +13,8 @@ module sarakt.base {
     requires org.hibernate.orm.core;
     requires spring.beans;
     requires spring.boot;
-    requires spring.context;
     requires spring.core;
+    requires transitive spring.context;
     requires transitive spring.orm;
     requires transitive spring.tx;
 }

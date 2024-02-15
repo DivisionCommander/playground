@@ -16,6 +16,6 @@ module sarakt.tools {
     requires spring.boot.autoconfigure;
     requires spring.context;
     requires spring.core;
-    requires sarakt.attributes;
+    requires transitive sarakt.attributes;
     
 }

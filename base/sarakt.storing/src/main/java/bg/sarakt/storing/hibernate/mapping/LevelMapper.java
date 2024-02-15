@@ -18,7 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -28,13 +27,12 @@ import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.attributes.ModifierLayer;
 import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.impl.AttributeModifierRecord;
-import bg.sarakt.attributes.impl.AttributeProvider;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.attributes.resources.ResourceAttribute;
 import bg.sarakt.attributes.secondary.SecondaryAttribute;
-import bg.sarakt.base.ApplicationContextProvider;
+import bg.sarakt.attributes.services.AttributeService;
 import bg.sarakt.storing.hibernate.entities.AdditionalAttrValueEntity;
 import bg.sarakt.storing.hibernate.entities.LevelEntity;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
@@ -42,8 +40,13 @@ import bg.sarakt.storing.hibernate.entities.PrimaryAttributeValuesEntity;
 
 public class LevelMapper {
     
-    AttributeProvider provider = ApplicationContextProvider.getApplicationContext().getBean(AttributeProvider.class);
+    private AttributeService provider;
     
+    public LevelMapper(AttributeService service) {
+        this.provider = service;
+    }
+    
+
     public Level mapLevel(Collection<LevelNodeEntity> nodes, long experience) {
         SequencedCollection<LevelNode> mapNodes = mapNodes(nodes);
         return new LevelImpl(mapNodes.getFirst(), experience);
@@ -58,15 +61,16 @@ public class LevelMapper {
         SequencedCollection<LevelNode> levelNodes = new LinkedList<>();
         PreloadedLevelNodeImpl previous = null;
         Iterator<LevelNodeEntity> it = nodes.iterator();
-        for (var node = it.next(); it.hasNext(); node = it.next()) {
+        do {
+            var node= it.next();
             PreloadedLevelNodeImpl currentNode = mapNodeInternal(node);
             currentNode.setPrevious(previous);
             if (previous != null) {
-                previous.setPrevious(currentNode);
+                previous.setNext(currentNode);
             }
             previous = currentNode;
             levelNodes.add(currentNode);
-        }
+        }while(it.hasNext());
         
         return levelNodes;
     }
@@ -85,10 +89,10 @@ public class LevelMapper {
         mapped.addModifiers(mapPrimary(map));
         List<AdditionalAttrValueEntity> additional = node.getAdditional();
         for (AdditionalAttrValueEntity add : additional) {
-            Optional<Attribute> attr = provider.getAttribute(add.getAttribute());
+            Attribute attr = provider.ofName(add.getAttribute());
             BigDecimal value = add.getValue();
-            if (attr.isPresent() && value != null) {
-                AttributeModifier<Attribute> mod = switch (attr.get())
+            if (attr != null && value != null) {
+                AttributeModifier<Attribute> mod = switch (attr)
                 {
                 case PrimaryAttribute pa -> new AttributeModifierRecord<>(pa, value, ModifierType.PRIMARY_PERMANENT, ModifierLayer.CLASS_LAYER);
                 case ResourceAttribute ra -> new AttributeModifierRecord<>(ra, value, ModifierType.COEFFICIENT, ModifierLayer.CLASS_LAYER);
@@ -108,7 +112,8 @@ public class LevelMapper {
         ModifierLayer layer = ModifierLayer.CLASS_LAYER;
         List<AttributeModifier<Attribute>> modifiers = new ArrayList<>(PrimaryAttribute.count());
         for (Entry<PrimaryAttribute, BigInteger> e : map.entrySet()) {
-            BigDecimal value = new BigDecimal(e.getValue());
+            BigInteger val = e.getValue();
+            BigDecimal value = val == null ? BigDecimal.ZERO : new BigDecimal(e.getValue());
             modifiers.add(new AttributeModifierRecord<>(e.getKey(), value, type, layer));
         }
         return modifiers;

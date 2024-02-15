@@ -58,7 +58,6 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
      */
     @Override
     protected void changeModifiers(Collection<AttributeModifier<SecondaryAttribute>> modifiers, boolean add) {
-        
         Map<SecondaryAttribute, Queue<AttributeModifier<SecondaryAttribute>>> queue = new HashMap<>();
         for (AttributeModifier<SecondaryAttribute> m : modifiers) {
             SecondaryAttribute attribute = m.getAttribute();
@@ -67,7 +66,12 @@ public final class SecondaryAttributeMap extends AbstractAttributeMap<SecondaryA
         }
         
         for (var entry : queue.entrySet()) {
-            get(entry.getKey()).addModifiers(entry.getValue());
+            SecondaryAttributeEntry sae = get(entry.getKey());
+            if (add) {
+                sae.addModifiers(entry.getValue());
+            } else {
+                sae.removeModifiers(entry.getValue());
+            }
         }
     }
 

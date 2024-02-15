@@ -14,9 +14,10 @@ module sarakt.core {
     requires org.hibernate.orm.core;
     
     requires transitive sarakt.attributes;
+    requires transitive sarakt.logging;
     requires sarakt.base;
     requires sarakt.characters;
-    requires sarakt.logging;
+    requires sarakt.storing;
     
     requires spring.beans;
     requires spring.boot;

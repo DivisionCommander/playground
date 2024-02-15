@@ -9,11 +9,13 @@
 package bg.sarakt.storing.hibernate.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import bg.sarakt.attributes.AttributeGroup;
 import bg.sarakt.attributes.secondary.SecondaryAttribute;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,7 +36,7 @@ public class SecondaryAttributeEntity implements Serializable
     public static final Class<?> ENTRY = SecondaryAttribute.class;
 
     /** field <code>serialVersionUID</code> */
-    private static final long serialVersionUID = 202401201803L;
+    private static final long serialVersionUID = 202402150053L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -50,8 +52,8 @@ public class SecondaryAttributeEntity implements Serializable
     @Column(name = "description")
     private String        description;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "attributeId")
-    private List<AttributeFormulaEntity> formulas;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "attributeId", cascade = CascadeType.MERGE)
+    private List<AttributeFormulaEntity> formulas = new ArrayList<>();
 
     public long getId()
     {
@@ -117,7 +119,8 @@ public class SecondaryAttributeEntity implements Serializable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append('[').append(id).append(']').append(name).append(" -[").append(abbr).append("]-\t").append("group[").append(group).append("]");
+        sb.append('[').append(id).append(']').append(name).append(" -[").append(abbr).append("]-\t").append("group[").append(group).append("]")
+                .append("formulas").append(formulas.toString());
 
         return sb.toString();
     }

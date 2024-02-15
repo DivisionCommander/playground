@@ -69,7 +69,6 @@ public final class AttributeFactory implements AttributeService {
         Map<String, ResourceAttribute> resource = getResourceAttributesFromDB(resDao);
         secondaryAttributes = secondary == null ? new HashMap<>() : new HashMap<>(secondary);
         resourceAttributes = resource == null ? new HashMap<>() : new HashMap<>(resource);
-        System.err.println(attributeProvider);
         this.provider = attributeProvider;
         if (loadDef) {
             resourceAttributes.putAll(provider.defaultResourceAttributes());
@@ -120,10 +119,9 @@ public final class AttributeFactory implements AttributeService {
 
     private Map<String, SecondaryAttribute> getSecondaryAttributesFromDB(IHibernateDAO<SecondaryAttributeEntity> dao) {
         try {
-            // if (dao.isEntityClassVacant()) {
-            // System.out.println("force set entity");
-            // dao.setEntityClass(SecondaryAttributeEntity.class);
-            // }
+            if (dao.isEntityClassVacant()) {
+                dao.setEntityClass(SecondaryAttributeEntity.class);
+            }
             List<SecondaryAttributeEntity> results = dao.findAll();
             if (results == null || results.isEmpty()) {
                 return Collections.emptyMap();
@@ -138,7 +136,6 @@ public final class AttributeFactory implements AttributeService {
     private Map<String, ResourceAttribute> getResourceAttributesFromDB(IHibernateDAO<ResourceAttributeEntity> dao) {
         try {
             if (dao.isEntityClassVacant()) {
-                System.out.println("force set entity");
                 dao.setEntityClass(ResourceAttributeEntity.class);
             }
             List<ResourceAttributeEntity> results = dao.findAll();
@@ -154,15 +151,15 @@ public final class AttributeFactory implements AttributeService {
     
     private SecondaryAttribute mapEntityToAttribute(SecondaryAttributeEntity e) {
         SecondaryAttributeBuilder sab = new SecondaryAttributeBuilder();
-        sab.setId(e.getId()).setAbbreviation(e.getAbbr()).setDescription(e.getDescription()).setGroup(e.getGroup());
+        sab.setId(e.getId()).setName(e.getName()).setAbbreviation(e.getAbbr()).setDescription(e.getDescription()).setGroup(e.getGroup());
         sab.addFormulas(convertEntityToFormulas(e.getFormulas()));
         return sab.build();
     }
     
     private ResourceAttribute mapEntityToAttribute(ResourceAttributeEntity e) {
         ResourceAttributeBuilder rab = new ResourceAttributeBuilder();
-        rab.setId(e.getId()).setName(e.getName()).setAbbreviation(e.getAbbr()).setGroup(e.getGroup()).setDescription(e.getDescrption())
-                .setPrimaryAttribute(e.getPrimaryAttribute());
+        rab.setId(e.getId()).setName(e.getName()).setAbbreviation(e.getAbbr()).setGroup(e.getGroup()).setDescription(e.getDescrption());
+        rab.setPrimaryAttribute(e.getPrimaryAttribute());
         List<ResourceAttributeCoefficientEntity> coefficients = e.getCoefficients();
         coefficients.stream().forEach(c -> rab.addCoefficient(c.getLevel(), c.getCoefficient()));
         return rab.build();

@@ -17,6 +17,7 @@ import java.util.TreeMap;
 
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
+import bg.sarakt.attributes.services.AttributeService;
 import bg.sarakt.attributes.services.LevelService;
 import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.storing.hibernate.entities.LevelNodeEntity;
@@ -41,10 +42,10 @@ public class LevelServiceImpl implements LevelService {
     private LevelMapper   mapper;
     
     @Autowired
-    public LevelServiceImpl(ILevelDAO dao, ILevelNodeDAO nodeDao) {
+    public LevelServiceImpl(ILevelDAO dao, ILevelNodeDAO nodeDao, AttributeService provider) {
         nodes = nodeDao;
         levelDAO = dao;
-        mapper = new LevelMapper();
+        mapper = new LevelMapper(provider);
     }
     
     /**

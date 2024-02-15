@@ -28,7 +28,7 @@ import jakarta.persistence.Table;
 public class PrimaryAttributeValuesEntity implements Serializable {
 
     /** field <code>serialVersionUID</code> */
-    private static final long serialVersionUID = 202401280256L;
+    private static final long serialVersionUID = 202402160056L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,21 +36,21 @@ public class PrimaryAttributeValuesEntity implements Serializable {
     private UUID id;
 
     @Column(name = "strength")
-    private BigInteger strength;
+    private BigInteger strength     = BigInteger.ZERO;
     @Column(name = "agility")
-    private BigInteger agility;
+    private BigInteger agility      = BigInteger.ZERO;
     @Column(name = "constitution")
-    private BigInteger constitution;
+    private BigInteger constitution = BigInteger.ZERO;
     @Column(name = "intelligence")
-    private BigInteger intelligence;
+    private BigInteger intelligence = BigInteger.ZERO;
     @Column(name = "wisdom")
-    private BigInteger wisdom;
+    private BigInteger wisdom       = BigInteger.ZERO;
     @Column(name = "psionic")
-    private BigInteger psionic;
+    private BigInteger psionic      = BigInteger.ZERO;
     @Column(name = "spirit")
-    private BigInteger spirit;
+    private BigInteger spirit       = BigInteger.ZERO;
     @Column(name = "will_power")
-    private BigInteger will;
+    private BigInteger will         = BigInteger.ZERO;
 
     public PrimaryAttributeValuesEntity fromIntegerMap(Map<PrimaryAttribute, BigInteger> values) {
         this.strength = values.get(PrimaryAttribute.STRENGTH);

@@ -21,15 +21,23 @@ import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.attributes.levels.LevelUp;
 import bg.sarakt.attributes.levels.LevelUpRecord;
+import bg.sarakt.attributes.levels.simple.SimpleLevel;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.base.utils.ForRemoval;
 
 import org.springframework.lang.Nullable;
 
+/**
+ * Use {@link SimpleLevel} instead.
+ * 
+ * @author IceDragon
+ */
+@Deprecated(since = "0.1.0-ALPHA-4", forRemoval = true)
+@ForRemoval(since = "0.1.0-ALPHA-4", expectedRemovalVersion = "0.1.1")
 public class LevelImpl implements Level {
     
     private BigInteger experience;
-    private LevelNode  currentNode;
+    private LevelNode  currentNode;      // FIXME: currently it doesn't initialize
     private int        unallocatedPoints;
     private BigInteger threshold;
     

@@ -17,8 +17,7 @@
         <dependency>
             <groupId>bg.sarakt</groupId>
             <artifactId>sarakt.attributes</artifactId>
-            <version>0.1.0-ALPHA-2</version>
-<!--            <version>${sarakt.attribute.version}</version>-->
+            <version>0.1.0-ALPHA-4</version>
         </dependency>
         <dependency>
             <groupId>bg.sarakt</groupId>

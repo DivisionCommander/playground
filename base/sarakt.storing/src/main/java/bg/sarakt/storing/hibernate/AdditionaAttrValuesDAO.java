@@ -17,11 +17,10 @@ import org.hibernate.Session;
 import org.hibernate.query.SelectionQuery;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.INTERFACES)
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AdditionaAttrValuesDAO extends AbstractHibernateDAO<AdditionalAttrValueEntity> implements IAdditionalAttrValuesDao {
     
     public AdditionaAttrValuesDAO() {

@@ -8,8 +8,6 @@
 
 package bg.sarakt.attributes;
 
-import static bg.sarakt.attributes.utils.Attributes.*;
-
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -23,6 +21,7 @@ import bg.sarakt.attributes.secondary.SecondaryAttributeBuilder;
 import bg.sarakt.attributes.services.AttributeProviderService;
 import bg.sarakt.attributes.utils.Attributes;
 import bg.sarakt.base.ApplicationContextProvider;
+import bg.sarakt.logging.Logger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -36,16 +35,17 @@ import org.springframework.context.annotation.ScopedProxyMode;
     {
             "bg.sarakt"
 })
-public class AppRunner implements Attributes {
+public class AttributeRunner implements Attributes {
     
+    private static final Logger LOG    = Logger.getLogger();
     private static final int SWITCH = 4;
     ApplicationContext       ctx    = ApplicationContextProvider.getApplicationContext();
     
     public static void main(String[] args) {
-        System.out.println("RUNNNN");
-        SpringApplication.run(AppRunner.class, args);
-        System.out.println("Running");
-        new AppRunner().run();
+        LOG.log("RUNNNN");
+        SpringApplication.run(AttributeRunner.class, args);
+        LOG.log("Running");
+        new AttributeRunner().run();
     }
     
     public void run() {
@@ -64,7 +64,7 @@ public class AppRunner implements Attributes {
             test4();
             break;
         default:
-            System.out.println("Unsupported");
+            LOG.error("Unsupported");
             break;
         
         }
@@ -77,12 +77,12 @@ public class AppRunner implements Attributes {
         sab.setId(100).setName(NAME_ACCURACY).setAbbreviation(ABBR_ACCURACY).setGroup(AttributeGroup.PHYSICAL).setDescription(DESC_ACCURACY)
                 .addFormula(1, formula);
         SecondaryAttribute secondaryAttribute = sab.build();
-        System.out.println(secondaryAttribute);
+        LOG.log(secondaryAttribute);
     }
     
     private void test3() {
         Level bean = ctx.getBean(Level.class);
-        System.out.println(bean);
+        LOG.log(bean);
         
     }
     
@@ -90,19 +90,10 @@ public class AppRunner implements Attributes {
         AttributeProvider ap = ctx.getBean(AttributeProvider.class, 12);
         Map<String, Attribute> attributes = ap.getAttributeMap();
         for (var e : attributes.entrySet()) {
-            System.out.println(e.getValue().getClass() + "\t" + e.getKey() + "\t" + e);
+            LOG.log(e.getValue().getClass() + "\t" + e.getKey() + "\t" + e);
         }
         Attribute attribute = ap.getAttribute(NAME_MANA).get();
-        System.out.println(attribute);
-        // ap.refreshAttributes();
-        // Attribute attribute = ap.getAttribute(NAME_STRENGTH);
-        // System.out.println(attribute);
-        // PrimaryAttribute attribute2 = ap.getAttribute(NAME_STRENGTH,
-        // PrimaryAttribute.class);
-        // System.out.println(attribute.equals(attribute2));
-        //
-        // var v = ap.getAttribute(NAME_MANA, ResourceAttribute.class);
-        // System.err.println("var " + v);
+        LOG.log(attribute);
     }
     
     private static void test1() {
@@ -115,27 +106,20 @@ public class AppRunner implements Attributes {
             
             Type[] types = value.getClass().getGenericInterfaces();
             for (Type t : types) {
-                System.out.println(entry.getKey() + "\t=\t" + t);
+                LOG.log(entry.getKey() + "\t=\t" + t);
             }
         }
         DefaultResourceAttributesProvider bean = ctx.getBean(DefaultResourceAttributesProvider.class);
-        System.out.println(bean);
-        System.out.println("=============");
+        LOG.log(bean);
+        LOG.log("=============");
         map = ctx.getBeansOfType(AttributeProviderService.class);
         for (var entry : map.entrySet()) {
             AttributeProviderService<?> value = entry.getValue();
             
             Type[] types = value.getClass().getGenericInterfaces();
             for (Type t : types) {
-                System.out.println(entry.getKey() + "\t=\t" + t);
+                LOG.log(entry.getKey() + "\t=\t" + t);
             }
         }
-        //
-        // AttributeProvider ap = ctx.getBean(AttributeProvider.class, 12);
-        // Attribute attribute = ap.getAttribute(NAME_STRENGTH);
-        // System.out.println(attribute);
-        // PrimaryAttribute attribute2 = ap.getAttribute(NAME_STRENGTH,
-        // PrimaryAttribute.class);
-        // System.out.println(attribute.equals(attribute2));
     }
 }

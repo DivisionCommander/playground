@@ -151,6 +151,10 @@ public abstract sealed class AbstractAttributeMapEntry<T extends Attribute> impl
     protected void removeModifier(AttributeModifier<T> modifier, boolean recalculate) {
         List<Modifier> modifiersPerLayer = modifiers.get(modifier.getLayer());
         Modifier pair = new Modifier(modifier);
+        if (modifier.getBonusType() == ModifierType.PRIMARY_PERMANENT) {
+            LOG.log("Permanent modifiers are not subject of removal");
+            return;
+        }
         if ( !modifiersPerLayer.contains(pair)) {
             LOG.error("No such modifier appied!");
             throw new SaraktRuntimeException();

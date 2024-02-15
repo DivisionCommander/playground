@@ -21,18 +21,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import bg.sarakt.attributes.Attribute;
 import bg.sarakt.attributes.AttributeModifier;
+import bg.sarakt.attributes.ModifierType;
 import bg.sarakt.attributes.levels.Level;
 import bg.sarakt.attributes.levels.LevelNode;
 import bg.sarakt.attributes.levels.LevelUp;
 import bg.sarakt.attributes.primary.PrimaryAttribute;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-@Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class SimpleLevel implements Level {
     
     /** field <code>DEPRECATED</code> */
@@ -44,7 +38,6 @@ public class SimpleLevel implements Level {
     private NavigableMap<Long, Integer> levelThresholds;
     private int                         unallocatedPoints = 0;
     
-    @Autowired
     public SimpleLevel(Map<Integer, Long> levelMap) {
         this(0L, levelMap);
     }
@@ -53,8 +46,9 @@ public class SimpleLevel implements Level {
         this.experience = new AtomicLong();
         levelThresholds = new TreeMap<>();
         levelMap.entrySet().stream().forEach(e -> levelThresholds.put(e.getValue(), e.getKey()));
+        Entry<Long, Integer> lvl = levelThresholds.floorEntry(experience.longValue());
+        currentNode = new SimpleLevelNode(lvl.getValue(), BigInteger.valueOf(lvl.getKey()));
         gainExperience(BigInteger.valueOf(experience.longValue()));
-        System.out.println(levelMap);
     }
     
     /**
@@ -72,10 +66,12 @@ public class SimpleLevel implements Level {
         this.unallocatedPoints = points;
         
         LevelNode current = currentNode;
-        currentNode.generateNext();
+        currentNode.generateNext(BigInteger.valueOf(entry.getKey()));
         
         SimpleLevelNode next = currentNode.getNext();
         Collection<AttributeModifier<Attribute>> toAdd = next == null ? Collections.emptySet() : next.getAllModifiers();
+        List<AttributeModifier<Attribute>> toRemove = current.getAllModifiers().stream()
+                .filter(m -> m.getBonusType() != ModifierType.PRIMARY_PERMANENT).toList();
         
         LevelUp lvl = new LevelUp()
         {
@@ -87,7 +83,7 @@ public class SimpleLevel implements Level {
             
             @Override
             public Collection<AttributeModifier<Attribute>> toRemove() {
-                return current.getAllModifiers();
+                return toRemove;
             }
             
             @Override

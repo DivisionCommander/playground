@@ -16,10 +16,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.levels.simple.SimpleLevel;
 import bg.sarakt.base.Pair;
 import bg.sarakt.base.Pair.PairImpl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,6 +36,20 @@ import org.springframework.stereotype.Component;
 public final class AttributeUtils {
     
     private static final String LEVEL_FILE = System.getProperty("user.dir") + "/src/main/resources/levels";
+    
+    @Bean
+    @Primary
+    @Autowired
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public static Level defaultLevel(Map<Integer, Long> levelThresholds) {
+        return new SimpleLevel(levelThresholds);
+    }
+    
+    @Bean
+    @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.INTERFACES)
+    public static Level defaultLevel() {
+        return new SimpleLevel(fileLevelMap());
+    }
     
     @Bean
     public static Map<Integer, Long> fileLevelMap() {
@@ -86,4 +107,6 @@ public final class AttributeUtils {
         map.put(15, 1800L);
         return map;
     }
+    
+    private AttributeUtils() {}
 }

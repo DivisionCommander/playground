@@ -56,6 +56,7 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements IH
 
     @Override
     public T findOne(long id) {
+        System.err.println(clazz);
         return getCurrentSession().get(clazz, id);
     }
 
@@ -69,5 +70,13 @@ public abstract class AbstractHibernateDAO<T extends Serializable> implements IH
     public T save(T entity) {
         Session s = getCurrentSession();
         return s.merge(entity);
+    }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "AbstractHibernateDAO [clazz=" + this.clazz + ", sessionFactory=" + this.sessionFactory + "]";
     }
 }

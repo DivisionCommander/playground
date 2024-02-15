@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Repository("genericDao")
 @Primary
-@Scope(scopeName = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.INTERFACES)
+@Scope(scopeName = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.NO)
 public class GenericHibernateDAO<T extends Serializable> extends AbstractHibernateDAO<T> implements IHibernateDAO<T>{
 
     @Autowired
@@ -35,6 +35,3 @@ public class GenericHibernateDAO<T extends Serializable> extends AbstractHiberna
         setEntityClass(clz);
     }
 }
-
-
-
