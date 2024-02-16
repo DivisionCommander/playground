@@ -9,11 +9,15 @@
 package bg.sarakt.items.inventory.equipment;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.base.exceptions.InventoryException;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 
 public interface EquipmentManager {
@@ -96,14 +100,30 @@ public interface EquipmentManager {
     List<EquipmentView> getEquipmentViews();
 
     Map<EquipmentSlots, List<EquipmentView>> getEquipmentViewMap();
-
+    
+    /**
+     * @see AttributeModifier
+     * 
+     * @deprecated
+     */
+    @Deprecated(since = "0.0.3", forRemoval = true)
+    @ForRemoval(since = "0.0.3", expectedRemovalVersion = "0.0.5")
     Collection<AttributeValuePair> getBonusAttributes();
-
+    
+    /**
+     * Replace now deprecated {@link EquipmentManager#getModifiers()}. Default
+     * implementation will be dropped in version=0.0.5.
+     * 
+     * @since 0.0.3
+     */
+    default List<AttributeModifier<Attribute>> getModifiers() { return Collections.emptyList(); }
+    
     /**
      * Check if there is at least one free position for provided
      * {@link EquipmentSlots}
      *
      * @param equipmentSlot
+     * 
      * @return <b>true</b> if there is a position<br>
      *         <b>false</b> if currently there are no free positions.
      */

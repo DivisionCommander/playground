@@ -8,8 +8,13 @@
 package bg.sarakt.characters.attributes;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.base.utils.ForRemoval;
 
-@Deprecated
+/**
+ * @deprecated
+ */
+@Deprecated(forRemoval = true)
+@ForRemoval(expectedRemovalVersion = "0.0.5")
 public record AttributeValuePair(Attribute attribute, int value)
 {
 

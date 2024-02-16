@@ -8,7 +8,7 @@
 
 package bg.sarakt.items.inventory.impl;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import bg.sarakt.items.inventory.Inventory;
@@ -19,7 +19,7 @@ import bg.sarakt.items.inventory.equipment.impl.EquipmentManagerImpl;
 public final class InventoryFactory {
 
     public static Inventory defaultInventory() {
-        Map<EquipmentSlots, Integer> def = new HashMap<>();
+        Map<EquipmentSlots, Integer> def = new EnumMap<>(EquipmentSlots.class);
         def.put(EquipmentSlots.MAIN_HAND, 1);
         def.put(EquipmentSlots.OFF_HAND, 1);
         def.put(EquipmentSlots.EXTRA, 1);
@@ -47,4 +47,6 @@ public final class InventoryFactory {
 
         return new InventoryImpl(em);
     }
+    
+    private InventoryFactory() {}
 }

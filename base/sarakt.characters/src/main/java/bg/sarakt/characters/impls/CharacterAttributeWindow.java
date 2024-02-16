@@ -79,7 +79,8 @@ public class CharacterAttributeWindow
 
     private void asd()
     {
-        btnLevel.addActionListener((a) -> {
+        btnLevel.addActionListener(a ->
+        {
             int experience;
             String text = field.getText();
             try

@@ -11,11 +11,11 @@ module sarakt.characters {
     exports bg.sarakt.characters.attributes1;
     exports bg.sarakt.items.inventory.equipment;
     exports bg.sarakt.combats;
-    exports bg.sarakt.characters.attributes.impl;
     exports bg.sarakt.items.inventory.equipment.impl;
     
-    requires sarakt.attributes;
     requires sarakt.base;
     requires sarakt.logging;
     requires java.desktop;
+    
+    requires transitive sarakt.attributes;
 }

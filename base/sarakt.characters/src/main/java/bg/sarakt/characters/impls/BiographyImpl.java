@@ -16,6 +16,8 @@ import bg.sarakt.characters.Biography;
 
 public class BiographyImpl implements Biography {
 
+    /** field <code>serialVersionUID</code> */
+    private static final long  serialVersionUID = 202402160140L;
     private final String       characterName;
     /**
      * The first few entries are populated while creating the character. Others are
@@ -31,6 +33,12 @@ public class BiographyImpl implements Biography {
         this.biography = new ArrayList<>();
     }
 
+    /**
+     * @see bg.sarakt.characters.Biography#getCharacterName()
+     */
+    @Override
+    public String getCharacterName() { return characterName; }
+    
     /**
      * @see bg.sarakt.characters.Biography#addEntry(int, java.lang.String)
      */

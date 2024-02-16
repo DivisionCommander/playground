@@ -9,11 +9,11 @@
 package bg.sarakt.items.basics.impl;
 
 import bg.sarakt.base.AbstractGameObject;
-import bg.sarakt.base.exceptions.SaraktRuntimeException;
 import bg.sarakt.items.basics.Item;
 import bg.sarakt.items.basics.ItemType;
 import bg.sarakt.items.basics.ItemView;
 import bg.sarakt.items.basics.Quality;
+import bg.sarakt.logging.Logger;
 
 /**
  * Default implementation of {@link Item}
@@ -32,13 +32,13 @@ public class ItemImpl extends AbstractGameObject implements Item {
     private Quality  quality;
     private boolean  equppable;
 
-    private ItemView view;
+    private transient ItemView view;
 
     public ItemImpl(String name, double basePrice, ItemType type, Quality quality, boolean isEquppable) {
         super(representationSignatureID);
         this.name = name;
         this.basePrice = basePrice;
-        this.type = type;;
+        this.type = type;
         this.quality = quality;
         this.equppable = isEquppable;
     }
@@ -80,12 +80,11 @@ public class ItemImpl extends AbstractGameObject implements Item {
     public ItemView getView() {
         if(view == null)
         {
-            System.out.println("NULL");
-            //FIXME = lazy initialization; create view only on demand. Some kind of cache to drop it after a while non-using
-
+            Logger.getLogger().debug("NULL");
+            // TODO = lazy initialization; create view only on demand. Some kind of cache to
+            // drop it after a while non-using
         }
         return view;
-//        throw new SaraktRuntimeException("Must be implemented");
     }
 
 }

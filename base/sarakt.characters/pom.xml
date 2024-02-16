@@ -6,7 +6,7 @@
         <version>0.1.0-ALPHA</version>
     </parent>
     <artifactId>sarakt.characters</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
     <name>Game Characters</name>
 
@@ -20,7 +20,7 @@
         </dependency>
         <dependency><groupId>bg.sarakt</groupId>
         <artifactId>sarakt.attributes</artifactId>
-        <version>${sarakt.attribute.version}</version></dependency>
+        <version>0.1.0-ALPHA-4</version></dependency>
         <dependency>
             <groupId>bg.sarakt</groupId>
             <artifactId>sarakt.base</artifactId>
@@ -29,7 +29,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 

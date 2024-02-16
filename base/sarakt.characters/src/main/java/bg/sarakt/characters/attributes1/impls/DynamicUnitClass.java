@@ -19,16 +19,20 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 import bg.sarakt.attributes.Attribute;
-import bg.sarakt.attributes.impl.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
 import bg.sarakt.base.utils.Dummy;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.characters.UnitClassFactory;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.UnitClass;
 
 @Dummy
+@ForRemoval(expectedRemovalVersion = ForRemoval.UNKNOWN_VERSION)
 public class DynamicUnitClass implements UnitClass
 {
 
+    /** field <code>serialVersionUID</code> */
+    private static final long                                   serialVersionUID = 1L;
     private final UUID uuid  =UUID.randomUUID();
     private final Map<PrimaryAttribute, Integer>                 basicAttributes;
     private final Map<PrimaryAttribute, Double>                  basicAttributesCoefficients;
@@ -46,7 +50,7 @@ public class DynamicUnitClass implements UnitClass
         });
 
         advancedAttribute = new TreeMap<>();
-        TEMP();
+        temp();
     }
 /**
  * @see bg.sarakt.characters.attributes1.UnitClass#unitClassId()
@@ -55,8 +59,13 @@ public class DynamicUnitClass implements UnitClass
 public String unitClassId() {
     return uuid.toString();
 }
-    // FIXME
-    private void TEMP()
+
+/**
+ * @deprecated
+ */
+@Deprecated(since = "0.0.3", forRemoval = true)
+@ForRemoval(since = "0.0.3", expectedRemovalVersion = "0.0.5")
+    private void temp()
     {
         NavigableMap<Integer, Map<Attribute, Double>> adv = UnitClassFactory.getTempAttributes();
         advancedAttribute.putAll(adv);
@@ -70,8 +79,12 @@ public String unitClassId() {
 
     /**
      * @see bg.sarakt.characters.attributes1.UnitClass#getAttributesForLevel(int)
+     * 
+     * @deprecated
      */
     @Override
+    @Deprecated(since = "0.0.3", forRemoval = true)
+    @ForRemoval(since = "0.0.3", expectedRemovalVersion = "0.0.5")
     public Set<AttributeValuePair> getAttributesForLevel(int newLevel)
     {
         Set<AttributeValuePair> attributes = new HashSet<>();

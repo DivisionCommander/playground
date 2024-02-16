@@ -26,7 +26,7 @@ import bg.sarakt.items.inventory.equipment.EquipmentView;
 
 public class EquipmentManagerImpl extends AbstractEquipmentManager implements EquipmentManager {
 
-    // FIXME: migrate to factory model with selectable type of manager.
+    // TODO: migrate to factory model with selectable type of manager.
     public EquipmentManagerImpl(Map<EquipmentSlots, Integer> slots) {
         super(slots);
     }
@@ -106,12 +106,12 @@ public class EquipmentManagerImpl extends AbstractEquipmentManager implements Eq
     @Override
     public List<Optional<Equipment>> unequipAll() {
         return equipped.values().stream().map(SlotPositions::removeAll).flatMap(Collection::stream).filter(Optional::isEmpty).map(this::removeBonuses)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<EquipmentView> getEquipmentViews() {
-        return equipped.values().stream().map(SlotPositions::convertToView).flatMap(Collection::stream).collect(Collectors.toList());
+        return equipped.values().stream().map(SlotPositions::convertToView).flatMap(Collection::stream).toList();
     }
 
     /**
@@ -149,7 +149,6 @@ public class EquipmentManagerImpl extends AbstractEquipmentManager implements Eq
      *
      * @see bg.sarakt.items.inventory.equipment.EquipmentManager#getFreePositions(bg.sarakt.items.inventory.equipment.EquipmentSlots)
      */
-//    @Override
     public Set<Integer> getFreePositions(EquipmentSlots equipmentSlot) {
         SlotPositions slots = getSlot(equipmentSlot);
         if (slots != null) {

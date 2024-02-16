@@ -8,16 +8,24 @@
 
 package bg.sarakt.characters.impls;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.CharacterAttributeMap;
+import bg.sarakt.attributes.impl.AttributeMapImpl;
 import bg.sarakt.attributes.levels.Level;
+import bg.sarakt.attributes.primary.PrimaryAttribute;
+import bg.sarakt.attributes.primary.PrimaryAttributeMap;
 import bg.sarakt.base.AbstractGameObject;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.characters.Biography;
 import bg.sarakt.characters.GameCharacter;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.characters.attributes1.AttributeMap;
 import bg.sarakt.characters.attributes1.UnitClass;
-import bg.sarakt.characters.attributes1.impls.AttributeMapImpl;
 import bg.sarakt.characters.attributes1.impls.DynamicUnitClass;
+import bg.sarakt.characters.utils.CharacterUtils;
 import bg.sarakt.combats.Combatant;
 import bg.sarakt.logging.Logger;
 
@@ -30,15 +38,11 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
     private static final Logger LOGGER                    = Logger.getLogger();
     
     // Basic information:
-    private String          name;
     private final Biography biography;
     private UnitClass       charClass;
-    private long            experience = 0L;
-    private int             level      = 1;
     
     // Attributes:
-    @Deprecated(forRemoval = true, since = "Version 0.1")
-    private bg.sarakt.characters.attributes1.AttributeMap attributes;
+    private CharacterAttributeMap                         attributeMap;
     
     public PlayerCharacterImpl(String name) {
         this(name, System.currentTimeMillis());
@@ -46,11 +50,11 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
     
     public PlayerCharacterImpl(String name, long id) {
         super(representationSignatureID, id);
-        this.name = name;
+        // FIXME ASAP: real data; maybe from constructor.
+        attributeMap = new AttributeMapImpl(new PrimaryAttributeMap(), null, null, null);
+        
         biography = new BiographyImpl(name);
         charClass = new DynamicUnitClass("Dynamic class");
-        attributes = new AttributeMapImpl(charClass.getAttributesForLevel(this.level));
-        System.out.println(attributes);
     }
     
     /**
@@ -58,16 +62,15 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
      */
     @Override
     public String name() {
-        return this.name;
+        return biography.getCharacterName();
     }
-    
     /**
      *
      * @see bg.sarakt.characters.GameCharacter#getLevelNumber()
      */
     @Override
     public int level() {
-        return this.level;
+        return attributeMap.getLevelNumber();
     }
     
     /**
@@ -76,42 +79,36 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
      */
     @Override
     public long currentExperience() {
-        return this.experience;
+        // TODO: expose quick access of experience in CharacterAttributeMap
+        return attributeMap.getCurrentAttributeValue(PrimaryAttribute.EXPERIENCE).longValue();
     }
     
+    /**
+     * @deprecated use {@link GameCharacter#earnExperience(BigInteger)} instead.
+     */
     @Override
+    @Deprecated(since = "0.0.3", forRemoval = true)
+    @ForRemoval(since = "0.0.3", expectedRemovalVersion = "0.0.5")
     public void gainExperience(long newExperience) {
-        if (newExperience < 0) {
+        earnExperience(BigInteger.valueOf(newExperience));
+    }
+    
+    /**
+     * @see bg.sarakt.characters.GameCharacter#earnExperience(java.math.BigInteger)
+     */
+    @Override
+    public void earnExperience(BigInteger amount) {
+        if (amount.signum() == 0) {
+            LOGGER.debug("No experience");
+            return;
+        }
+        
+        if (amount.signum() < 0) {
             LOGGER.debug("Invalid value. Skipping!");
             return;
         }
-        // if (this.experience >= LevelCalculator.EXPERIENCE_CAP) {
-        // LOGGER.debug("Experience cap reached");
-        // this.experience = LevelCalculator.EXPERIENCE_CAP;
-        // return;
-        // }
-        
-        LOGGER.debug("Character " + name() + " gained " + newExperience + " points of experience");
-        this.experience += newExperience;
-        
-        // Needs to merge blocks
-        // if (this.experience > LevelCalculator.EXPERIENCE_CAP) {
-        // LOGGER.debug("Experience cap reached");
-        // this.experience = LevelCalculator.EXPERIENCE_CAP;
-        // }
-        
-        // int newLevel = LevelCalculator.getInstance().calculateLevel(experience);
-        // if (this.level >= newLevel) {
-        // return;
-        // }
-        // while (this.level < newLevel) {
-        // Set<AttributeValuePair> bonuses = charClass.getAttributesForLevel(level);
-        // // attributes.modifyAttributes(bonuses);
-        // attributes.setAttributes(bonuses);
-        // this.level++;
-        // LOGGER.debug("Level=[" + this.level + "]\t" + attributes);
-        // }
-        
+        attributeMap.earnExperience(amount);
+        LOGGER.debug("Character " + name() + " gained " + amount + " points of experience");
     }
     
     /**
@@ -122,16 +119,36 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
         return this.charClass;
     }
     
+    /**
+     * 
+     * @see bg.sarakt.characters.GameCharacter#getAttribute(bg.sarakt.attributes.Attribute)
+     * 
+     * @deprecated
+     */
     @Override
+    @Deprecated(forRemoval = true)
+    @ForRemoval(expectedRemovalVersion = "0.0.5", description = "Move to the new implementation")
     public AttributeValuePair getAttribute(Attribute attr) {
-        return attributes.getAttribute(attr);
+        BigDecimal value = attributeMap.getCurrentAttributeValue(attr);
+        return new AttributeValuePair(attr, value.intValue());
+    }
+    
+    /**
+     * @see bg.sarakt.characters.GameCharacter#getAttributeValue(bg.sarakt.attributes.Attribute)
+     */
+    @Override
+    public BigDecimal getAttributeValue(Attribute attr) {
+        return attributeMap.getCurrentAttributeValue(attr);
     }
     
     /**
      * @see bg.sarakt.characters.GameCharacter#getAttributeMap()
+     * @deprecated
      */
     @Override
-    public AttributeMap getAttributeMap() { return attributes; }
+    @Deprecated(forRemoval = true)
+    @ForRemoval(expectedRemovalVersion = "0.0.5", description = "Move to the new implementation")
+    public AttributeMap getAttributeMap() { return CharacterUtils.toOldAttributeMap(attributeMap); }
     
     /**
      * @see bg.sarakt.characters.GameCharacter#getBiography()
@@ -144,8 +161,6 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
      */
     @Override
     public boolean isAlive() {
-        // AttributeValuePair hitPoints =
-        // attributes.getAttribute(Attributes.HIT_POINTS);
         return true;
     }
     
@@ -156,11 +171,15 @@ public class PlayerCharacterImpl extends AbstractGameObject implements GameChara
     public Combatant prepareForCombat() {
         throw new UnsupportedOperationException("Must be implemented");
     }
-
+    
     /**
      * @see bg.sarakt.characters.GameCharacter#levelUp(bg.sarakt.attributes.levels.Level)
+     * 
+     * @deprecated
      */
     @Override
+    @Deprecated(forRemoval = true)
+    @ForRemoval(expectedRemovalVersion = "0.0.5", description = "Move to the new implementation")
     public void levelUp(Level level) {
         throw new UnsupportedOperationException();
     }

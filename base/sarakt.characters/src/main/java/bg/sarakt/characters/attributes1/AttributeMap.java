@@ -11,9 +11,14 @@ package bg.sarakt.characters.attributes1;
 import java.util.Collection;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 
-@Deprecated
+/**
+ * @deprecated
+ */
+@Deprecated(forRemoval = true)
+@ForRemoval(expectedRemovalVersion = "0.0.5")
 public interface AttributeMap
 {
 

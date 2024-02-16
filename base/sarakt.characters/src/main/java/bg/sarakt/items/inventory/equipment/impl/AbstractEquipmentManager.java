@@ -8,12 +8,14 @@
 
 package bg.sarakt.items.inventory.equipment.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IntSummaryStatistics;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +27,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import bg.sarakt.attributes.Attribute;
+import bg.sarakt.attributes.AttributeModifier;
 import bg.sarakt.base.GameObject;
 import bg.sarakt.base.exceptions.InventoryException;
+import bg.sarakt.base.utils.ForRemoval;
 import bg.sarakt.characters.attributes.AttributeValuePair;
 import bg.sarakt.items.basics.ItemType;
 import bg.sarakt.items.basics.Quality;
@@ -38,7 +42,7 @@ import bg.sarakt.items.inventory.equipment.EquipmentView;
 public abstract class AbstractEquipmentManager implements EquipmentManager {
 
     protected final Map<EquipmentSlots, SlotPositions> equipped;
-    private final Map<Attribute, Integer>              bonuses;
+    private final List<AttributeModifier<Attribute>>   modifiers;
     private final Map<Equipment, Set<PositionLock>>    lockedPositions;
 
     protected AbstractEquipmentManager(Map<EquipmentSlots, Integer> slots) {
@@ -51,17 +55,23 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
                 equipped.put(entry.getKey(), slot);
             }
         }
-        this.bonuses = new HashMap<>();
+        this.modifiers = new ArrayList<>();
         this.lockedPositions = new HashMap<>();
     }
 
     /**
      *
      * @see bg.sarakt.items.inventory.equipment.EquipmentManager#getBonusAttributes()
+     * 
+     * @deprecated
      */
     @Override
+    @Deprecated(since = "0.0.3", forRemoval = true)
+    @ForRemoval(since = "0.0.3", expectedRemovalVersion = "0.0.5")
     public Collection<AttributeValuePair> getBonusAttributes() {
-        return bonuses.entrySet().stream().map(e -> new AttributeValuePair(e.getKey(), e.getValue())).collect(Collectors.toSet());
+        Map<Attribute, IntSummaryStatistics> collected = modifiers.stream()
+                .collect(Collectors.groupingBy(AttributeModifier::getAttribute, Collectors.summarizingInt(m -> m.getValue().intValue())));
+        return collected.entrySet().stream().map(e -> new AttributeValuePair(e.getKey(), (int) e.getValue().getSum())).toList();
     }
 
     /**
@@ -120,7 +130,7 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
      * @throws InventoryException
      */
     protected void unlockPositions(Optional<Equipment> eq) throws InventoryException {
-        if (eq == null || eq.isEmpty()) {
+        if (eq.isEmpty()) {
             return;
         }
         Equipment equipment = eq.get();
@@ -173,7 +183,7 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
      */
     protected Optional<Equipment> unequip(SlotPositions slot, int position) throws InventoryException {
         Optional<Equipment> eq = slot.unequip(position);
-        if (eq != null) {
+        if (eq.isPresent()) {
             removeBonuses(eq);
             unlockPositions(eq);
         }
@@ -210,18 +220,14 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
         if (equipment == null) {
             return;
         }
-        Set<AttributeValuePair> pairs = equipment.getBonuses();
-        if (pairs == null || pairs.isEmpty()) {
+        List<AttributeModifier<Attribute>> newModifiers = equipment.getModifiers();
+        if (newModifiers == null || newModifiers.isEmpty()) {
             return;
         }
-        for (AttributeValuePair pair : pairs) {
-            Integer value = bonuses.getOrDefault(pair.attribute(), 0);
-            if (apply) {
-                value += pair.value();
-            } else {
-                value -= pair.value();
-            }
-            bonuses.put(pair.attribute(), value);
+        if (apply) {
+            this.modifiers.addAll(newModifiers);
+        } else {
+            this.modifiers.removeAll(newModifiers);
         }
     }
 
@@ -306,7 +312,7 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
             // Both filter(Objects::isNull) and Optional#ofNullable maybe little redundant.
             // However, needs checking. Stay for now.
             List<Optional<Equipment>> equipment = Arrays.stream(positions).filter(e -> !(e instanceof PositionLock)).filter(Objects::isNull)
-                    .map(Optional::ofNullable).collect(Collectors.toList());
+                    .map(Optional::ofNullable).toList();
 
             clear();
             return equipment;
@@ -323,7 +329,7 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
         }
 
         protected List<EquipmentView> convertToView() {
-            return Arrays.stream(positions).filter(Objects::nonNull).map(Equipment::getView).collect(Collectors.toList());
+            return Arrays.stream(positions).filter(Objects::nonNull).map(Equipment::getView).toList();
         }
     }
 
@@ -418,8 +424,12 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
 
         /**
          * @see bg.sarakt.items.inventory.equipment.Equipment#getBonuses()
+         * 
+         * @deprecated Use {@link Equipment#getModifiers()} instead.
          */
         @Override
+        @Deprecated(since = "0.0.3", forRemoval = true)
+        @ForRemoval(since = "0.0.3", expectedRemovalVersion = "0.0.5")        
         public Set<AttributeValuePair> getBonuses() { return Collections.emptySet(); }
 
         /**
@@ -448,10 +458,9 @@ public abstract class AbstractEquipmentManager implements EquipmentManager {
             if (this == obj) {
                 return true;
             }
-            if ( !(obj instanceof PositionLock)) {
+            if ( !(obj instanceof PositionLock other)) {
                 return false;
             }
-            PositionLock other = (PositionLock) obj;
             if ( !getEnclosingInstance().equals(other.getEnclosingInstance())) {
                 return false;
             }
